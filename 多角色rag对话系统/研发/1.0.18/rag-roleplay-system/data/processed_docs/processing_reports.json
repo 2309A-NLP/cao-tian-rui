@@ -1,0 +1,38 @@
+[
+  {
+    "file": "E:\\2--随堂代码\\专高6项目1\\4-22-a.0\\1.0.17（回退版本）\\rag-roleplay-system\\knowledge_base",
+    "timestamp": "2026-05-06T19:57:21.156359",
+    "stats": {
+      "total_chunks": 660,
+      "total_chars": 384082,
+      "source_files": 4
+    }
+  },
+  {
+    "file": "E:\\2--随堂代码\\专高6项目1\\4-22-a.0\\1.0.17（回退版本）\\rag-roleplay-system\\knowledge_base",
+    "timestamp": "2026-05-06T19:57:30.326173",
+    "stats": {
+      "total_chunks": 660,
+      "total_chars": 384082,
+      "source_files": 4
+    }
+  },
+  {
+    "file": "E:\\2--随堂代码\\专高6项目1\\4-22-a.0\\1.0.18\\rag-roleplay-system\\knowledge_base",
+    "timestamp": "2026-05-07T08:33:02.929953",
+    "stats": {
+      "total_chunks": 660,
+      "total_chars": 384082,
+      "source_files": 5
+    }
+  },
+  {
+    "file": "E:\\2--项目代码\\1.0.18\\rag-roleplay-system\\knowledge_base",
+    "timestamp": "2026-05-29T11:16:04.742807",
+    "stats": {
+      "total_chunks": 660,
+      "total_chars": 384082,
+      "source_files": 5
+    }
+  }
+]

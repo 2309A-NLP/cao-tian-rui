@@ -1,0 +1,911 @@
+{
+  "statistics": {
+    "total_chunks": 660,
+    "total_chars": 384082,
+    "source_files": 5
+  },
+  "samples": [
+    {
+      "index": 0,
+      "content": "第1页 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 235 中国心力衰竭诊断和治疗指南2024 中华医学会心血管病学分会 中国医师协会心血管内科医师分会 中国医师协会心 力衰竭专业委员会 中华心血管病杂志编辑委员会 通信作者：张抒扬,Email：shuyangzhang103163.com；韩雅玲,Email：hanyaling263. Net；许顶立,Email：dinglixusmu.edu.cn 【摘要】 近6年来,心力衰竭（心衰）的治疗特别是药物治疗取得较多突破性进展,慢性心衰的分 类心衰及其合并症的治疗方法等也在不断更新.为将这些成果应用到我国心衰患者诊治中,进一步 提高我国心衰的诊疗水平,中华医学会心血管病学分会中国医师协会心血管内科医师分会中国医 师协会心力衰竭专业委员会中华心血管病杂志编辑委员会组织相关专家,根据国内外最新临床研究 成果,结合我国国情及临床实践,并参考最新国外心衰指南,在保持既往《中国心力衰竭诊断和治疗指 南2018》基本框架的基础上,对心衰领域新共识和...",
+      "length": 577,
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 0,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 1,
+      "content": "；中国医学科学院医学与健康 科技创新工程（2021I2M1003） Chinese guidelines for the diagnosis and treatment of heart failure 2024 Chinese Society of Cardiology, Chinese Medical Association; Chinese College of Cardiovascular Physician; Chinese Heart Failure Association of Chinese Medical Doctor Association; Editorial Board of Chinese Journal of Cardiology Corresponding authors: Zhang Shuyang, Email: shuyangzhang103163. com; Han Yaling, Email: hanyaling263. Net; Xu Dingli, Email: dinglixusmu.edu.cn 《中国心力衰竭诊断和治疗指南2018》 1...",
+      "length": 682,
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 1,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 2,
+      "content": "到我国心衰患者诊治中,进一步提高我国心衰的诊 疗水平.为此中华医学会心血管病学分会心力衰 竭学组中国医师协会心血管内科医师分会中国 医师协会心力衰竭专业委员会中华心血管病杂志 编辑委员会组织专家,根据国内外最新临床研究成 果,参考2021 年欧洲心脏病学会（European Society of Cardiology,ESC） 2和2022 年美国心脏病学会 （American College of Cardiology,ACC）美国心脏协 会（American Heart Association,AHA）和美国心力 衰竭协会（Heart Failure Society of America, HFSA） 3发布的相关指南以及2023 ESC 心衰指南 更新 4,结合我国国情及临床实践,对《中国心力衰 竭诊断和治疗指南2018》进行更新. 本指南对推荐类别的表述沿用国际通用的 方式. 类：已证实和（或）一致公认有益有用和有 效的操作或治疗. 类：有用和（或）有效的证据尚有矛盾或存在 不同观点的操作或治疗",
+      "length": 458,
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 2,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 3,
+      "content": "；其中,a 类指有关证 指南与共识 DOI：10.3760/cma.j.cn112148-20231101-00405 收稿日期 2023-11-01 本文编辑 白洋 引用本文：中华医学会心血管病学分会, 中国医师协会心血管内科医师分会, 中国医师协会心力衰竭专 业委员会, 等. 中国心力衰竭诊断和治疗指南2024J. 中华心血管病杂志, 2024, 523: 235-275. DOI: 10. 3760/cma.j.cn112148-20231101-00405.",
+      "length": 235,
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 3,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 4,
+      "content": "第2页 236 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 据/观点倾向于有用和（或）有效,应用这些操作或 治疗是合理的",
+      "length": 111,
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 4,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 5,
+      "content": "；b类指有关证据/观点尚不能被充 分证明有用和（或）有效,可考虑应用. 类：已证实和（或）一致公认无用和（或）无 效,并对一些病例可能有害的操作或治疗,不推荐 使用. 对证据水平表达如下. 证据水平A：资料来源于多项随机临床试验或 荟萃分析. 证据水平B：资料来源于单项随机临床试验或 多项非随机对照研究. 证据水平C：仅为专家共识意见和（或）小型临 床试验回顾性研究或注册登记研究. 心衰概述 心衰是多种原因导致心脏结构和（或）功能的 异常改变,使心室收缩和（或）舒张功能发生障碍, 从而引起的一组复杂临床综合征,主要表现为呼吸 困难疲乏和液体潴留（肺淤血体循环淤血及外周 水肿）等.根据左心室射血分数（left ventricular ejection fraction,LVEF）的不同和治疗后的变化,分 为射血分数降低的心衰（heart failure with reduced ejection fraction,HFrEF）射血分数改善的心衰 （heart failure with improved ejection fraction, HFimpEF）射血分数轻度降低的心衰（hear...",
+      "length": 690,
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 5,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 6,
+      "content": "ejection fraction,HFpEF）（表1）.研究显示,LVEF 在4149 范围内的患者可能会从HFrEF的治疗 中获益 56.这些证据支持将射血分数中间值的 心衰重新命名为 射血分数轻度降低的心衰 （HFmrEF） 7.此外,考虑到LVEF 改善并不代表 心肌受损完全恢复或左心室功能恢复正常,因此, 本共识将既往LVEF40 且随访期间LVEF>40 并较基线增加10 作为HFrEF 的亚组,定义为 HFimpEF 3.根据心衰发生的时间速度,分为慢 性心衰和急性心衰.多数急性心衰患者经住院治 疗后症状部分缓解,而转入慢性心衰",
+      "length": 274,
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 6,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 7,
+      "content": "；慢性心衰患 者常因各种诱因急性加重而需住院治疗. 心衰是各种心脏疾病的严重表现或晚期阶段, 死亡率和再住院率居高不下.发达国家成人的心 衰患病率为1.02.0 89.20122015 年的中国 高血压调查数据显示,35 岁成年人中,心衰患病 率为1.3,即约有1 370 万心衰患者,较2000 年增 加了0.4.HFrEF（LVEF<40）HFmrEF（LVEF 4049）和HFpEF（LVEF50）的患病率分别为 0.70.3 和0.3 10.我国人口老龄化加剧,冠状 动脉粥样硬化性心脏病（冠心病）高血压糖尿病 肥胖等慢性病的发病率呈上升趋势,医疗水平的提 高使心脏疾病患者生存期延长,这些因素均导致我 国心衰患病率呈持续升高趋势.全国城镇职工基 表1 心力衰竭的分类和诊断标准 分类 HFrEF HFrEF HFimpEF HFmrEF HFpEF 诊断标准 1.症状和（或）体征 2.LVEF40 1.病史 2.既往LVEF40,治疗后随访LVEF>40并较基线增加10 3. 存在心脏结构（如左心房增大左心室肥大）或左心室充盈受损 的超声心动图证据 1.症状和（或）体征 2.LVEF...",
+      "length": 636,
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 7,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 8,
+      "content": "；LVEF也可能还会降低 此类患者临床特征病理生理治疗和预后尚不清楚,单 列此组有利于对其开展相关研究 需要排除患者症状是由非心脏疾病所致 注：HFrEF 为射血分数降低的心力衰竭,HFimpEF 为射血分数改善的心力衰竭,HFmrEF 为射血分数轻度降低的心力衰竭,HFpEF 为射血 分数保留的心力衰竭,LVEF 为左心室射血分数；a左心室舒张功能障碍/左心室充盈压升高包括血浆利钠肽升高窦性心律：B 型利钠肽 （BNP）>35 ng/L 和（或）N 末端B 型利钠肽原（NTproBNP）>125 ng/L；心房颤动：BNP105 ng/L 或NTproBNP365 ng/L,静息或者负荷下超声心 动图或心导管检查的结果异常运动过程中超声心动图测得二尖瓣舒张早期血流速度与组织多普勒瓣环舒张早期运动速度比值（E/e）>14. 有创血流动力学检查,静息状态下肺毛细血管楔压（PCWP）15 mmHg（1 mmHg=0.133 kPa）或左心室舒张末期压力16 mmHg,或负荷状态下 PCWP25 mmHg",
+      "length": 456,
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 8,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 9,
+      "content": "第3页 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 237 本医疗保险信息管理系统数据调查显示：国内 25 岁及以上成人心衰标准化患病率为1.10, 35 岁人群的心衰标准化患病率为1.38.另外,在 2564 岁6579 岁80 岁及以上人群中,心衰的标 准化患病率分别为0.573.86 和7.55 11.对 国内10 714 例住院心衰患者的调查显示：1980 19902000 年心衰患者住院期间病死率分别为 15.412.3 和6.2,主要死亡原因依次为左心衰 竭（59）心律失常（13）和心脏性猝死（13） 12. ChinaHF 研究入选的20122015 年全国13 687 例 心衰患者中,住院心衰患者的病死率为4.1 13. 原发性心肌损害和异常是引起心衰最主要的 病因（表2）,除心血管疾病外,非心血管疾病也可 导致心衰.识别这些病因是心衰诊断的重要部分, 从而能尽早采取特异性或针对性的治疗. 目前认为心衰是慢性自发进展性疾病.神经 内分泌系统激活导致心肌重构是引起心衰发生...",
+      "length": 612,
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 9,
+        "chunk_total": 213
+      }
+    }
+  ],
+  "all_chunks_summary": [
+    {
+      "index": 0,
+      "length": 577,
+      "preview": "第1页 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 235 中国心力衰竭诊断和治疗指南2024 中",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 0,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 1,
+      "length": 682,
+      "preview": "；中国医学科学院医学与健康 科技创新工程（2021I2M1003） Chinese guidelines for the diagnosis and treatment of heart failur",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 1,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 2,
+      "length": 458,
+      "preview": "到我国心衰患者诊治中,进一步提高我国心衰的诊 疗水平.为此中华医学会心血管病学分会心力衰 竭学组中国医师协会心血管内科医师分会中国 医师协会心力衰竭专业委员会中华心血管病杂志 编辑委员会组织专家,根据",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 2,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 3,
+      "length": 235,
+      "preview": "；其中,a 类指有关证 指南与共识 DOI：10.3760/cma.j.cn112148-20231101-00405 收稿日期 2023-11-01 本文编辑 白洋 引用本文：中华医学会心血管病学分",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 3,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 4,
+      "length": 111,
+      "preview": "第2页 236 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 据/观点倾向于有用和（或）有效,应用这",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 4,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 5,
+      "length": 690,
+      "preview": "；b类指有关证据/观点尚不能被充 分证明有用和（或）有效,可考虑应用. 类：已证实和（或）一致公认无用和（或）无 效,并对一些病例可能有害的操作或治疗,不推荐 使用. 对证据水平表达如下. 证据水平A",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 5,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 6,
+      "length": 274,
+      "preview": "ejection fraction,HFpEF）（表1）.研究显示,LVEF 在4149 范围内的患者可能会从HFrEF的治疗 中获益 56.这些证据支持将射血分数中间值的 心衰重新命名为 射血分数轻",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 6,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 7,
+      "length": 636,
+      "preview": "；慢性心衰患 者常因各种诱因急性加重而需住院治疗. 心衰是各种心脏疾病的严重表现或晚期阶段, 死亡率和再住院率居高不下.发达国家成人的心 衰患病率为1.02.0 89.20122015 年的中国 高血",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 7,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 8,
+      "length": 456,
+      "preview": "；LVEF也可能还会降低 此类患者临床特征病理生理治疗和预后尚不清楚,单 列此组有利于对其开展相关研究 需要排除患者症状是由非心脏疾病所致 注：HFrEF 为射血分数降低的心力衰竭,HFimpEF 为",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 8,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 9,
+      "length": 612,
+      "preview": "第3页 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 237 本医疗保险信息管理系统数据调查显示：国",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 9,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 10,
+      "length": 439,
+      "preview": "；内皮细胞损 伤导致一氧化氮（NO）分泌不足,进而导致NO可 溶性鸟苷酸环化酶环磷酸鸟苷的细胞信号通路损 伤也会对心肌纤维化心肌重构产生重要影响；线 粒体功能损伤也是心衰发生发展的重要因素.心 肌重构",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 10,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 11,
+      "length": 696,
+      "preview": "；最后,还需评 估病情的严重程度及预后,以及是否存在并发症及 合并症.全面准确的诊断与评估是给予心衰患者 有效治疗的前提和基础. 一心衰的症状和体征 详细的病史采集和体格检查可提供心衰的病 因和诱因线",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 11,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 12,
+      "length": 551,
+      "preview": "peptide,BNP）或N 末端B 型利钠 肽原（Nterminal proBNP,NTproBNP）.血浆利 钠肽检测推荐用于心衰筛查（a,B）诊断和鉴别 诊断（,A）,病情严重程度及预后评估 1",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 12,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 13,
+      "length": 688,
+      "preview": "第4页 238 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 律心肌毒性损伤等和非心血管因素/疾病（",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 13,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 14,
+      "length": 696,
+      "preview": "激素相关 营养相关 遗传学异常 应激 心脏负荷异常 高血压 瓣膜和心脏结构的异常 心包及心内膜疾病 高心输出量状态 容量负荷过度 肺部疾病 心律失常 心动过速 心动过缓 具体病因或疾病 心肌梗死冠状动",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 14,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 15,
+      "length": 363,
+      "preview": "白血清ACE铁 半乳糖苷酶基因检测骨 闪烁显像ECHOCMR胸部CTCTPET FDGPETEMB ECHOCMREMB 甲状腺功能检查血尿儿茶酚胺肾素和醛固酮 皮质醇血糖 血清营养素检测 ECHOC",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 15,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 16,
+      "length": 700,
+      "preview": "第5页 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 239 （3）心肌纤维化炎症氧化应激的标志物.",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 16,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 17,
+      "length": 302,
+      "preview": "3 心衰阶段 阶段A（心衰风险） 阶段B（心衰前期） 阶段C（症状性心衰） 阶段D（终末期心衰） 定义 患者为心衰的高危人群,无心脏结构或功 能异常,无心衰症状和（或）体征 已发展成器质性心脏病,但并",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 17,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 18,
+      "length": 403,
+      "preview": "；需要长期静脉用药者；等 待心脏移植者；使用心脏机械辅助装置者 NYHA 心功能 分级 无 表4 纽约心脏协会（NYHA）心功能分级 分级 症状 活动不受限.日常体力活动不引起明显的气促疲乏或心悸 活",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 18,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 19,
+      "length": 175,
+      "preview": "第6页 240 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 包括： （1）心脏结构异常指标,如左心",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 19,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 20,
+      "length": 693,
+      "preview": "； （2）心脏功能异常指标,如二尖瓣舒张早期血流速 度与组织多普勒瓣环舒张早期运动速度比值 （E/e）>14室间隔e<7 cm/s左心室游离壁e< 10 cm/s三尖瓣反流速度>2.8 m/s等 21",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 20,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 21,
+      "length": 698,
+      "preview": "来 显示心肌组织的特征 24（,C）. 2.冠状动脉造影：适用于经药物治疗后仍有心 绞痛的患者或合并有症状的室性心律失常患者 25 （,B）,以及有冠心病危险因素无创检查提示存 在心肌缺血的心衰患者 ",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 21,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 22,
+      "length": 369,
+      "preview": "显像评估心肌缺血和心肌存活情况（b,B） 26, 31. 6. 心肺运动试验：能够量化运动能力,可用于 接受心脏移植和（或）机械循环辅助（mechanical circulatory support,",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 22,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 23,
+      "length": 394,
+      "preview": "；（2）超声心动图提示肺高血压的患者,在瓣膜 性或结构性心脏病干预治疗前评估肺高血压严重 程度及其可逆性（a,C）；（3）疑似由缩窄性心包 炎限制型心肌病先天性心脏病或高输出量状态 引起的心衰患者的诊",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 23,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 24,
+      "length": 696,
+      "preview": "第7页 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 241 11.生活质量评估：运用心理学量表,对",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 24,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 25,
+      "length": 676,
+      "preview": "mmHg= 0.133 kPa）以下（,B）. 2.血脂异常和冠心病：根据血脂异常指南进行 调脂治疗以降低心衰发生风险 4243（,A）.对冠 心病患者或冠心病高危人群,推荐使用他汀类药物 预防心衰 ",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 25,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 26,
+      "length": 164,
+      "preview": "左心室功能障碍或新发心衰（a,B）. 二对无症状性左心室收缩功能障碍的干预 对心肌梗死后无症状性左心室收缩功能障碍, 包括LVEF 降低和（或）局部室壁活动异常的患者, 推荐使用血管紧张素转换酶抑制剂",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 26,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 27,
+      "length": 666,
+      "preview": "；对不能耐受ACEI的患者, 推荐使用血管紧张素受体阻滞剂（angiotensin receptor blocker,ARB） 5455（,A）.在急性ST段抬 高型心肌梗死的早期进行冠状动脉介入治疗",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 27,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 28,
+      "length": 618,
+      "preview": "第8页 242 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 食,吸烟患者应戒烟,肥胖患者应酌情减轻",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 28,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 29,
+      "length": 656,
+      "preview": "； （5）无尿. 3. 应用方法：根据患者淤血症状和体征血压 及肾功能选择起始剂量（表5）,根据患者对利尿剂 的反应调整剂量,体重每日减轻0.51.0 kg 为宜. 一旦症状缓解病情控制,即以最小有效",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 29,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 30,
+      "length": 467,
+      "preview": "；若仍伴 有低血压症状,还应调整其他扩血管药物（如硝酸 酯）的剂量. （3）肾功能恶化.利尿剂治疗中可出现 表5 治疗慢性HFrEF的常用利尿剂及其剂量 药物 襻利尿剂 呋塞米 布美他尼 托拉塞米 噻",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 30,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 31,
+      "length": 176,
+      "preview": "第9页 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 243 肾功能损伤（血肌酐升高）,应分析可能的",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 31,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 32,
+      "length": 692,
+      "preview": "；某些肾毒性的药物,如非甾体抗 炎药,会影响利尿剂的药效并导致肾功能损害和肾 灌注下降,增加ACEI/ARB或MRA引起肾功能恶化 的风险. （4）高尿酸血症.可考虑生活方式干预和 加用降尿酸药,参考",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 32,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 33,
+      "length": 219,
+      "preview": "巴曲缬沙坦可使主要终点NTproBNP 水平显著降 低,探索性研究终点全因死亡和心衰住院率降低, 且安全性良好 6465. 1. 适应证：对NYHA 心功能/级的HFrEF 患者,推荐使用ARNI 降",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 33,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 34,
+      "length": 527,
+      "preview": "； （2）双 侧肾动脉严重狭窄；（3）妊娠妇女哺乳期妇女； （4）重度肝功能损害（ChildPugh分级C级）,胆汁性 肝硬化和胆汁淤积； （5）已知对ARB 或ARNI 过敏. 有以下情况者须慎用：",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 34,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 35,
+      "length": 688,
+      "preview": "； （2）既往服用中等以上剂量的ACEI（>10 mg/d 的依 那普利或同等剂量的其他ACEI）或ARB（> 160 mg/d 的缬沙坦或同等剂量的其他ARB）.由 ACEI/ARB 转为ARNI ",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 35,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 36,
+      "length": 128,
+      "preview": "mg,2次/d 150 mg,1次/d 200 mg,2次/d 注：HFrEF 为射血分数降低的心力衰竭,RASI 为肾素血管紧 张素系统抑制剂,ACEI 为血管紧张素转换酶抑制剂,ARB 为血管 紧",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 36,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 37,
+      "length": 68,
+      "preview": "； a 能耐受中/高剂量ACEI/ARB（相当于>10 mg/d 的依那普利,或> 160 mg/d的缬沙坦）的患者或者合并高血压的患者",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 37,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 38,
+      "length": 248,
+      "preview": "第10页 244 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 线升高>30,应减量；若升高>50,",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 38,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 39,
+      "length": 695,
+      "preview": "；必要时暂时减少ARNI 剂量. （4）干咳. （5）血管 神经性水肿.发生血管神经性水肿患者终生禁用 ARNI. （二）ACEI ACEI 能改善HFrEF 患者的症状和运动能力, 降低住院风险和死",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 39,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 40,
+      "length": 153,
+      "preview": "血症和血管神经性水肿.相关处理同ARNI. （三）ARB ARB 耐受性好,长期使用可改善血流动力学, 降低心衰死亡率和因心衰再住院率 6869. 1.适应证：既往或目前有症状的NYHA 心功能 级的",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 40,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 41,
+      "length": 693,
+      "preview": "；对因其他适应证已服用ARB 的患者,如随 后发生HFrEF,可继续服用ARB（a,A）. 2. 禁忌证：除血管神经性水肿外,其余同 ACEI. 3. 应用方法与不良反应监测：从小剂量开始, 逐渐增至",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 41,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 42,
+      "length": 379,
+      "preview": "负性肌力作用可能诱发和加重心衰,治疗心衰的生 物学效应需持续用药23 个月才逐渐产生,故起始 剂量须小,每隔24 周可剂量加倍,逐渐达到指南 推荐的目标剂量（表7）或最大可耐受剂量,并长期 使用.使静",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 42,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 43,
+      "length": 42,
+      "preview": "； a为方便滴定,初始考虑使用酒石酸美托洛尔,剂量稳定后建议更换为表中前3种药物之一",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 43,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 44,
+      "length": 219,
+      "preview": "第11页 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 245 体重呼吸困难淤血的症状及体征.有液体",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 44,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 45,
+      "length": 683,
+      "preview": "；严重心动过 缓（<50 次/min）严重低血压（收缩压<85 mmHg）和 休克患者应停用,但在出院前应再次启动 受体阻 滞剂治疗. 4. 不良反应： （1）心衰恶化.当液体潴留加重 时,先增加利尿",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 45,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 46,
+      "length": 678,
+      "preview": "40 mg,1 次/d.依普利酮,初始剂量25 mg,1 次/d, 目标剂量50 mg,1 次/d.MRA 与襻利尿剂合用便 不需要再同时补钾,除非有低钾血症.使用MRA 治疗后3 d和1周应监测血钾",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 46,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 47,
+      "length": 698,
+      "preview": "达格列净和恩格列净对于全因死亡心血管死亡和 心衰住院率的改善效果是一致的 75.伴或不伴糖 尿病的HFrEF患者均具有类似的获益. 1. 适应证：有症状的HFrEF 患者,无论是否伴 有糖尿病均推荐使",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 47,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 48,
+      "length": 163,
+      "preview": "摄入量减少或液体丢失的情况下考虑暂时停药. （5）低血糖.与一些治疗糖尿病的药物合用时,特 别是胰岛素和（或）磺酰脲类衍生物可能会引起低 血糖,建议调整糖尿病治疗策略. （6）会阴坏死性筋 膜炎（福涅",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 48,
+        "chunk_total": 213
+      }
+    },
+    {
+      "index": 49,
+      "length": 692,
+      "preview": "第12页 246 中华心血管病杂志 2024 年3 月第 52 卷第 3 期 Chin J Cardiol, March 2024, Vol. 52, No. 3 的患者.如果怀疑是福涅尔坏疽,应停止",
+      "metadata": {
+        "source": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_file": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "file_name": "中国心力衰竭诊断和治疗指南2024.pdf",
+        "source_type": "document",
+        "strategy": "医疗指南策略",
+        "processed_at": "2026-05-29T11:16:04.639691",
+        "chunk_index": 49,
+        "chunk_total": 213
+      }
+    }
+  ]
+}

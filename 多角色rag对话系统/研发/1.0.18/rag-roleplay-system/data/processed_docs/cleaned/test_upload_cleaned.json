@@ -1,0 +1,13 @@
+{
+  "source_file": "test_upload.txt",
+  "timestamp": "2026-05-29T11:16:04.626685",
+  "text_count": 1,
+  "stats": {
+    "original_count": 1,
+    "cleaned_count": 1,
+    "min_length": 50
+  },
+  "texts": [
+    "测试文档 这是一个用于测试知识库动态更新的文档. 内容包括：测试上传功能的各项指标."
+  ]
+}
