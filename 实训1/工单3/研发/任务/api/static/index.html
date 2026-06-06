@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG 文档问答系统</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f7; color: #1d1d1f; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ── 登录页 ── */
+  #auth-page { max-width: 400px; margin: 80px auto; background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: none; }
+  #auth-page h1 { text-align: center; font-size: 24px; margin-bottom: 24px; }
+  #auth-page .tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid #e5e5e7; }
+  #auth-page .tabs button { flex: 1; padding: 10px; border: none; background: none; cursor: pointer; font-size: 14px; color: #86868b; border-bottom: 2px solid transparent; transition: 0.2s; }
+  #auth-page .tabs button.active { color: #0071e3; border-bottom-color: #0071e3; }
+  #auth-page .tab-content { display: none; }
+  #auth-page .tab-content.active { display: block; }
+  #auth-page input { width: 100%; padding: 10px 14px; margin-bottom: 12px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 14px; outline: none; }
+  #auth-page input:focus { border-color: #0071e3; box-shadow: 0 0 0 2px rgba(0,113,227,0.2); }
+  #auth-page button { width: 100%; padding: 10px; background: #0071e3; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: 0.2s; }
+  #auth-page button:hover { background: #0077ed; }
+  #auth-page .error-msg { color: #d32f2f; font-size: 13px; margin: 8px 0; }
+  #auth-page .success-msg { color: #2e7d32; font-size: 13px; margin: 8px 0; }
+
+  /* ── 主界面 ── */
+  #main-page { display: none; flex: 1; }
+  .sidebar { width: 260px; background: #fff; border-right: 1px solid #e5e5e7; padding: 16px; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; overflow-y: auto; gap: 2px; }
+  .sidebar .mode-btn { display: block; width: 100%; padding: 7px 12px; margin: 3px 0; border: 1px solid transparent; border-radius: 8px; cursor: pointer; font-size: 13px; text-align: left; background: #f5f5f7; transition: 0.2s; }
+  .sidebar .mode-btn:hover { background: #e8e8ed; }
+  .sidebar .mode-btn.active { background: #0071e3; color: #fff; border-color: #0071e3; }
+  .sidebar .doc-item { font-size: 12px; color: #515154; padding: 4px 0; border-bottom: 1px solid #f0f0f2; }
+  .sidebar .kb-status { font-size: 12px; color: #86868b; margin: 4px 0; }
+  .sidebar .upload-btn { width: 100%; padding: 7px; border: 1px dashed #d2d2d7; border-radius: 8px; background: none; cursor: pointer; font-size: 12px; color: #515154; margin: 6px 0; }
+  .sidebar .upload-btn:hover { border-color: #0071e3; color: #0071e3; }
+  .sidebar .lang-select { width: 100%; padding: 5px; border: 1px solid #d2d2d7; border-radius: 6px; font-size: 12px; }
+  .sidebar .logout-btn { width: 100%; padding: 7px; border: 1px solid #e5e5e7; border-radius: 8px; background: none; cursor: pointer; font-size: 12px; color: #86868b; }
+  .sidebar .logout-btn:hover { background: #fef2f2; color: #d32f2f; border-color: #fecaca; }
+
+  .main-content { margin-left: 260px; flex: 1; display: flex; flex-direction: column; height: 100vh; }
+  .chat-header { padding: 16px 24px; border-bottom: 1px solid #e5e5e7; background: #fff; display: flex; justify-content: space-between; align-items: center; }
+  .chat-header h2 { font-size: 18px; font-weight: 600; }
+  .chat-header .status { font-size: 12px; color: #86868b; }
+  .chat-header .user-info { font-size: 13px; color: #515154; }
+
+  #chat-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .msg { max-width: 72%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.6; word-wrap: break-word; }
+  .msg.user { align-self: flex-end; background: #0071e3; color: #fff; border-bottom-right-radius: 4px; }
+  .msg.assistant { align-self: flex-start; background: #fff; border: 1px solid #e5e5e7; border-bottom-left-radius: 4px; }
+  .msg.thinking { align-self: flex-start; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; border-bottom-left-radius: 4px; font-style: italic; }
+  .msg .timing { font-size: 11px; color: #86868b; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.06); }
+  .msg .sources { font-size: 11px; color: #515154; margin-top: 6px; }
+  .msg .sources span { background: #f0f0f2; padding: 2px 6px; border-radius: 4px; margin: 2px 3px; display: inline-block; }
+
+  .chat-input-area { padding: 16px 24px; border-top: 1px solid #e5e5e7; background: #fff; display: flex; gap: 8px; }
+  .chat-input-area input { flex: 1; padding: 10px 14px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 14px; outline: none; }
+  .chat-input-area input:focus { border-color: #0071e3; box-shadow: 0 0 0 2px rgba(0,113,227,0.2); }
+  .chat-input-area button { padding: 10px 20px; background: #0071e3; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
+  .chat-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .chat-input-area button:hover:not(:disabled) { background: #0077ed; }
+
+  .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #86868b; }
+  .empty-state .icon { font-size: 56px; margin-bottom: 16px; }
+  .empty-state h3 { font-size: 18px; margin-bottom: 8px; color: #515154; }
+  .empty-state p { font-size: 14px; max-width: 400px; text-align: center; line-height: 1.5; }
+  .empty-state .examples { margin-top: 20px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .empty-state .examples button { padding: 6px 14px; border: 1px solid #d2d2d7; border-radius: 20px; background: #fff; cursor: pointer; font-size: 13px; color: #515154; }
+  .empty-state .examples button:hover { border-color: #0071e3; color: #0071e3; background: #f0f7ff; }
+
+  .thinking-bar { padding: 8px 24px; background: #fffbeb; font-size: 13px; color: #92400e; display: none; align-items: center; gap: 8px; }
+  .thinking-bar.show { display: flex; }
+
+  /* ── 对比模式 ── */
+  .comparison { display: flex; gap: 12px; width: 100%; }
+  .comparison .col { flex: 1; min-width: 0; }
+  .comparison .col h4 { font-size: 13px; color: #86868b; margin-bottom: 8px; padding: 4px 8px; }
+
+  /* ── 文件输入 ── */
+  #file-input { display: none; }
+
+  /* ── 反馈按钮 ── */
+  .feedback-bar { margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(0,0,0,0.06); display: flex; gap: 6px; }
+  .feedback-bar .fb-btn { background: none; border: 1px solid #e5e5e7; border-radius: 6px; padding: 4px 12px; cursor: pointer; font-size: 13px; transition: all 0.25s ease; }
+  .feedback-bar .fb-btn:hover { background: #f0f7ff; border-color: #0071e3; transform: scale(1.05); }
+  .feedback-bar .fb-btn:active { transform: scale(0.95); }
+  .feedback-bar .fb-btn.selected-like { background: #e8f5e9; border-color: #4caf50; color: #2e7d32; font-weight: 600; box-shadow: 0 0 8px rgba(76,175,80,0.3); animation: fbPop 0.3s ease; }
+  .feedback-bar .fb-btn.selected-dislike { background: #fbe9e7; border-color: #ff5722; color: #bf360c; font-weight: 600; box-shadow: 0 0 8px rgba(255,87,34,0.3); animation: fbPop 0.3s ease; }
+  .feedback-bar .fb-btn:disabled { cursor: default; opacity: 0.7; }
+  .feedback-bar .fb-btn.sibling-fade { opacity: 0.3; transform: scale(0.9); }
+  @keyframes fbPop { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+  .fb-toast { display: inline-block; margin-left: 8px; font-size: 12px; padding: 2px 8px; border-radius: 10px; animation: fbFadeIn 0.3s ease; }
+  @keyframes fbFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── 历史记录 ── */
+  .history-item { cursor: pointer; padding: 8px 10px; border-radius: 8px; margin: 2px 0; transition: all 0.2s; border: 1px solid transparent; }
+  .history-item:hover { background: #f0f7ff; border-color: #d0e3f7; }
+  .history-item.active { background: #e8f0fe; border-color: #0071e3; }
+
+  /* ── 侧边栏折叠面板 ── */
+  .sidebar-section { margin-bottom: 4px; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; cursor: pointer; border-radius: 8px; font-size: 13px; font-weight: 500; color: #515154; transition: background 0.15s; user-select: none; }
+  .section-header:hover { background: #f0f0f2; }
+  .section-header .arrow { font-size: 10px; color: #86868b; transition: transform 0.2s; }
+  .section-body { padding: 4px 12px 8px; }
+  .section-body label { display: block; font-size: 11px; color: #86868b; margin: 8px 0 3px; }
+  .section-body select { width: 100%; padding: 5px 8px; border: 1px solid #d2d2d7; border-radius: 6px; font-size: 12px; background: #fff; }
+  .section-body input[type="range"] { width: 100%; margin: 2px 0; }
+  .section-body .range-row { display: flex; align-items: center; gap: 6px; }
+  .section-body .range-val { font-size: 11px; color: #515154; min-width: 32px; text-align: right; }
+  .section-body .toggle-row { display: flex; align-items: center; gap: 6px; margin: 8px 0; font-size: 12px; color: #515154; }
+  .section-body .toggle-row input { margin: 0; }
+
+  /* ── 响应式 ── */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main-content { margin-left: 0; }
+    #mobile-menu-btn { display: block; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════ 登录页面 ════ -->
+<div id="auth-page">
+  <h1>📚 RAG 文档问答</h1>
+  <p style="text-align:center;color:#86868b;font-size:14px;margin-bottom:20px;">基于招股说明书的智能问答</p>
+
+  <div class="tabs">
+    <button id="tab-login" class="active" onclick="switchTab('login')">登录</button>
+    <button id="tab-register" onclick="switchTab('register')">注册</button>
+  </div>
+
+  <div id="tab-login-content" class="tab-content active">
+    <input type="text" id="login-username" placeholder="用户名">
+    <input type="password" id="login-password" placeholder="密码">
+    <div id="login-error" class="error-msg"></div>
+    <button onclick="login()">登录</button>
+  </div>
+
+  <div id="tab-register-content" class="tab-content">
+    <input type="text" id="reg-username" placeholder="用户名">
+    <input type="password" id="reg-password" placeholder="密码">
+    <input type="password" id="reg-confirm" placeholder="确认密码">
+    <div id="reg-error" class="error-msg"></div>
+    <button onclick="register()">注册</button>
+  </div>
+</div>
+
+<!-- ════ 主页面 ════ -->
+<div id="main-page">
+  <div class="sidebar" id="sidebar">
+    <!-- 新建对话 -->
+    <button onclick="newChat()" style="width:100%;padding:10px;margin-bottom:16px;border:1px solid #0071e3;border-radius:8px;background:#0071e3;color:#fff;cursor:pointer;font-size:14px;font-weight:500;transition:0.2s;">✨ 新建对话</button>
+
+    <!-- 模式选择 -->
+    <div class="sidebar-section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <span>🎯 回答模式</span><span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <button class="mode-btn active" data-mode="rag" onclick="setMode('rag')">📚 知识库</button>
+        <button class="mode-btn" data-mode="direct" onclick="setMode('direct')">🤖 纯 LLM</button>
+        <button class="mode-btn" data-mode="both" onclick="setMode('both')">🔀 对比</button>
+      </div>
+    </div>
+
+    <!-- 检索策略（可折叠） -->
+    <div class="sidebar-section" id="retrieval-section">
+      <div class="section-header collapsed" onclick="toggleSection(this)">
+        <span>🔍 检索策略</span><span class="arrow">▶</span>
+      </div>
+      <div class="section-body" style="display:none;">
+        <label>检索方式</label>
+        <select id="r-mode" onchange="updateRetrieval()">
+          <option value="hybrid">混合 (向量+全文)</option>
+          <option value="vector">仅向量</option>
+          <option value="fulltext">仅全文</option>
+        </select>
+
+        <div id="alpha-row">
+          <label>全文权重 (alpha)</label>
+          <div class="range-row">
+            <input type="range" id="r-alpha" min="0" max="1" step="0.1" value="0.4" oninput="$('r-alpha-val').textContent=this.value">
+            <span class="range-val" id="r-alpha-val">0.4</span>
+          </div>
+        </div>
+
+        <label>重排算法</label>
+        <select id="r-rerank" onchange="updateRetrieval()">
+          <option value="adaptive">自适应</option>
+          <option value="reranker">Reranker</option>
+          <option value="keyword">关键词</option>
+          <option value="none">不重排</option>
+        </select>
+
+        <label>返回条数 (top_k)</label>
+        <div class="range-row">
+          <input type="range" id="r-topk" min="3" max="20" step="1" value="10" oninput="$('r-topk-val').textContent=this.value">
+          <span class="range-val" id="r-topk-val">10</span>
+        </div>
+
+        <label>相似度阈值</label>
+        <div class="range-row">
+          <input type="range" id="r-threshold" min="0" max="0.8" step="0.05" value="0" oninput="$('r-threshold-val').textContent=this.value">
+          <span class="range-val" id="r-threshold-val">0</span>
+        </div>
+
+        <div class="toggle-row">
+          <input type="checkbox" id="r-rewrite" checked>
+          <span>查询改写</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 知识库 -->
+    <div class="sidebar-section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <span>📂 知识库</span><span class="arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="kb-status" id="kb-status">加载中...</div>
+        <div id="doc-list"></div>
+        <button class="upload-btn" id="upload-trigger">📄 上传 PDF</button>
+        <input type="file" id="file-input" accept=".pdf">
+        <button class="upload-btn" style="margin-top:4px;" id="index-btn" onclick="indexKB()">🔄 索引到知识库</button>
+      </div>
+    </div>
+
+    <!-- 历史 -->
+    <div class="sidebar-section">
+      <div class="section-header" onclick="toggleSection(this)">
+        <span>📋 历史</span><span class="arrow">▼</span>
+      </div>
+      <div class="section-body" style="max-height:200px;overflow-y:auto;">
+        <div id="history-list" style="font-size:12px;color:#86868b;">加载中...</div>
+      </div>
+    </div>
+
+    <!-- 语言 + 退出 -->
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid #e5e5e7;background:#f9f9fb;margin:-16px -16px 0 -16px;padding:12px 16px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-size:12px;color:#86868b;">🌐</span>
+        <select class="lang-select" id="lang-select" onchange="changeLang()" style="margin:0;">
+          <option value="中文">中文</option>
+          <option value="English">English</option>
+        </select>
+      </div>
+      <button class="logout-btn" onclick="logout()">🚪 退出登录</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="chat-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <h2>💬 对话</h2>
+      </div>
+      <div class="user-info" id="user-info">👤 --</div>
+    </div>
+    <div class="status" id="status-bar" style="padding:4px 16px;font-size:11px;color:#86868b;border-bottom:1px solid #f0f0f2;">模式: 知识库 | 向量: -- | 模型: --</div>
+
+    <div id="chat-messages">
+      <div class="empty-state" id="empty-state">
+        <div class="icon">💬</div>
+        <h3>开始提问</h3>
+        <p>在下方输入问题，系统将根据当前模式从知识库或语言模型获取答案</p>
+        <div class="examples">
+          <button onclick="askExample('注册资本是多少？')">注册资本</button>
+          <button onclick="askExample('募集资金用途是什么？')">募集资金用途</button>
+          <button onclick="askExample('主要股东有哪些？')">主要股东</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="thinking-bar" id="thinking-bar">
+      <span>⏳</span>
+      <span id="thinking-text">正在思考...</span>
+    </div>
+
+    <div class="chat-input-area">
+      <input type="text" id="chat-input" placeholder="输入你的问题..." onkeydown="if(event.key==='Enter')sendMessage()">
+      <button id="send-btn" onclick="sendMessage()">发送</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 全局错误捕获 ──
+window.onerror = function(msg, src, line, col, err) {
+  console.error(`[JS错误] ${msg} at ${src}:${line}:${col}`, err);
+  const bar = document.getElementById('thinking-bar');
+  if (bar) { bar.classList.add('show'); document.getElementById('thinking-text').textContent = `⚠️ JS错误: ${msg} (行${line})`; }
+};
+console.log('[RAG] 前端脚本加载成功', new Date().toLocaleTimeString());
+
+// ── 状态 ──
+const API = ''; // 同域代理为空，跨域时改为 'http://localhost:8000'
+let state = {
+  userId: null,
+  username: '',
+  sessionId: '',
+  mode: 'rag',
+  lang: '中文',
+  messages: [],
+  processing: false,
+};
+
+// ── 工具 ──
+function $(id) { return document.getElementById(id); }
+
+function toggleSection(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('.arrow');
+  if (body.style.display === 'none') {
+    body.style.display = '';
+    header.classList.remove('collapsed');
+    arrow.textContent = '▼';
+  } else {
+    body.style.display = 'none';
+    header.classList.add('collapsed');
+    arrow.textContent = '▶';
+  }
+}
+
+function api(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  return fetch(`${API}${path}`, opts).then(async r => {
+    if (!r.ok) {
+      let msg = `HTTP ${r.status}`;
+      try { const j = await r.json(); msg = j.detail || j.message || msg; } catch(e) {}
+      throw new Error(msg);
+    }
+    return r.json();
+  });
+}
+
+function apiStream(path, body, onEvent) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 120000); // 2分钟超时
+  return fetch(`${API}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal: controller.signal,
+  }).then(async r => {
+    clearTimeout(timeout);
+    if (!r.ok) {
+      // 非 SSE 响应（如 500 错误），读取错误信息
+      let errMsg = `HTTP ${r.status}`;
+      try { const j = await r.json(); errMsg = j.detail || j.message || errMsg; } catch(e) {}
+      throw new Error(errMsg);
+    }
+    const reader = r.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') return;
+          try { onEvent(JSON.parse(data)); } catch(e) { console.warn('[SSE] 解析失败:', data, e); }
+        }
+      }
+    }
+  }).catch(e => {
+    clearTimeout(timeout);
+    throw e; // 让 sendMessage 的 catch 处理
+  });
+}
+
+// ── 认证 ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.tabs button').forEach(e => e.classList.remove('active'));
+  $(`tab-${tab}-content`).classList.add('active');
+  $(`tab-${tab}`).classList.add('active');
+  $('login-error').textContent = '';
+  $('reg-error').textContent = '';
+}
+
+function login() {
+  const username = $('login-username').value.trim();
+  const password = $('login-password').value;
+  if (!username || !password) { $('login-error').textContent = '请输入用户名和密码'; return; }
+  api('POST', '/api/auth/login', { username, password })
+    .then(res => {
+      state.userId = res.user_id;
+      state.username = res.username;
+      state.sessionId = `ses_${Date.now()}`;
+      showMainPage();
+    })
+    .catch(e => { $('login-error').textContent = e.message; });
+}
+
+function register() {
+  const username = $('reg-username').value.trim();
+  const password = $('reg-password').value;
+  const confirm = $('reg-confirm').value;
+  if (!username || !password) { $('reg-error').textContent = '请填写完整'; return; }
+  if (password !== confirm) { $('reg-error').textContent = '两次密码不一致'; return; }
+  if (username.length < 2) { $('reg-error').textContent = '用户名至少 2 个字符'; return; }
+  if (password.length < 4) { $('reg-error').textContent = '密码至少 4 个字符'; return; }
+  api('POST', '/api/auth/register', { username, password })
+    .then(() => { $('reg-error').className = 'success-msg'; $('reg-error').textContent = '注册成功！请切换到登录。'; })
+    .catch(e => { $('reg-error').textContent = e.message; });
+}
+
+function logout() {
+  state.userId = null;
+  state.username = '';
+  state.sessionId = '';
+  state.messages = [];
+  state.processing = false;
+  $('auth-page').style.display = 'block';
+  $('main-page').style.display = 'none';
+}
+
+function showMainPage() {
+  $('auth-page').style.display = 'none';
+  $('main-page').style.display = 'flex';
+  $('user-info').textContent = `👤 ${state.username}`;
+  loadKnowledgeBase();
+  loadHistory();
+  loadHealth();
+}
+
+// ── 知识库 ──
+function loadKnowledgeBase() {
+  api('GET', '/api/knowledge').then(res => {
+    const docs = res.documents || [];
+    const cnt = res.vector_count || 0;
+    const embModel = res.embedding_model || '--';
+    const lang = state.lang;
+    $('kb-status').textContent = docs.length 
+      ? `${lang === '中文' ? '向量' : 'Vectors'}: ${cnt} | ${lang === '中文' ? '嵌入' : 'Embed'}: ${embModel}`
+      : (lang === '中文' ? '知识库为空' : 'Empty');
+    
+    const list = $('doc-list');
+    list.innerHTML = docs.length 
+      ? '<div style="font-size:12px;color:#515154;margin:4px 0;">' + (lang === '中文' ? '已索引文档:' : 'Indexed:') + '</div>' 
+        + docs.map(d => `<div class="doc-item">📄 ${d}</div>`).join('')
+      : '';
+    $('status-bar').textContent = `${lang === '中文' ? '模式' : 'Mode'}: ${state.mode === 'rag' ? '📚 知识库' : state.mode === 'direct' ? '🤖 LLM' : '🔀 对比'} | ${lang === '中文' ? '向量' : 'Vectors'}: ${cnt} | ${lang === '中文' ? '嵌入' : 'Embed'}: ${embModel} | ${lang === '中文' ? '模型' : 'Model'}: ${res.model || 'deepseek-chat'}`;
+  }).catch(() => {});
+}
+
+function loadHealth() {
+  api('GET', '/api/health').then(res => {
+    const lang = state.lang;
+    $('status-bar').textContent = `${lang === '中文' ? '模式' : 'Mode'}: ${state.mode === 'rag' ? '📚 知识库' : state.mode === 'direct' ? '🤖 LLM' : '🔀 对比'} | ${lang === '中文' ? '向量' : 'Vectors'}: ${res.vector_count || 0} | ${lang === '中文' ? '模型' : 'Model'}: ${res.llm || '--'}`;
+  }).catch(() => {});
+}
+
+// 上传
+$('upload-trigger').addEventListener('click', () => $('file-input').click());
+$('file-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const res = await fetch(`${API}/api/knowledge/upload`, { method: 'POST', body: formData });
+    const data = await res.json();
+    if (res.ok) {
+      alert(state.lang === '中文' ? `${data.filename} 上传成功` : `${data.filename} uploaded`);
+    } else {
+      alert(`Upload failed: ${data.detail || '未知错误'}`);
+    }
+  } catch(e) {
+    alert(`Upload error: ${e.message}`);
+  }
+  e.target.value = '';
+});
+
+async function indexKB() {
+  $('index-btn').textContent = state.lang === '中文' ? '⏳ 索引中...' : '⏳ Indexing...';
+  try {
+    const res = await api('POST', '/api/knowledge/index', { filenames: [] });
+    alert(state.lang === '中文' ? `索引完成！共 ${res.total_chunks} 个块` : `Indexing done! ${res.total_chunks} chunks`);
+    loadKnowledgeBase();
+  } catch(e) {
+    alert(`Index error: ${e.message}`);
+  }
+  $('index-btn').textContent = state.lang === '中文' ? '🔄 索引到知识库' : '🔄 Index KB';
+}
+
+// ── 模式 ──
+function setMode(mode) {
+  state.mode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  const lang = state.lang;
+  $('status-bar').textContent = `${lang === '中文' ? '模式' : 'Mode'}: ${mode === 'rag' ? '📚 知识库' : mode === 'direct' ? '🤖 LLM' : '🔀 对比'}`;
+  // 检索策略面板：仅知识库模式显示
+  $('retrieval-section').style.display = (mode === 'rag' || mode === 'both') ? '' : 'none';
+}
+
+// ── 检索策略 ──
+function updateRetrieval() {
+  // alpha 行仅在 hybrid 模式下显示
+  const isHybrid = $('r-mode').value === 'hybrid';
+  $('alpha-row').style.display = isHybrid ? 'block' : 'none';
+}
+
+function getRetrievalConfig() {
+  if (state.mode === 'direct') return {};
+  return {
+    retrieval_mode: $('r-mode').value,
+    retrieval_alpha: parseFloat($('r-alpha').value),
+    rerank_method: $('r-rerank').value,
+    top_k: parseInt($('r-topk').value),
+    similarity_threshold: parseFloat($('r-threshold').value),
+    query_rewrite: $('r-rewrite').checked,
+  };
+}
+
+// 页面加载后初始化
+updateRetrieval();
+
+function changeLang() {
+  state.lang = $('lang-select').value;
+  // 重新渲染模式按钮文案
+  const btnMap = {
+    '中文': ['📚 知识库模式', '🤖 纯 LLM', '🔀 两者对比'],
+    'English': ['📚 RAG Mode', '🤖 Direct LLM', '🔀 Both'],
+  };
+  const btns = document.querySelectorAll('.mode-btn');
+  const labels = btnMap[state.lang] || btnMap['中文'];
+  btns.forEach((b, i) => b.textContent = labels[i]);
+  // 检索策略面板标签
+  const rMode = $('r-mode');
+  const rModeOpts = {
+    '中文': ['混合检索 (向量+全文)', '仅向量检索', '仅全文检索'],
+    'English': ['Hybrid (Vector+Fulltext)', 'Vector Only', 'Fulltext Only'],
+  };
+  Array.from(rMode.options).forEach((o, i) => o.textContent = (rModeOpts[state.lang] || rModeOpts['中文'])[i]);
+  const rRerank = $('r-rerank');
+  const rRerankOpts = {
+    '中文': ['自适应重排', 'Reranker 精排', '关键词重排', '不重排'],
+    'English': ['Adaptive', 'Reranker', 'Keyword', 'None'],
+  };
+  Array.from(rRerank.options).forEach((o, i) => o.textContent = (rRerankOpts[state.lang] || rRerankOpts['中文'])[i]);
+  loadKnowledgeBase();
+}
+
+// ── 历史会话 ──
+function loadHistory() {
+  if (!state.userId) { console.log('[历史] 跳过: userId 为空'); return; }
+  console.log('[历史] 加载中, userId=', state.userId);
+  api('GET', `/api/history/sessions?user_id=${state.userId}`).then(res => {
+    console.log('[历史] API 返回:', res);
+    const list = $('history-list');
+    const sessions = res.sessions || [];
+    if (!sessions.length) {
+      list.textContent = state.lang === '中文' ? '暂无历史' : 'No history';
+      console.log('[历史] 无会话记录');
+      return;
+    }
+    console.log('[历史] 共', sessions.length, '条会话');
+    list.innerHTML = sessions.map(s => {
+      const sid = s.session_id || '';
+      // 显示第一条消息作为标题，没有则显示时间
+      const title = s.first_msg || s.title || '';
+      const time = s.last_msg ? new Date(s.last_msg).toLocaleString('zh-CN', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+      const display = title ? title.substring(0, 20) + (title.length > 20 ? '...' : '') : sid.slice(0, 12) + '...';
+      return `<div class="history-item ${sid === state.sessionId ? 'active' : ''}"
+                   onclick="loadSession('${sid}')" title="${title || sid}">
+                <div style="font-size:12px;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">💬 ${display}</div>
+                <div style="font-size:10px;color:#86868b;margin-top:2px;">${time}</div>
+              </div>`;
+    }).join('');
+  }).catch(e => { console.error('[历史] 加载失败:', e); });
+}
+
+function loadSession(sessionId) {
+  console.log('[会话] 加载 sessionId=', sessionId);
+  state.sessionId = sessionId;
+  state.messages = [];
+  $('chat-messages').innerHTML = '';
+  $('thinking-bar').classList.remove('show');
+
+  api('GET', `/api/history/messages?user_id=${state.userId}&session_id=${sessionId}`).then(res => {
+    console.log('[会话] API 返回:', res);
+    const msgs = res.messages || [];
+    if (!msgs.length) {
+      console.log('[会话] 无消息');
+      // 重新创建 empty-state
+      const chatBox = $('chat-messages');
+      chatBox.innerHTML = `<div class="empty-state" id="empty-state">
+        <div class="icon">💬</div>
+        <h3>${state.lang === '中文' ? '此会话无消息' : 'No messages in this session'}</h3>
+      </div>`;
+      return;
+    }
+    console.log('[会话] 共', msgs.length, '条消息');
+    for (const m of msgs) {
+      const role = m.role || 'assistant';
+      addMessage(role, m.content, {
+        retrieval: m.retrieval_time_ms || 0,
+        llm: m.llm_time_ms || 0,
+        total: (m.retrieval_time_ms || 0) + (m.llm_time_ms || 0),
+      });
+    }
+    loadHistory();
+  }).catch(e => { console.error('[会话] 加载失败:', e); });
+}
+
+function newChat() {
+  // 保存当前会话到历史（如果有消息）
+  if (state.messages.length > 0) {
+    // 不需要做任何事，后端已经保存了
+  }
+  // 创建新会话
+  state.sessionId = `ses_${Date.now()}`;
+  state.messages = [];
+  // 清空聊天区域但保留 empty-state
+  const chatBox = $('chat-messages');
+  chatBox.innerHTML = '';
+  // 重新创建 empty-state
+  chatBox.innerHTML = `<div class="empty-state" id="empty-state">
+    <div class="icon">💬</div>
+    <h3>${state.lang === '中文' ? '开始对话' : 'Start Chat'}</h3>
+    <p>${state.lang === '中文' ? '输入问题，我会基于知识库为你解答' : 'Ask a question based on the knowledge base'}</p>
+    <div class="examples">
+      <button onclick="askExample('${state.lang === '中文' ? '公司的注册资本是多少？' : 'What is the registered capital?'}')">${state.lang === '中文' ? '注册资本' : 'Capital'}</button>
+      <button onclick="askExample('${state.lang === '中文' ? '公司的主要客户有哪些？' : 'Who are the main customers?'}')">${state.lang === '中文' ? '主要客户' : 'Customers'}</button>
+      <button onclick="askExample('${state.lang === '中文' ? '公司的竞争优势是什么？' : 'What are the competitive advantages?'}')">${state.lang === '中文' ? '竞争优势' : 'Advantages'}</button>
+    </div>
+  </div>`;
+  $('thinking-bar').classList.remove('show');
+  // 刷新历史列表
+  loadHistory();
+}
+
+// ── 问答 ──
+function addMessage(role, content, timing = null, sources = null, query = '') {
+  const empty = $('empty-state');
+  if (empty) empty.style.display = 'none';
+  state.messages.push({ role, content });
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  
+  let html = content.replace(/\n/g, '<br>');
+  
+  if (sources && sources.length) {
+    const pages = [...new Set(sources.map(s => s.page))].sort();
+    html += `<div class="sources">📄 ${state.lang === '中文' ? '来源' : 'Sources'}: ${pages.map(p => `<span>第 ${p} 页</span>`).join(' ')}</div>`;
+  }
+  
+  if (timing) {
+    const parts = [];
+    if (timing.retrieval > 0) parts.push(`${state.lang === '中文' ? '检索' : 'Retrieval'}: ${timing.retrieval}ms`);
+    parts.push(`LLM: ${timing.llm}ms`);
+    parts.push(`${state.lang === '中文' ? '总耗时' : 'Total'}: ${timing.total}ms`);
+    html += `<div class="timing">⏱️ ${parts.join(' | ')}</div>`;
+  }
+
+  // 助手消息添加反馈按钮
+  if (role === 'assistant' && state.userId) {
+    const fbId = `fb_${Date.now()}`;
+    html += `<div class="feedback-bar" id="${fbId}">
+      <button onclick="submitFeedback('${fbId}', 1, this)" title="有帮助" class="fb-btn fb-like">👍 有帮助</button>
+      <button onclick="submitFeedback('${fbId}', -1, this)" title="没帮助" class="fb-btn fb-dislike">👎 没帮助</button>
+    </div>`;
+  }
+  
+  div.innerHTML = html;
+  $('chat-messages').appendChild(div);
+  $('chat-messages').scrollTop = $('chat-messages').scrollHeight;
+}
+
+async function submitFeedback(fbId, rating, btn) {
+  try {
+    // 禁用两个按钮
+    const bar = document.getElementById(fbId);
+    if (!bar) return;
+    const btns = bar.querySelectorAll('.fb-btn');
+    btns.forEach(b => b.disabled = true);
+
+    // 选中高亮 + 淡化另一个
+    if (rating === 1) {
+      btn.classList.add('selected-like');
+    } else {
+      btn.classList.add('selected-dislike');
+    }
+    // 淡化对侧按钮
+    btns.forEach(b => { if (b !== btn) b.classList.add('sibling-fade'); });
+
+    // 追加 toast 文字
+    const toast = document.createElement('span');
+    toast.className = 'fb-toast';
+    toast.style.color = rating === 1 ? '#2e7d32' : '#bf360c';
+    toast.style.background = rating === 1 ? '#e8f5e9' : '#fbe9e7';
+    toast.textContent = rating === 1 ? '✓ 感谢反馈' : '✓ 已记录，会改进';
+    bar.appendChild(toast);
+
+    // 提交到后端
+    const msgDiv = btn.closest('.msg');
+    const answer = msgDiv ? msgDiv.innerText.replace(/👍|👎|有帮助|没帮助|感谢反馈|已记录/g, '').trim() : '';
+    const lastUserMsg = [...document.querySelectorAll('.msg.user')].pop();
+    const query = lastUserMsg ? lastUserMsg.innerText.trim() : '';
+    await api('POST', '/api/feedback', {
+      user_id: state.userId,
+      session_id: state.sessionId,
+      query: query,
+      answer: answer.substring(0, 500),
+      rating: rating,
+    });
+  } catch(e) {
+    console.error('Feedback error:', e);
+  }
+}
+
+const WISDOM_ZH = [
+  "正在思考...知识就是力量 💪",
+  "正在思考...好答案值得等 🎁",
+  "正在思考...正在文档中寻宝 🔍",
+  "正在思考...山重水复疑无路，柳暗花明又一村 🌸",
+  "正在思考...衣带渐宽终不悔，为伊消得人憔悴 💭",
+  "正在思考...读万卷书不如行万里路 🚶",
+  "正在思考...不积跬步无以至千里 👣",
+  "正在思考...工欲善其事，必先利其器 🔪",
+  "正在思考...欲速则不达 🐢",
+  "正在思考...千里之行始于足下 🚀",
+];
+
+const WISDOM_EN = [
+  "Thinking... patience is the companion of wisdom 🧘",
+  "Thinking... good things come to those who wait 🎁",
+  "Thinking... Rome wasn't built in a day 🏛️",
+  "Thinking... a journey of a thousand miles begins with a single search 🚀",
+  "Thinking... stay hungry, stay foolish 🍎",
+  "Thinking... seek and ye shall find 📖",
+  "Thinking... keep calm and let AI do the work 😌",
+];
+
+async function sendMessage() {
+  const input = $('chat-input');
+  const query = input.value.trim();
+  if (!query || state.processing) return;
+  input.value = '';
+  state.processing = true;
+  $('send-btn').disabled = true;
+  console.log('[发送] query=', query, 'userId=', state.userId, 'sessionId=', state.sessionId, 'mode=', state.mode);
+
+  addMessage('user', query);
+  $('thinking-bar').classList.add('show');
+  const pool = state.lang === '中文' ? WISDOM_ZH : WISDOM_EN;
+  $('thinking-text').textContent = pool[Math.floor(Math.random() * pool.length)];
+
+  try {
+    if (state.mode === 'both') {
+      // 对比模式：并发调 RAG + Direct
+      $('thinking-text').textContent = '正在对比两种模式...';
+      const [ragRes, dirRes] = await Promise.all([
+        api('POST', '/api/ask', { 
+          query, mode: 'rag', language: state.lang, 
+          user_id: state.userId, session_id: state.sessionId,
+          ...getRetrievalConfig()
+        }),
+        api('POST', '/api/ask', { 
+          query, mode: 'direct', language: state.lang,
+          user_id: state.userId, session_id: state.sessionId
+        }),
+      ]);
+
+      const compDiv = document.createElement('div');
+      compDiv.className = 'msg assistant';
+      let compHtml = `<div class="comparison">
+        <div class="col">
+          <h4 style="background:#e8f4fd;border-radius:6px;">📚 知识库增强</h4>
+          <div>${(ragRes.answer || '').replace(/\n/g, '<br>')}</div>
+        </div>
+        <div class="col">
+          <h4 style="background:#f0f0f2;border-radius:6px;">🤖 纯 LLM</h4>
+          <div>${(dirRes.answer || '').replace(/\n/g, '<br>')}</div>
+        </div>
+      </div>`;
+      if (ragRes.sources && ragRes.sources.length) {
+        const pages = [...new Set(ragRes.sources.map(s => s.page))].sort();
+        compHtml += `<div class="sources">📄 ${state.lang === '中文' ? '来源' : 'Sources'}: ${pages.map(p => `<span>第 ${p} 页</span>`).join(' ')}</div>`;
+      }
+      // 分别显示两个模式的时间
+      const ragRetrieval = ragRes.retrieval_time_ms || 0;
+      const ragLlm = ragRes.llm_time_ms || 0;
+      const dirLlm = dirRes.llm_time_ms || 0;
+      const maxTotal = Math.max(ragRes.total_time_ms || 0, dirRes.total_time_ms || 0);
+      compHtml += `<div class="timing">⏱️ 📚 检索:${ragRetrieval}ms LLM:${ragLlm}ms | 🤖 LLM:${dirLlm}ms | ${state.lang === '中文' ? '总耗时' : 'Total'}:${maxTotal}ms</div>`;
+      // 反馈按钮
+      if (state.userId) {
+        const fbId = `fb_${Date.now()}`;
+        compHtml += `<div class="feedback-bar" id="${fbId}">
+          <button onclick="submitFeedback('${fbId}', 1, this)" title="有帮助" class="fb-btn fb-like">👍 有帮助</button>
+          <button onclick="submitFeedback('${fbId}', -1, this)" title="没帮助" class="fb-btn fb-dislike">👎 没帮助</button>
+        </div>`;
+      }
+      compDiv.innerHTML = compHtml;
+      $('chat-messages').appendChild(compDiv);
+    } else {
+      // 流式
+      let fullAnswer = '';
+      let sources = [];
+      let timing = { retrieval: 0, llm: 0, total: 0 };
+      
+      await apiStream('/api/ask/stream', { 
+        query, mode: state.mode, language: state.lang,
+        user_id: state.userId, session_id: state.sessionId,
+        ...getRetrievalConfig()
+      }, (event) => {
+        if (event.type === 'retrieval') {
+          sources = event.sources || [];
+          timing.retrieval = event.time_ms || 0;
+        } else if (event.type === 'token') {
+          fullAnswer += event.content;
+        } else if (event.type === 'done') {
+          timing.llm = event.llm_time_ms || 0;
+          timing.total = event.total_time_ms || 0;
+          sources = event.sources || sources;
+        } else if (event.type === 'error') {
+          fullAnswer = `【错误】${event.message || '未知错误'}`;
+        }
+      });
+      
+      addMessage('assistant', fullAnswer || '（无回答）', timing, sources);
+    }
+  } catch(e) {
+    addMessage('assistant', `【错误】${e.message}`);
+  }
+
+  $('thinking-bar').classList.remove('show');
+  state.processing = false;
+  $('send-btn').disabled = false;
+  $('chat-messages').scrollTop = $('chat-messages').scrollHeight;
+  console.log('[发送] 完成, 刷新历史');
+  loadHistory();
+}
+
+function askExample(text) {
+  $('chat-input').value = text;
+  sendMessage();
+}
+
+// ── 启动检查 ──
+// 检查后端是否存活，如果存活则显示登录页
+api('GET', '/api/health').then(res => {
+  $('auth-page').style.display = 'block';
+}).catch(() => {
+  $('auth-page').innerHTML = `<div style="text-align:center;padding:40px;color:#d32f2f;">
+    <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+    <h2>后端服务未启动</h2>
+    <p>请启动后端: <code>uvicorn api:app --host 0.0.0.0 --port 8000</code></p>
+  </div>`;
+  $('auth-page').style.display = 'block';
+});
+</script>
+</body>
+</html>

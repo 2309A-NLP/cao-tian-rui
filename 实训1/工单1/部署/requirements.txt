@@ -1,0 +1,11 @@
+streamlit>=1.28.0
+pymilvus>=2.3.0
+transformers>=4.36.0
+torch>=2.0.0
+pymysql>=1.1.0
+PyMuPDF>=1.23.0
+requests>=2.31.0
+numpy>=1.24.0
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6

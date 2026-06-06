@@ -1,0 +1,12 @@
+[
+  {"id": 1, "question": "武汉兴图新科电子股份有限公司军工业务收入是多少？", "expected_keywords": ["军工", "收入"], "source_id": "id260"},
+  {"id": 2, "question": "武汉兴图新科电子股份有限公司参与了什么技术标准？", "expected_keywords": ["技术标准"], "source_id": "id95"},
+  {"id": 3, "question": "武汉兴图新科电子股份有限公司军工业务收入占比是多少？", "expected_keywords": ["军工", "占比"], "source_id": "id33"},
+  {"id": 4, "question": "武汉兴图新科电子股份有限公司的重要供应商领域是什么？", "expected_keywords": ["供应商"], "source_id": "id957"},
+  {"id": 5, "question": "武汉兴图新科电子股份有限公司的下游行业有哪些？", "expected_keywords": ["下游"], "source_id": "id793"},
+  {"id": 6, "question": "武汉兴图新科电子股份有限公司获得国家科学技术奖的项目是什么？", "expected_keywords": ["国家科学技术奖"], "source_id": "id795"},
+  {"id": 7, "question": "武汉兴图新科电子股份有限公司的注册资本是多少？", "expected_keywords": ["注册资本"], "source_id": "id543"},
+  {"id": 8, "question": "武汉兴图新科电子股份有限公司的法定代表人是谁？", "expected_keywords": ["法定代表人"], "source_id": "id531"},
+  {"id": 9, "question": "武汉兴图新科电子股份有限公司补充流动资金的金额是多少？", "expected_keywords": ["流动资金"], "source_id": "id207"},
+  {"id": 10, "question": "武汉兴图新科电子股份有限公司的主要产品和服务是什么？", "expected_keywords": ["产品", "服务"]}
+]

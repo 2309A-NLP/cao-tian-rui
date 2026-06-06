@@ -1,0 +1,62 @@
+[
+  {
+    "id": "260",
+    "question": "兴图新科的军用收入是多少？",
+    "expected_keywords": ["军用", "收入", "万元"],
+    "category": "财务数据"
+  },
+  {
+    "id": "95",
+    "question": "兴图新科参与了哪些技术标准的制定？",
+    "expected_keywords": ["技术标准", "国家标准", "行业标准", "参与"],
+    "category": "技术能力"
+  },
+  {
+    "id": "33",
+    "question": "兴图新科军用收入占比是多少？",
+    "expected_keywords": ["军用", "占比", "收入", "%"],
+    "category": "财务数据"
+  },
+  {
+    "id": "34",
+    "question": "兴图新科的上游企业有哪些？",
+    "expected_keywords": ["上游", "供应商", "采购"],
+    "category": "供应链"
+  },
+  {
+    "id": "957",
+    "question": "兴图新科重要供应商涉及哪些领域？",
+    "expected_keywords": ["供应商", "领域", "采购"],
+    "category": "供应链"
+  },
+  {
+    "id": "793",
+    "question": "兴图新科的下游行业有哪些？",
+    "expected_keywords": ["下游", "行业", "客户"],
+    "category": "供应链"
+  },
+  {
+    "id": "795",
+    "question": "兴图新科获得了哪些国家科技进步奖工程？",
+    "expected_keywords": ["国家科技进步奖", "工程", "奖项"],
+    "category": "荣誉资质"
+  },
+  {
+    "id": "543",
+    "question": "兴图新科的注册资本是多少？",
+    "expected_keywords": ["注册资本", "万元"],
+    "category": "基本信息"
+  },
+  {
+    "id": "531",
+    "question": "兴图新科的法定代表人是谁？",
+    "expected_keywords": ["法定代表人"],
+    "category": "基本信息"
+  },
+  {
+    "id": "207",
+    "question": "兴图新科募集资金中补充流动资金的金额是多少？",
+    "expected_keywords": ["补充流动资金", "募集资金", "万元"],
+    "category": "募集资金"
+  }
+]

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG 文档问答系统</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f7; color: #1d1d1f; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ── 登录页 ── */
+  #auth-page { max-width: 400px; margin: 80px auto; background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: none; }
+  #auth-page h1 { text-align: center; font-size: 24px; margin-bottom: 24px; }
+  #auth-page .tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid #e5e5e7; }
+  #auth-page .tabs button { flex: 1; padding: 10px; border: none; background: none; cursor: pointer; font-size: 14px; color: #86868b; border-bottom: 2px solid transparent; transition: 0.2s; }
+  #auth-page .tabs button.active { color: #0071e3; border-bottom-color: #0071e3; }
+  #auth-page .tab-content { display: none; }
+  #auth-page .tab-content.active { display: block; }
+  #auth-page input { width: 100%; padding: 10px 14px; margin-bottom: 12px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 14px; outline: none; }
+  #auth-page input:focus { border-color: #0071e3; box-shadow: 0 0 0 2px rgba(0,113,227,0.2); }
+  #auth-page button { width: 100%; padding: 10px; background: #0071e3; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: 0.2s; }
+  #auth-page button:hover { background: #0077ed; }
+  #auth-page .error-msg { color: #d32f2f; font-size: 13px; margin: 8px 0; }
+  #auth-page .success-msg { color: #2e7d32; font-size: 13px; margin: 8px 0; }
+
+  /* ── 主界面 ── */
+  #main-page { display: none; flex: 1; }
+  .sidebar { width: 260px; background: #fff; border-right: 1px solid #e5e5e7; padding: 20px; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; overflow-y: auto; }
+  .sidebar h3 { font-size: 14px; color: #86868b; margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .sidebar .mode-btn { display: block; width: 100%; padding: 8px 12px; margin: 4px 0; border: 1px solid transparent; border-radius: 8px; cursor: pointer; font-size: 13px; text-align: left; background: #f5f5f7; transition: 0.2s; }
+  .sidebar .mode-btn:hover { background: #e8e8ed; }
+  .sidebar .mode-btn.active { background: #0071e3; color: #fff; border-color: #0071e3; }
+  .sidebar .doc-item { font-size: 12px; color: #515154; padding: 4px 0; border-bottom: 1px solid #f0f0f2; }
+  .sidebar .kb-status { font-size: 12px; color: #86868b; margin: 8px 0; }
+  .sidebar .upload-btn { width: 100%; padding: 8px; border: 1px dashed #d2d2d7; border-radius: 8px; background: none; cursor: pointer; font-size: 12px; color: #515154; margin: 8px 0; }
+  .sidebar .upload-btn:hover { border-color: #0071e3; color: #0071e3; }
+  .sidebar .lang-select { width: 100%; padding: 6px; border: 1px solid #d2d2d7; border-radius: 6px; font-size: 13px; margin: 4px 0 12px; }
+  .sidebar .logout-btn { margin-top: auto; padding: 8px; border: 1px solid #e5e5e7; border-radius: 8px; background: none; cursor: pointer; font-size: 12px; color: #86868b; }
+  .sidebar .logout-btn:hover { background: #fef2f2; color: #d32f2f; border-color: #fecaca; }
+
+  .main-content { margin-left: 260px; flex: 1; display: flex; flex-direction: column; height: 100vh; }
+  .chat-header { padding: 16px 24px; border-bottom: 1px solid #e5e5e7; background: #fff; display: flex; justify-content: space-between; align-items: center; }
+  .chat-header h2 { font-size: 18px; font-weight: 600; }
+  .chat-header .status { font-size: 12px; color: #86868b; }
+  .chat-header .user-info { font-size: 13px; color: #515154; }
+
+  #chat-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .msg { max-width: 72%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.6; word-wrap: break-word; }
+  .msg.user { align-self: flex-end; background: #0071e3; color: #fff; border-bottom-right-radius: 4px; }
+  .msg.assistant { align-self: flex-start; background: #fff; border: 1px solid #e5e5e7; border-bottom-left-radius: 4px; }
+  .msg.thinking { align-self: flex-start; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; border-bottom-left-radius: 4px; font-style: italic; }
+  .msg .timing { font-size: 11px; color: #86868b; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.06); }
+  .msg .sources { font-size: 11px; color: #515154; margin-top: 6px; }
+  .msg .sources span { background: #f0f0f2; padding: 2px 6px; border-radius: 4px; margin: 2px 3px; display: inline-block; }
+
+  .chat-input-area { padding: 16px 24px; border-top: 1px solid #e5e5e7; background: #fff; display: flex; gap: 8px; }
+  .chat-input-area input { flex: 1; padding: 10px 14px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 14px; outline: none; }
+  .chat-input-area input:focus { border-color: #0071e3; box-shadow: 0 0 0 2px rgba(0,113,227,0.2); }
+  .chat-input-area button { padding: 10px 20px; background: #0071e3; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
+  .chat-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .chat-input-area button:hover:not(:disabled) { background: #0077ed; }
+
+  .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #86868b; }
+  .empty-state .icon { font-size: 56px; margin-bottom: 16px; }
+  .empty-state h3 { font-size: 18px; margin-bottom: 8px; color: #515154; }
+  .empty-state p { font-size: 14px; max-width: 400px; text-align: center; line-height: 1.5; }
+  .empty-state .examples { margin-top: 20px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .empty-state .examples button { padding: 6px 14px; border: 1px solid #d2d2d7; border-radius: 20px; background: #fff; cursor: pointer; font-size: 13px; color: #515154; }
+  .empty-state .examples button:hover { border-color: #0071e3; color: #0071e3; background: #f0f7ff; }
+
+  .thinking-bar { padding: 8px 24px; background: #fffbeb; font-size: 13px; color: #92400e; display: none; align-items: center; gap: 8px; }
+  .thinking-bar.show { display: flex; }
+
+  .comparison { display: flex; gap: 12px; width: 100%; }
+  .comparison .col { flex: 1; min-width: 0; }
+  .comparison .col h4 { font-size: 13px; color: #86868b; margin-bottom: 8px; padding: 4px 8px; border-radius: 6px; }
+
+  #file-input { display: none; }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main-content { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════ 登录页面 ════ -->
+<div id="auth-page">
+  <h1>📚 RAG 文档问答</h1>
+  <p style="text-align:center;color:#86868b;font-size:14px;margin-bottom:20px;">基于招股说明书的智能问答</p>
+
+  <div class="tabs">
+    <button id="tab-login" class="active" onclick="switchTab('login')">登录</button>
+    <button id="tab-register" onclick="switchTab('register')">注册</button>
+  </div>
+
+  <div id="tab-login-content" class="tab-content active">
+    <input type="text" id="login-username" placeholder="用户名">
+    <input type="password" id="login-password" placeholder="密码">
+    <div id="login-error" class="error-msg"></div>
+    <button onclick="login()">登录</button>
+  </div>
+
+  <div id="tab-register-content" class="tab-content">
+    <input type="text" id="reg-username" placeholder="用户名">
+    <input type="password" id="reg-password" placeholder="密码">
+    <input type="password" id="reg-confirm" placeholder="确认密码">
+    <div id="reg-error" class="error-msg"></div>
+    <button onclick="register()">注册</button>
+  </div>
+</div>
+
+<!-- ════ 主页面 ════ -->
+<div id="main-page">
+  <div class="sidebar" id="sidebar">
+    <h3 style="margin-top:0;">⚙️ 设置</h3>
+    
+    <label style="font-size:12px;color:#86868b;">语言</label>
+    <select class="lang-select" id="lang-select" onchange="changeLang()">
+      <option value="中文">中文</option>
+      <option value="English">English</option>
+    </select>
+
+    <h3>🎯 模式</h3>
+    <button class="mode-btn active" data-mode="rag" onclick="setMode('rag')">📚 知识库模式</button>
+    <button class="mode-btn" data-mode="direct" onclick="setMode('direct')">🤖 纯 LLM</button>
+    <button class="mode-btn" data-mode="both" onclick="setMode('both')">🔀 两者对比</button>
+
+    <h3>📂 知识库</h3>
+    <div class="kb-status" id="kb-status">加载中...</div>
+    <div id="doc-list"></div>
+    <button class="upload-btn" id="upload-trigger">📄 上传 PDF</button>
+    <input type="file" id="file-input" accept=".pdf">
+    <button class="upload-btn" style="margin-top:4px;" id="index-btn" onclick="indexKB()">🔄 索引到知识库</button>
+
+    <h3>📋 历史对话</h3>
+    <div id="history-list" style="font-size:12px;color:#86868b;">加载中...</div>
+
+    <button class="logout-btn" onclick="logout()">🚪 退出登录</button>
+  </div>
+
+  <div class="main-content">
+    <div class="chat-header">
+      <div>
+        <h2>💬 对话</h2>
+        <div class="status" id="status-bar">模式: 知识库 | 向量: -- | 模型: --</div>
+      </div>
+      <div class="user-info" id="user-info">👤 --</div>
+    </div>
+
+    <div id="chat-messages">
+      <div class="empty-state" id="empty-state">
+        <div class="icon">💬</div>
+        <h3>开始提问</h3>
+        <p>在下方输入问题，系统将根据当前模式从知识库或语言模型获取答案</p>
+        <div class="examples">
+          <button onclick="askExample('注册资本是多少？')">注册资本</button>
+          <button onclick="askExample('募集资金用途是什么？')">募集资金用途</button>
+          <button onclick="askExample('主要股东有哪些？')">主要股东</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="thinking-bar" id="thinking-bar">
+      <span>⏳</span>
+      <span id="thinking-text">正在思考...</span>
+    </div>
+
+    <div class="chat-input-area">
+      <input type="text" id="chat-input" placeholder="输入你的问题..." onkeydown="if(event.key==='Enter')sendMessage()">
+      <button id="send-btn" onclick="sendMessage()">发送</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 状态 ──
+const API = '';
+let state = {
+  userId: null,
+  username: '',
+  sessionId: '',
+  mode: 'rag',
+  lang: '中文',
+  messages: [],
+  processing: false,
+};
+
+function $(id) { return document.getElementById(id); }
+
+function api(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  return fetch(`${API}${path}`, opts).then(r => {
+    if (!r.ok) return r.json().then(j => { throw new Error(j.detail || '请求失败'); });
+    return r.json();
+  });
+}
+
+function apiStream(path, body, onEvent) {
+  return fetch(`${API}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then(async r => {
+    const reader = r.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') return;
+          try { onEvent(JSON.parse(data)); } catch(e) {}
+        }
+      }
+    }
+  });
+}
+
+// ── 认证 ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.tabs button').forEach(e => e.classList.remove('active'));
+  $(`tab-${tab}-content`).classList.add('active');
+  $(`tab-${tab}`).classList.add('active');
+  $('login-error').textContent = '';
+  $('reg-error').textContent = '';
+}
+
+function login() {
+  const username = $('login-username').value.trim();
+  const password = $('login-password').value;
+  if (!username || !password) { $('login-error').textContent = '请输入用户名和密码'; return; }
+  api('POST', '/api/auth/login', { username, password })
+    .then(res => {
+      state.userId = res.user_id;
+      state.username = res.username;
+      state.sessionId = `ses_${Date.now()}`;
+      showMainPage();
+    })
+    .catch(e => { $('login-error').textContent = e.message; });
+}
+
+function register() {
+  const username = $('reg-username').value.trim();
+  const password = $('reg-password').value;
+  const confirm = $('reg-confirm').value;
+  if (!username || !password) { $('reg-error').textContent = '请填写完整'; return; }
+  if (password !== confirm) { $('reg-error').textContent = '两次密码不一致'; return; }
+  if (username.length < 2) { $('reg-error').textContent = '用户名至少 2 个字符'; return; }
+  if (password.length < 4) { $('reg-error').textContent = '密码至少 4 个字符'; return; }
+  api('POST', '/api/auth/register', { username, password })
+    .then(() => { $('reg-error').className = 'success-msg'; $('reg-error').textContent = '注册成功！请切换到登录。'; })
+    .catch(e => { $('reg-error').textContent = e.message; });
+}
+
+function logout() {
+  state.userId = null;
+  state.username = '';
+  state.sessionId = '';
+  state.messages = [];
+  state.processing = false;
+  $('auth-page').style.display = 'block';
+  $('main-page').style.display = 'none';
+  $('login-username').value = '';
+  $('login-password').value = '';
+}
+
+function showMainPage() {
+  $('auth-page').style.display = 'none';
+  $('main-page').style.display = 'flex';
+  $('user-info').textContent = `👤 ${state.username}`;
+  loadKnowledgeBase();
+  loadHistory();
+  loadHealth();
+}
+
+// ── 知识库 ──
+function loadKnowledgeBase() {
+  api('GET', '/api/knowledge').then(res => {
+    const docs = res.documents || [];
+    const cnt = res.vector_count || 0;
+    const lang = state.lang;
+    $('kb-status').textContent = docs.length 
+      ? (lang === '中文' ? `向量总数: ${cnt} 条，文档 ${docs.length} 份` : `Vectors: ${cnt}, Docs: ${docs.length}`)
+      : (lang === '中文' ? '知识库为空' : 'Empty');
+    
+    const list = $('doc-list');
+    if (docs.length) {
+      let html = '<div style="font-size:12px;color:#515154;margin:4px 0;">' + (lang === '中文' ? '已索引文档:' : 'Indexed:') + '</div>';
+      if (docs.length <= 5) {
+        html += docs.map(d => `<div class="doc-item">📄 ${d}</div>`).join('');
+      } else {
+        html += `<div style="font-size:11px;color:#86868b;">${lang === '中文' ? '共' : 'Total'} ${docs.length} ${lang === '中文' ? '份文档，点击索引按钮查看' : 'docs'}</div>`;
+        html += docs.slice(0, 3).map(d => `<div class="doc-item">📄 ${d}</div>`).join('');
+        html += `<div style="font-size:11px;color:#bbb;margin-top:2px;">...${lang === '中文' ? '还有' : 'and '} ${docs.length - 3} ${lang === '中文' ? '份' : 'more'}</div>`;
+      }
+      list.innerHTML = html;
+    } else {
+      list.innerHTML = '';
+    }
+  }).catch(() => {});
+}
+
+function loadHealth() {
+  api('GET', '/api/health').then(res => {
+    const lang = state.lang;
+    $('status-bar').textContent = `${lang === '中文' ? '模式' : 'Mode'}: ${state.mode === 'rag' ? '📚 知识库' : state.mode === 'direct' ? '🤖 LLM' : '🔀 对比'} | ${lang === '中文' ? '向量' : 'Vectors'}: ${res.vector_count || 0} | ${lang === '中文' ? '模型' : 'Model'}: ${res.llm || '--'}`;
+  }).catch(() => {});
+}
+
+$('upload-trigger').addEventListener('click', () => $('file-input').click());
+$('file-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const res = await fetch(`${API}/api/knowledge/upload`, { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.status === 'exists') {
+      alert(state.lang === '中文' ? `知识库已存在该文档：${data.filename}` : `Document already exists: ${data.filename}`);
+    } else if (data.status === 'indexed') {
+      alert(state.lang === '中文' ? `${data.filename} 上传并索引成功，共 ${data.chunks} 个块` : `${data.filename} uploaded & indexed, ${data.chunks} chunks`);
+      loadKnowledgeBase();
+    } else {
+      alert(state.lang === '中文' ? `${data.filename} 上传成功（索引失败，请手动点击索引按钮）` : `${data.filename} uploaded (index failed)`);
+    }
+  } catch(e) {
+    alert(`Upload error: ${e.message}`);
+  }
+  e.target.value = '';
+});
+
+async function indexKB() {
+  $('index-btn').textContent = state.lang === '中文' ? '⏳ 索引中...' : '⏳ Indexing...';
+  try {
+    const res = await api('POST', '/api/knowledge/index', { filenames: [] });
+    const indexed = res.results.filter(r => r.status === 'indexed');
+    const skipped = res.results.filter(r => r.status === 'exists');
+    let msg = '';
+    if (state.lang === '中文') {
+      if (indexed.length) msg = `索引完成！新增 ${indexed.length} 份文档，共 ${res.total_chunks} 个块`;
+      else msg = `知识库已是最新，${skipped.length} 份文档均已存在`;
+    } else {
+      if (indexed.length) msg = `Indexed ${indexed.length} new docs, ${res.total_chunks} chunks`;
+      else msg = `KB up-to-date, ${skipped.length} docs already exist`;
+    }
+    alert(msg);
+    loadKnowledgeBase();
+  } catch(e) {
+    alert(`Index error: ${e.message}`);
+  }
+  $('index-btn').textContent = state.lang === '中文' ? '🔄 索引到知识库' : '🔄 Index KB';
+}
+
+// ── 模式 ──
+function setMode(mode) {
+  state.mode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  const lang = state.lang;
+  $('status-bar').textContent = `${lang === '中文' ? '模式' : 'Mode'}: ${mode === 'rag' ? '📚 知识库' : mode === 'direct' ? '🤖 LLM' : '🔀 对比'}`;
+}
+
+function changeLang() {
+  state.lang = $('lang-select').value;
+  const btnMap = {
+    '中文': ['📚 知识库模式', '🤖 纯 LLM', '🔀 两者对比'],
+    'English': ['📚 RAG Mode', '🤖 Direct LLM', '🔀 Both'],
+  };
+  const btns = document.querySelectorAll('.mode-btn');
+  const labels = btnMap[state.lang] || btnMap['中文'];
+  btns.forEach((b, i) => b.textContent = labels[i]);
+  loadKnowledgeBase();
+}
+
+// ── 历史会话 ──
+function loadHistory() {
+  if (!state.userId) return;
+  api('GET', `/api/history/sessions?user_id=${state.userId}`).then(res => {
+    const list = $('history-list');
+    const sessions = res.sessions || [];
+    if (!sessions.length) {
+      list.innerHTML = '<div style="color:#bbb;font-size:12px;padding:4px 0;">' + (state.lang === '中文' ? '暂无历史' : 'No history') + '</div>';
+      return;
+    }
+    // 勾选状态用于批量删除
+    if (!state._selectedSessions) state._selectedSessions = new Set();
+    
+    list.innerHTML = `<div style="margin-bottom:4px;display:flex;gap:4px;">
+      <button onclick="selectAllSessions()" style="flex:1;padding:2px 6px;border:1px solid #ddd;border-radius:4px;background:#fff;cursor:pointer;font-size:11px;color:#515154;">${state.lang === '中文' ? '全选' : 'All'}</button>
+      <button onclick="deleteSelectedSessions()" style="flex:1;padding:2px 6px;border:1px solid #fecaca;border-radius:4px;background:#fef2f2;cursor:pointer;font-size:11px;color:#d32f2f;">${state.lang === '中文' ? '删除选中' : 'Delete'}</button>
+    </div>`
+    + sessions.map(s => {
+      const sid = s.session_id || '';
+      const msgCount = s.msg_count || 0;
+      // 获取第一条消息作为预览
+      const preview = s.first_msg || '';
+      const previewText = preview.length > 20 ? preview.slice(0, 20) + '…' : preview;
+      const lastTime = s.last_msg ? new Date(s.last_msg).toLocaleString('zh-CN', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
+      const checked = state._selectedSessions.has(sid) ? 'checked' : '';
+      return `<div style="padding:4px 0;border-bottom:1px solid #f0f0f2;font-size:12px;">
+        <div style="display:flex;align-items:center;gap:4px;">
+          <input type="checkbox" ${checked} onchange="toggleSessionSelect('${sid}', this.checked)" style="flex-shrink:0;">
+          <div style="flex:1;overflow:hidden;cursor:pointer;" onclick="loadSession('${sid}')" title="${sid}">
+            <div style="color:#515154;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${previewText || sid.slice(0,12)}</div>
+            <div style="color:#bbb;font-size:10px;">${msgCount}条 · ${lastTime}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }).catch(() => {});
+}
+
+function toggleSessionSelect(sid, checked) {
+  if (!state._selectedSessions) state._selectedSessions = new Set();
+  if (checked) state._selectedSessions.add(sid);
+  else state._selectedSessions.delete(sid);
+}
+
+function selectAllSessions() {
+  api('GET', `/api/history/sessions?user_id=${state.userId}`).then(res => {
+    const sessions = res.sessions || [];
+    state._selectedSessions = new Set(sessions.map(s => s.session_id));
+    loadHistory();
+  }).catch(() => {});
+}
+
+function deleteSelectedSessions() {
+  const sids = [...(state._selectedSessions || [])];
+  if (!sids.length) {
+    alert(state.lang === '中文' ? '请先选择要删除的会话' : 'Select sessions first');
+    return;
+  }
+  if (!confirm(state.lang === '中文' ? `确定删除选中的 ${sids.length} 个会话？` : `Delete ${sids.length} sessions?`)) return;
+  
+  Promise.all(sids.map(sid =>
+    fetch(`${API}/api/history/session?user_id=${state.userId}&session_id=${sid}`, { method: 'DELETE' }).then(r => r.json())
+  )).then(() => {
+    state._selectedSessions = new Set();
+    // 如果当前会话被删了，清空消息区
+    if (sids.includes(state.sessionId)) {
+      state.sessionId = '';
+      state.messages = [];
+      resetChatArea();
+    }
+    loadHistory();
+  }).catch(e => alert(`Delete error: ${e.message}`));
+}
+
+function resetChatArea() {
+  $('chat-messages').innerHTML = `<div class="empty-state" id="empty-state">
+    <div class="icon">💬</div>
+    <h3>${state.lang === '中文' ? '开始提问' : 'Start Asking'}</h3>
+    <p>${state.lang === '中文' ? '在下方输入问题...' : 'Type your question below...'}</p>
+  </div>`;
+  $('empty-state').style.display = 'flex';
+}
+
+function loadSession(sessionId) {
+  state.sessionId = sessionId;
+  state.messages = [];
+  $('chat-messages').innerHTML = '';
+  $('thinking-bar').classList.remove('show');
+  $('empty-state').style.display = 'none';
+
+  api('GET', `/api/history/messages?user_id=${state.userId}&session_id=${sessionId}`).then(res => {
+    const msgs = res.messages || [];
+    for (const m of msgs) {
+      addMessage(m.role || 'assistant', m.content || '', {
+        retrieval: m.retrieval_time_ms || 0,
+        llm: m.llm_time_ms || 0,
+        total: (m.retrieval_time_ms || 0) + (m.llm_time_ms || 0),
+      });
+    }
+  }).catch(() => {});
+}
+
+// ── 问答 ──
+function addMessage(role, content, timing, sources) {
+  $('empty-state').style.display = 'none';
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  
+  let html = content.replace(/\n/g, '<br>');
+  
+  if (sources && sources.length) {
+    const pages = [...new Set(sources.map(s => s.page))].sort();
+    html += `<div class="sources">📄 ${state.lang === '中文' ? '来源' : 'Sources'}: ${pages.map(p => `<span>第 ${p} 页</span>`).join(' ')}</div>`;
+  }
+  
+  if (timing) {
+    const parts = [];
+    if (timing.retrieval > 0) parts.push(`${state.lang === '中文' ? '检索' : 'Retrieval'}: ${timing.retrieval}ms`);
+    parts.push(`LLM: ${timing.llm}ms`);
+    parts.push(`${state.lang === '中文' ? '总耗时' : 'Total'}: ${timing.total}ms`);
+    html += `<div class="timing">⏱️ ${parts.join(' | ')}</div>`;
+  }
+  
+  div.innerHTML = html;
+  $('chat-messages').appendChild(div);
+  $('chat-messages').scrollTop = $('chat-messages').scrollHeight;
+}
+
+const WISDOM_ZH = [
+  "正在思考...知识就是力量 💪",
+  "正在思考...好答案值得等 🎁",
+  "正在思考...正在文档中寻宝 🔍",
+  "正在思考...山重水复疑无路，柳暗花明又一村 🌸",
+  "正在思考...不积跬步无以至千里 👣",
+  "正在思考...工欲善其事，必先利其器 🔪",
+  "正在思考...欲速则不达 🐢",
+  "正在思考...千里之行始于足下 🚀",
+  "正在思考...学而不思则罔，思而不学则殆 🤔",
+  "正在思考...博观而约取，厚积而薄发 📚",
+  "正在思考...滴水穿石，非一日之功 🪨",
+  "正在思考...不着急，好东西总是留给有耐心的人 😌",
+];
+
+const WISDOM_EN = [
+  "Thinking... patience is the companion of wisdom 🧘",
+  "Thinking... good things come to those who wait 🎁",
+  "Thinking... Rome wasn't built in a day 🏛️",
+  "Thinking... a journey of a thousand miles begins with a single search 🚀",
+  "Thinking... stay hungry, stay foolish 🍎",
+  "Thinking... seek and ye shall find 📖",
+  "Thinking... keep calm and let AI do the work 😌",
+  "Thinking... persistence is the path to success 🗿",
+];
+
+async function sendMessage() {
+  const input = $('chat-input');
+  const query = input.value.trim();
+  if (!query || state.processing) return;
+  input.value = '';
+  state.processing = true;
+  $('send-btn').disabled = true;
+
+  addMessage('user', query);
+  $('thinking-bar').classList.add('show');
+  const pool = state.lang === '中文' ? WISDOM_ZH : WISDOM_EN;
+  $('thinking-text').textContent = pool[Math.floor(Math.random() * pool.length)];
+
+  try {
+    if (state.mode === 'both') {
+      $('thinking-text').textContent = state.lang === '中文' ? '正在对比两种模式...' : 'Comparing both modes...';
+      let ragAnswer = '', ragSources = [], ragTiming = { retrieval: 0, llm: 0, total: 0 };
+      let dirAnswer = '', dirTiming = { llm: 0, total: 0 };
+      let ragDone = false, dirDone = false;
+
+      // 并发两个流式请求
+      const ragStream = apiStream('/api/ask/stream', {
+        query, mode: 'rag', language: state.lang,
+        user_id: state.userId, session_id: state.sessionId
+      }, (event) => {
+        if (event.type === 'retrieval') { ragSources = event.sources || []; ragTiming.retrieval = event.time_ms || 0; }
+        else if (event.type === 'token') { ragAnswer += event.content; }
+        else if (event.type === 'done') { ragTiming.llm = event.llm_time_ms || 0; ragTiming.total = event.total_time_ms || 0; ragDone = true; }
+        else if (event.type === 'error') { ragAnswer = `【错误】${event.message || '未知错误'}`; ragDone = true; }
+        if (ragDone && dirDone) renderBothComparison();
+      }).catch(e => { ragAnswer = `【连接错误】${e.message}`; ragDone = true; if (ragDone && dirDone) renderBothComparison(); });
+
+      const dirStream = apiStream('/api/ask/stream', {
+        query, mode: 'direct', language: state.lang,
+        user_id: state.userId, session_id: state.sessionId
+      }, (event) => {
+        if (event.type === 'token') { dirAnswer += event.content; }
+        else if (event.type === 'done') { dirTiming.llm = event.llm_time_ms || 0; dirTiming.total = event.total_time_ms || 0; dirDone = true; }
+        else if (event.type === 'error') { dirAnswer = `【错误】${event.message || '未知错误'}`; dirDone = true; }
+        if (ragDone && dirDone) renderBothComparison();
+      }).catch(e => { dirAnswer = `【连接错误】${e.message}`; dirDone = true; if (ragDone && dirDone) renderBothComparison(); });
+
+      function renderBothComparison() {
+        const compDiv = document.createElement('div');
+        compDiv.className = 'msg assistant';
+        compDiv.innerHTML = `<div class="comparison">
+          <div class="col">
+            <h4 style="background:#e8f4fd;border-radius:6px;">📚 知识库增强</h4>
+            <div>${(ragAnswer || '').replace(/\n/g, '<br>')}</div>
+            <div class="timing" style="margin-top:8px;font-size:11px;color:#86868b;">⏱️ 检索: ${ragTiming.retrieval}ms | LLM: ${ragTiming.llm}ms | 总: ${ragTiming.total}ms</div>
+          </div>
+          <div class="col">
+            <h4 style="background:#f0f0f2;border-radius:6px;">🤖 纯 LLM</h4>
+            <div>${(dirAnswer || '').replace(/\n/g, '<br>')}</div>
+            <div class="timing" style="margin-top:8px;font-size:11px;color:#86868b;">⏱️ LLM: ${dirTiming.llm}ms | 总: ${dirTiming.total}ms</div>
+          </div>
+        </div>`;
+        if (ragSources.length) {
+          const pages = [...new Set(ragSources.map(s => s.page))].sort();
+          compDiv.innerHTML += `<div class="sources">📄 ${state.lang === '中文' ? '来源' : 'Sources'}: ${pages.map(p => `<span>第 ${p} 页</span>`).join(' ')}</div>`;
+        }
+        $('chat-messages').appendChild(compDiv);
+        $('chat-messages').scrollTop = $('chat-messages').scrollHeight;
+      }
+
+      // 等两个都完成再继续
+      await Promise.all([ragStream, dirStream]);
+    } else {
+      let fullAnswer = '';
+      let sources = [];
+      let timing = { retrieval: 0, llm: 0, total: 0 };
+      
+      await apiStream('/api/ask/stream', { 
+        query, mode: state.mode, language: state.lang,
+        user_id: state.userId, session_id: state.sessionId 
+      }, (event) => {
+        if (event.type === 'retrieval') {
+          sources = event.sources || [];
+          timing.retrieval = event.time_ms || 0;
+        } else if (event.type === 'token') {
+          fullAnswer += event.content;
+        } else if (event.type === 'done') {
+          timing.llm = event.llm_time_ms || 0;
+          timing.total = event.total_time_ms || 0;
+          sources = event.sources || sources;
+        } else if (event.type === 'error') {
+          fullAnswer = `【错误】${event.message || '未知错误'}`;
+        }
+      });
+      
+      addMessage('assistant', fullAnswer || '（无回答）', timing, sources);
+    }
+  } catch(e) {
+    addMessage('assistant', `【连接错误】${e.message || '请求失败，请查看后端日志'}`);
+    console.error('问答请求失败:', e);
+  }
+
+  $('thinking-bar').classList.remove('show');
+  state.processing = false;
+  $('send-btn').disabled = false;
+  $('chat-messages').scrollTop = $('chat-messages').scrollHeight;
+  // 刷新历史列表（使新对话出现在侧边栏）
+  loadHistory();
+}
+
+function askExample(text) {
+  $('chat-input').value = text;
+  sendMessage();
+}
+
+// ── 启动 ──
+api('GET', '/api/health').then(() => {
+  $('auth-page').style.display = 'block';
+}).catch(() => {
+  $('auth-page').innerHTML = `<div style="text-align:center;padding:40px;color:#d32f2f;">
+    <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+    <h2>后端服务未启动</h2>
+    <p>请启动后端: <code>python run_api.py</code></p>
+  </div>`;
+  $('auth-page').style.display = 'block';
+});
+</script>
+</body>
+</html>
