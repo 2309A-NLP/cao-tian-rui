@@ -1,0 +1,152 @@
+# RAG 金融问答系统 — 全栈编排
+# 一条命令全起：docker compose up -d
+# 组成：rag-app（自建，对外 8010） + milvus(+etcd+minio) + mysql + redis
+# 服务间用「服务名」互通（rag-app 连 milvus/mysql/redis），统一在 rag-net 网络
+# 所有有状态数据走命名卷持久化；模型/知识库走宿主机挂载
+
+name: rag-deploy
+
+services:
+  # ── RAG 后端（业务应用）──
+  rag-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rag-app:cpu
+    container_name: rag-app
+    depends_on:
+      milvus:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # 密钥与模式由 .env 注入，覆盖 config.docker.json，避免写死
+      APP_LLM_PROVIDER: ${APP_LLM_PROVIDER:-}
+      APP_LLM_API_KEY: ${APP_LLM_API_KEY:-}
+      APP_LLM_BASE_URL: ${APP_LLM_BASE_URL:-}
+      APP_LLM_MODEL: ${APP_LLM_MODEL:-}
+      APP_RETRIEVAL_MODE: ${APP_RETRIEVAL_MODE:-fulltext}
+      # 兜底：即使 config.docker.json 漏改，env 仍把依赖指向服务名
+      APP_MILVUS_HOST: milvus
+      APP_DB_HOST: mysql
+      APP_REDIS_HOST: redis
+      APP_EMBEDDING_DEVICE: cpu
+    ports:
+      - "${APP_PORT:-8010}:8010"
+    volumes:
+      - "${MODEL_PATH}:/models/bge-m3:ro"   # 模型只读挂载（4.3G，不进镜像）
+      - ./output:/app/output                # chunks/索引产物（含 all_chunks.json，BM25 依赖）
+      - ./logs:/app/logs                    # 日志持久化
+      - ./knowledge_base:/app/knowledge_base # PDF 知识库
+    networks:
+      - rag-net
+    restart: unless-stopped
+
+  # ── 向量库 Milvus standalone ──
+  # 复用本机已有镜像 v3.0-beta（与宿主 gpu_env 的 pymilvus 2.4.x 实证可用）
+  milvus:
+    image: milvusdb/milvus:v3.0-beta
+    container_name: rag-milvus
+    command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    depends_on:
+      etcd:
+        condition: service_started
+      minio:
+        condition: service_started
+    volumes:
+      - milvus-data:/var/lib/milvus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 90s
+    networks:
+      - rag-net
+    restart: unless-stopped
+
+  etcd:
+    image: rancher/mirrored-coreos-etcd:v3.5.25
+    container_name: rag-etcd
+    environment:
+      ETCD_AUTO_COMPACTION_MODE: revision
+      ETCD_AUTO_COMPACTION_RETENTION: "1000"
+      ETCD_QUOTA_BACKEND_BYTES: "4294967296"
+      ETCD_SNAPSHOT_COUNT: "50000"
+    command: >
+      etcd -advertise-client-urls=http://etcd:2379
+           -listen-client-urls http://0.0.0.0:2379
+           --data-dir /etcd
+    volumes:
+      - etcd-data:/etcd
+    networks:
+      - rag-net
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:RELEASE.2024-05-28T17-19-04Z
+    container_name: rag-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: minio server /minio_data --console-address ":9001"
+    volumes:
+      - minio-data:/minio_data
+    networks:
+      - rag-net
+    restart: unless-stopped
+
+  # ── 关系库 MariaDB（兼容 MySQL，pymysql 直连；首启自动建库建表，见 database.py:_init_tables）──
+  mysql:
+    image: mariadb:10.11
+    container_name: rag-mysql
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: rag_chat
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - rag-net
+    restart: unless-stopped
+
+  # ── 会话缓存 Redis ──
+  redis:
+    image: redis:7-alpine
+    container_name: rag-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rag-net
+    restart: unless-stopped
+
+# 命名卷：有状态数据持久化（容器删了数据还在）
+volumes:
+  milvus-data:
+  etcd-data:
+  minio-data:
+  mysql-data:
+  redis-data:
+
+networks:
+  rag-net:
+    driver: bridge

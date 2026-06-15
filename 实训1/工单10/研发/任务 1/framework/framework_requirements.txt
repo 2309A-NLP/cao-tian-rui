@@ -1,0 +1,13 @@
+# framework_requirements.txt —— 框架核心依赖（零运行时依赖）
+#
+# 本文件声明了 framework/ 本身的依赖要求。
+# framework/ 的代码只依赖 Python 标准库（dataclasses, abc, json, os, typing），
+# 没有第三方依赖。
+#
+# 当你用 framework/ 构建具体项目时，才需要引入额外的依赖：
+#   - 用 OpenAI 的 LLM → pip install openai
+#   - 用 sentence-transformers 做嵌入 → pip install sentence-transformers
+#   - 用 FAISS 做向量检索 → pip install faiss-cpu
+#   - 用 PyMuPDF 解析 PDF → pip install pymupdf
+#
+# framework/ 本身：不需要 pip install 任何东西。

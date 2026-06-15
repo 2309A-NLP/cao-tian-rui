@@ -1,0 +1,48 @@
+# 构建上下文裁剪：这些目录/文件靠卷挂载或不需要，不进镜像
+# 大文件 & 数据（运行时走卷挂载）
+output/
+logs/
+knowledge_base/
+lightrag_storage/
+backend/lightrag_storage/
+
+# 模型（只读卷挂载，4.3G）
+*.bin
+*.safetensors
+
+# Python 缓存 / 虚拟环境
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.venv/
+gpu_env/
+conda_env/
+
+# 本地配置（含密钥，容器用 config.docker.json）
+config.json
+
+# 中间/临时
+*.part
+tmp_*.py
+*.orig
+
+# Git / IDE / OS
+.git/
+.gitignore
+.idea/
+.vscode/
+.claude/
+Thumbs.db
+.DS_Store
+
+# 文档（不影响运行）
+*.md
+DOCKER_部署计划.md
+
+# 测试与评估脚本（运行时不需要）
+tests/
+backend/eval_*.py
+backend/test_*.py
+backend/ccf_testset.json
+test_*.py

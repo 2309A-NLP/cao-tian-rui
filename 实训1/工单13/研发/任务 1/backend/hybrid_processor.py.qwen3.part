@@ -1,0 +1,135 @@
+
+# ─── API 调用器 ─────────────────────────────────────────────────────
+
+class Qwen3VLClient:
+    """Qwen3-VL-Plus 多模态 API 客户端（基于阿里云 DashScope）
+    
+    用于替代 PaddleOCR-VL，对非纯文字页（表格/图表/混合页）进行多模态内容提取。
+    通过 DashScope 兼容 OpenAI SDK 格式调用。
+    """
+    
+    def __init__(self, api_key: str = "", 
+                 base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1",
+                 model: str = "qwen3-vl-plus"):
+        self.api_key = api_key
+        self.base_url = base_url.rstrip("/")
+        self.model = model
+    
+    def parse_page(self, image_path: str, page_num: int, 
+                   content_type: str = "table") -> dict:
+        """使用 Qwen3-VL-Plus 解析非纯文字页面
+        
+        Args:
+            image_path: 页面图片路径 (PNG)
+            page_num: 页码（仅用于日志）
+            content_type: "table" | "image" | "mixed"
+        Returns:
+            {"markdown": str, "success": bool, "error": str}
+        """
+        if not self.api_key:
+            return {"markdown": "", "success": False, "error": "API Key 未配置"}
+        
+        # 按页面类型定制 prompt
+        prompt_templates = {
+            "table": """请仔细分析这张图片中的所有内容，输出结构化的 Markdown。
+
+要求：
+1. 如果图片包含表格，提取所有表格数据，保持行列对应关系
+2. 如果图片包含多个子图（如左侧饼图/占比图 + 右侧柱状图/增长率图），请**分开提取**每个子图的数据，并标注清楚哪个图是什么数据
+3. 如果图片包含图表，输出图表的标题、坐标轴说明、数据点
+4. 保留所有文字说明、注释、来源信息
+5. **特别注意：区分"市场份额/占比"和"增长率"——如果一列是百分比，请判断它是占比还是增长率**
+
+输出格式：
+- 用 ## 标注每个子图的标题
+- 表格用标准的 Markdown 表格格式
+- 图表数据用列表或表格形式输出""",
+
+            "image": """请仔细分析这张图片中的所有内容，输出结构化的 Markdown。
+
+要求：
+1. 提取图片中的所有文字内容
+2. 如果包含图表，描述图表类型、标题、坐标轴、数据趋势
+3. 如果包含流程图或组织结构图，用列表或缩进表示层级关系
+4. 保留所有注释和说明文字
+
+输出格式：
+- 用 ## 标注每个部分
+- 表格用标准 Markdown 格式
+- 层级关系用缩进""",
+
+            "mixed": """请仔细分析这张图片中的所有内容，输出结构化的 Markdown。
+
+要求：
+1. 提取所有纯文字段落
+2. 提取所有表格数据
+3. 提取所有图表信息（类型、数据、趋势）
+4. 区分文字描述和表格/图表数据
+5. 如果同时包含多个图表，分开提取并标注
+6. **特别注意：如果页面上同时有占比图和增长率图，请明确区分哪个是占比、哪个是增长率**
+
+输出格式：
+- 文字段落保持原文
+- 表格用标准 Markdown 表格格式
+- 图表数据用 ## 标注"""
+        }
+        
+        prompt = prompt_templates.get(content_type, prompt_templates["table"])
+        return self._call_api(image_path, prompt, page_num)
+    
+    def _call_api(self, image_path: str, prompt: str, page_num: int) -> dict:
+        """调用 DashScope API"""
+        import base64
+        import httpx
+        
+        try:
+            with open(image_path, "rb") as f:
+                img_data = base64.b64encode(f.read()).decode("utf-8")
+            
+            img_base64 = f"data:image/png;base64,{img_data}"
+            
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+            }
+            
+            payload = {
+                "model": self.model,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "image_url", "image_url": {"url": img_base64}},
+                            {"type": "text", "text": prompt},
+                        ],
+                    }
+                ],
+                "max_tokens": 4096,
+                "temperature": 0.1,
+            }
+            
+            with httpx.Client(timeout=120) as client:
+                resp = client.post(
+                    f"{self.base_url}/chat/completions",
+                    json=payload,
+                    headers=headers,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+            
+            content = data["choices"][0]["message"]["content"]
+            
+            if content and content.strip():
+                return {"markdown": content.strip(), "success": True, "error": ""}
+            else:
+                return {"markdown": "", "success": False, "error": "模型返回空内容"}
+                
+        except httpx.TimeoutException:
+            return {"markdown": "", "success": False, "error": "API 请求超时"}
+        except httpx.HTTPStatusError as e:
+            return {"markdown": "", "success": False, "error": f"HTTP {e.response.status_code}: {e.response.text[:200]}"}
+        except Exception as e:
+            return {"markdown": "", "success": False, "error": str(e)}
+
+
+# ─── 页面分类器 ─────────────────────────────────────────────────────

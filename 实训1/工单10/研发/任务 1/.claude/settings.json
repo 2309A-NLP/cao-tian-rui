@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la)",
+      "Bash(dir)",
+      "Bash(python tmp_inspect_chunks.py)",
+      "Bash(mkdir -p output/eval_history)",
+      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 python backend/eval_compare.py --list)",
+      "Bash(PYTHONIOENCODING=utf-8 python backend/eval_compare.py)",
+      "Bash(cd \"e:\\\\10--agent--任务\\\\任务 1\" && ls \"C:\\\\Users\\\\ctr\\\\.claude\\\\projects\\\\e--10--agent--------1\\\\memory\\\\\" 2>/dev/null && echo \"---\" && cat \"C:\\\\Users\\\\ctr\\\\.claude\\\\projects\\\\e--10--agent--------1\\\\memory\\\\MEMORY.md\" 2>/dev/null || echo \"MEMORY.md not yet created\")",
+      "Read(//c/Users/ctr/.claude/projects/e--10--agent--------1/memory\" 2>/dev/null && echo --- && cat C:Usersctr.claudeprojectse--10--agent--------1memoryMEMORY.md 2>/dev/**)",
+      "Bash(ls 'C:\\\\Users\\\\ctr\\\\.claude\\\\projects\\\\e--10--agent--------1\\\\memory' 2>/dev/null; echo '---MEMORY.md---'; cat 'C:\\\\Users\\\\ctr\\\\.claude\\\\projects\\\\e--10--agent--------1\\\\memory\\\\MEMORY.md' 2>/dev/null || echo 'none yet')",
+      "Read(//c/Users/ctr/.claude/projects/e--10--agent--------1/**)",
+      "Bash(python -m py_compile retrieval_strategy.py)",
+      "Bash(python -m py_compile rag_engine.py)",
+      "Bash(python -m py_compile rebuild_unified_index.py)",
+      "Bash(python -m py_compile backend/eval_quick.py)",
+      "Bash(mkdir -p \"E:/讲评/三性六讲\")",
+      "Read(//e/讲评/**)",
+      "Bash(rm -f \"E:/讲评/三性六讲/语料.doc\" && echo \"占位文件已删除，可写入新内容\")",
+      "Bash(PYTHONIOENCODING=utf-8 python -c \"import json; d=json.load\\(open\\('output/eval_history/eval_20260612_191127_default.json',encoding='utf-8'\\)\\); print\\('ok', d['timestamp'], d['passed'],'/',d['total']\\)\")",
+      "Bash(python -m py_compile eval_quick.py)",
+      "Bash(python -m py_compile eval_quick.py embedding_provider.py)",
+      "Bash(mkdir -p \"E:/upload/实训1/工单7\")",
+      "Read(//e/upload/实训1/**)",
+      "Bash(python -c ' *)",
+      "Bash(curl -s -m 60 -X POST http://localhost:8010/api/ask -H \"Content-Type: application/json\" -d '{\"query\":\"兴图新科的注册资本是多少？\",\"mode\":\"rag\"}')",
+      "Bash(python -c \"import json; open\\('/tmp/q.json','w',encoding='utf-8'\\).write\\(json.dumps\\({'query':'兴图新科的注册资本是多少？','mode':'rag'},ensure_ascii=False\\)\\)\")",
+      "Bash(time curl -s -m 90 -X POST http://localhost:8010/api/ask -H \"Content-Type: application/json; charset=utf-8\" --data-binary @/tmp/q.json)",
+      "Bash(python -c \"import json; d=json.load\\(open\\('/tmp/resp.json',encoding='utf-8'\\)\\); print\\('answer:', \\(d.get\\('answer'\\) or ''\\)[:400]\\); srcs=d.get\\('sources'\\) or d.get\\('contexts'\\) or d.get\\('retrieval'\\) or []; print\\('---'\\); print\\('sources:', len\\(srcs\\) if isinstance\\(srcs,list\\) else srcs\\); print\\('keys:', list\\(d.keys\\(\\)\\)\\)\")",
+      "Bash(python -c \"import json; open\\('_q.json','w',encoding='utf-8'\\).write\\(json.dumps\\({'query':'兴图新科的注册资本是多少？','mode':'rag'},ensure_ascii=False\\)\\)\")",
+      "Bash(time curl -s -m 90 -X POST http://localhost:8010/api/ask -H \"Content-Type: application/json\" --data-binary @_q.json -o _resp.json)",
+      "Bash(python -c \"import json; d=json.load\\(open\\('_resp.json',encoding='utf-8'\\)\\); print\\('keys:', list\\(d.keys\\(\\)\\)\\); print\\('answer:', \\(d.get\\('answer'\\) or ''\\)[:400]\\); srcs=d.get\\('sources'\\) or d.get\\('contexts'\\) or []; print\\('sources:', len\\(srcs\\) if isinstance\\(srcs,list\\) else srcs\\)\")",
+      "Bash(rm -f _q.json _resp.json)",
+      "Bash(python -c \"import json; open\\('_sf.json','w',encoding='utf-8'\\).write\\(json.dumps\\({'model':'deepseek-ai/DeepSeek-V3','messages':[{'role':'user','content':'说一句你好'}],'max_tokens':20},ensure_ascii=False\\)\\)\")",
+      "Bash(curl -s -m 30 -X POST https://api.siliconflow.cn/v1/chat/completions -H \"Authorization: Bearer sk-dqfduudgewfqyvaqyrenhawbcjztqgnfvqwygrlbrjuzzrio\" -H \"Content-Type: application/json\" --data-binary @_sf.json)",
+      "Bash(curl -s -m 90 -X POST http://localhost:8010/api/ask -H \"Content-Type: application/json\" --data-binary @_q.json -o _resp.json -w \"HTTP %{http_code}  耗时 %{time_total}s\\\\n\")",
+      "Bash(python -c \"import json; d=json.load\\(open\\('_resp.json',encoding='utf-8'\\)\\); print\\('answer:', \\(d.get\\('answer'\\) or ''\\)[:300]\\); print\\('sources:', len\\(d.get\\('sources'\\) or []\\)\\); print\\('retr_ms:', d.get\\('retrieval_time_ms'\\),'| llm_ms:', d.get\\('llm_time_ms'\\),'| total_ms:', d.get\\('total_time_ms'\\)\\)\")",
+      "Bash(curl -s -m 90 -X POST http://localhost:8010/api/ask -H \"Content-Type: application/json\" --data-binary @_q.json -o _resp.json)",
+      "Bash(python -c \"import json; print\\(json.load\\(open\\('_resp.json',encoding='utf-8'\\)\\)['answer']\\)\")",
+      "Bash(rm -f _ans.txt)",
+      "Bash(docker volume *)",
+      "Bash(docker network *)"
+    ],
+    "additionalDirectories": [
+      "E:\\讲评\\三性六讲",
+      "E:\\upload\\实训1\\工单7"
+    ]
+  }
+}
