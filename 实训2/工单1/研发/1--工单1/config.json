@@ -1,5 +1,5 @@
 {
-  "llm_api_key": "sk-85562f854b1c4abfa8e956d977326e46",
+  "llm_api_key": "xxxx",
   "llm_base_url": "https://api.deepseek.com",
   "llm_model": "deepseek-chat",
   "llm_temperature": 0.3,
