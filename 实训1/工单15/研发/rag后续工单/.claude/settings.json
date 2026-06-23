@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"/e/upload/实训1/工单14\" -type f 2>/dev/null | sort)",
+      "Read(//e/upload/实训1/工单14/**)",
+      "Bash(python t15_retrieval_diag.py 0.3 0.05 - none)",
+      "Bash(python t15_answers.py 40d4a4e468ab11f1868a810dbccbbded baseline)",
+      "Bash(python t15_answers.py 40d4a4e468ab11f1868a810dbccbbded round1_crossmodal)",
+      "Read(//e/upload/实训1/工单15/**)"
+    ],
+    "additionalDirectories": [
+      "E:\\upload\\实训1\\工单14\\研发",
+      "E:\\upload\\实训1\\工单15\\设计",
+      "E:\\upload\\实训1\\工单15\\优化",
+      "E:\\upload\\实训1\\工单15\\部署"
+    ]
+  }
+}

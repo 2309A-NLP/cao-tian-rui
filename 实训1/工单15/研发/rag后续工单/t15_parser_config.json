@@ -1,0 +1,16 @@
+{
+  "parser_config": {
+    "layout_recognize": "DeepDOC",
+    "chunk_token_num": 512,
+    "delimiter": "\n",
+    "image_context_size": 2,
+    "table_context_size": 2,
+    "image_table_context_window": 2,
+    "auto_keywords": 0,
+    "auto_questions": 0,
+    "topn_tags": 3,
+    "html4excel": false,
+    "raptor": { "use_raptor": false },
+    "graphrag": { "use_graphrag": false }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "llm_api_key": "sk-85562f854b1c4abfa8e956d977326e46",
+  "llm_base_url": "https://api.deepseek.com",
+  "llm_model": "deepseek-chat",
+  "llm_temperature": 0.3,
+  "db_host": "127.0.0.1",
+  "db_port": 3306,
+  "db_user": "root",
+  "db_password": "root",
+  "db_name": "agent_money_book",
+  "log_dir": "logs",
+  "max_tool_call_rounds": 5
+}
