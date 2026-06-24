@@ -1,0 +1,11 @@
+{
+  "llm_base_url": "https://api.siliconflow.cn/v1",
+  "llm_model": "deepseek-ai/DeepSeek-V3",
+  "llm_temperature": 0.3,
+  "db_host": "127.0.0.1",
+  "db_port": 3306,
+  "db_user": "root",
+  "db_name": "agent_schedule_reminder",
+  "log_dir": "logs",
+  "max_tool_call_rounds": 5
+}
