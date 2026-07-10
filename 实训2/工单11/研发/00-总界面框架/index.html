@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>健康助理 Agent - 医疗智能体</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;background:#F0FDFA;color:#134E4A;height:100vh;overflow:hidden}
+/* ── 顶部栏 ── */
+.topbar{height:60px;background:#fff;border-bottom:1px solid #E5F5F2;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;top:0;left:0;right:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600;color:#0D9488}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#0D9488,#06B6D4);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.icon-btn{width:36px;height:36px;border-radius:50%;background:#F0FDFA;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;position:relative}
+.icon-btn:hover{background:#E5F5F2}
+.badge{position:absolute;top:2px;right:2px;width:8px;height:8px;background:#EF4444;border-radius:50%}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0D9488,#06B6D4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+/* ── 侧边栏 ── */
+.sidebar{width:220px;background:#fff;border-right:1px solid #E5F5F2;position:fixed;top:60px;left:0;bottom:0;padding:16px 12px;display:flex;flex-direction:column;gap:4px;z-index:90;overflow-y:auto;align-items:stretch}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;cursor:pointer;font-size:14px;color:#5F7976;transition:all .2s}
+.nav-item:hover{background:#F0FDFA;color:#0D9488}
+.nav-item.active{background:linear-gradient(135deg,#0D9488,#06B6D4);color:#fff;box-shadow:0 2px 8px rgba(13,148,136,.3)}
+.nav-icon{font-size:20px;width:24px;text-align:center}
+.nav-divider{height:1px;background:#E5F5F2;margin:8px 0}
+/* ── 主区域 ── */
+.main{margin-left:220px;margin-top:60px;height:calc(100vh - 60px);display:flex;flex-direction:column;padding:24px;gap:16px;overflow:hidden}
+.module-area{flex:1;background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:24px;overflow-y:auto}
+.module-panel{display:none}
+.module-panel.active{display:block}
+/* ── 聊天输入栏 ── */
+.chat-input-bar{background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:14px 20px;display:flex;align-items:center;gap:12px}
+.chat-input{flex:1;height:44px;border:1px solid #CDECE8;border-radius:22px;padding:0 20px;font-size:14px;outline:none;background:#FAFEFD;color:#134E4A}
+.chat-input:focus{border-color:#0D9488}
+.send-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0D9488,#06B6D4);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.send-btn:hover{opacity:.9}
+.send-btn:disabled{opacity:.5;cursor:not-allowed}
+/* ── 公共组件 ── */
+.btn{padding:8px 16px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,#0D9488,#06B6D4);color:#fff}
+.btn-primary:hover{opacity:.9}
+.btn-outline{background:#fff;border:1px solid #CDECE8;color:#0D9488}
+.btn-outline:hover{background:#F0FDFA}
+.btn-sm{padding:5px 12px;font-size:12px}
+.tag{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:500}
+.tag-green{background:#D1FAE5;color:#065F46}
+.tag-orange{background:#FEF3C7;color:#92400E}
+.tag-gray{background:#F3F4F6;color:#4B5563}
+.tag-blue{background:#E0F2FE;color:#0C4A6E}
+.card{background:#FAFEFD;border:1px solid #E5F5F2;border-radius:12px;padding:16px;margin-bottom:10px}
+/* ── 挂号模块专属 ── */
+.stats-row{display:flex;gap:14px;margin-bottom:20px}
+.stat-card{flex:1;background:#FAFEFD;border:1px solid #E5F5F2;border-radius:12px;padding:18px;text-align:center}
+.stat-num{font-size:30px;font-weight:700}
+.stat-label{font-size:12px;color:#5F7976;margin-top:4px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid #E5F5F2;padding-bottom:8px;margin-bottom:16px}
+.tab{padding:7px 16px;border-radius:8px;font-size:13px;cursor:pointer;color:#5F7976;transition:all .2s}
+.tab:hover{color:#0D9488}
+.tab.active{background:#F0FDFA;color:#0D9488;font-weight:600}
+.filter-bar{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.filter-select{height:40px;border:1px solid #CDECE8;border-radius:10px;padding:0 12px;font-size:13px;background:#FAFEFD;color:#134E4A;outline:none;min-width:120px}
+.filter-select:focus{border-color:#0D9488}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{background:#F0FDFA;padding:11px 12px;text-align:left;font-weight:600;color:#134E4A;border-bottom:2px solid #E5F5F2}
+.data-table td{padding:11px 12px;border-bottom:1px solid #F0FDFA;color:#5F7976}
+.data-table tr:hover td{background:#FAFEFD}
+.empty-tip{text-align:center;padding:40px;color:#5F7976;font-size:13px}
+/* ── 弹窗 ── */
+.overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:200}
+.overlay.show{display:flex}
+.dialog{background:#fff;border-radius:16px;padding:24px;width:420px;box-shadow:0 10px 40px rgba(0,0,0,.15)}
+.dialog-title{font-size:17px;font-weight:600;margin-bottom:16px;color:#134E4A}
+.dialog-row{display:flex;justify-content:space-between;padding:9px 0;font-size:14px;border-bottom:1px solid #F0FDFA}
+.dialog-row:last-of-type{border-bottom:none}
+.dialog-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+/* ── 对话气泡 ── */
+.bubble-wrap{padding:0 4px}
+.bubble{display:flex;gap:12px;margin-bottom:14px}
+.bubble.user{flex-direction:row-reverse}
+.b-avatar{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px}
+.b-avatar.ai{background:linear-gradient(135deg,#0D9488,#06B6D4);color:#fff}
+.b-avatar.user{background:#E5F5F2;color:#0D9488}
+.b-content{max-width:72%;padding:11px 15px;border-radius:12px;font-size:14px;line-height:1.65}
+.b-content.ai{background:#fff;border:1px solid #E5F5F2;color:#134E4A}
+.b-content.user{background:linear-gradient(135deg,#0D9488,#06B6D4);color:#fff}
+.typing{display:inline-flex;gap:4px;align-items:center}
+.typing span{width:6px;height:6px;background:#CDECE8;border-radius:50%;animation:blink 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+/* ── 首页快捷操作 ── */
+.welcome-area{text-align:center;padding:48px 20px 24px}
+.welcome-avatar{width:72px;height:72px;background:linear-gradient(135deg,#0D9488,#06B6D4);border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:38px}
+.welcome-title{font-size:22px;font-weight:600;margin-bottom:8px}
+.welcome-sub{font-size:14px;color:#5F7976;margin-bottom:28px}
+.quick-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
+.qa-btn{background:#fff;border:1px solid #E5F5F2;border-radius:12px;padding:14px 18px;cursor:pointer;transition:all .2s;min-width:150px;text-align:center}
+.qa-btn:hover{border-color:#0D9488;box-shadow:0 2px 8px rgba(13,148,136,.12);background:#FAFEFD}
+.qa-icon{font-size:26px;margin-bottom:6px}
+.qa-text{font-size:12px;color:#134E4A;font-weight:500}
+/* ── 占位模块 ── */
+.placeholder-module{display:flex;flex-direction:column;align-items:center;justify-content:center;height:400px;color:#5F7976}
+.placeholder-icon{font-size:56px;margin-bottom:16px;opacity:.5}
+.placeholder-title{font-size:16px;font-weight:600;margin-bottom:8px}
+.placeholder-sub{font-size:13px}
+/* ── 执行过程折叠面板 ── */
+.trace-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#0D9488;cursor:pointer;
+  background:#E0FDF4;border:1px solid #A7F3D0;border-radius:8px;padding:4px 10px;
+  margin-bottom:6px;user-select:none;white-space:nowrap;}
+.trace-toggle:hover{background:#CCFBF1;}
+.trace-panel{background:#FAFFFE;border:1px solid #D1FAE5;border-radius:10px;padding:10px 12px;
+  font-size:12px;overflow:hidden;display:none;margin-bottom:6px;}
+.trace-panel.open{display:block;}
+.trace-step{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid #E0FDF4;}
+.trace-step:last-child{border-bottom:none;}
+.step-badge{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.step-ok{background:#D1FAE5;color:#065F46;}.step-fail{background:#FEE2E2;color:#991B1B;}
+.step-label{font-weight:600;color:#134E4A;margin-bottom:3px;}
+.step-detail pre{white-space:pre-wrap;background:#F0FDFA;border-radius:6px;padding:5px 8px;margin-top:3px;font-size:11px;font-family:monospace;color:#5F7976;}
+</style>
+</head>
+<body>
+
+<!-- 顶部栏 -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">+</div>
+    <span>健康助理 Agent</span>
+  </div>
+  <div class="topbar-right">
+    <div class="icon-btn" title="通知">🔔<span class="badge"></span></div>
+    <div class="icon-btn" title="设置">⚙️</div>
+    <div class="avatar" title="张三">张</div>
+  </div>
+</div>
+
+<!-- 侧边栏 -->
+<div class="sidebar">
+  <div class="nav-item" id="nav-home" onclick="switchModule('home')">
+    <span class="nav-icon">🤖</span><span>AI 对话大厅</span>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-item active" id="nav-reg" onclick="switchModule('reg')">
+    <span class="nav-icon">📋</span><span>挂号管理</span>
+  </div>
+  <div class="nav-item" id="nav-consult" onclick="switchModule('consult')">
+    <span class="nav-icon">💬</span><span>健康咨询</span>
+  </div>
+  <div class="nav-item" id="nav-imaging" onclick="switchModule('imaging')">
+    <span class="nav-icon">🖼️</span><span>影像分析</span>
+  </div>
+  <div class="nav-item" id="nav-travel" onclick="switchModule('travel')">
+    <span class="nav-icon">🗺️</span><span>出行服务</span>
+  </div>
+  <div class="nav-item" id="nav-voice" onclick="switchModule('voice')">
+    <span class="nav-icon">🎤</span><span>语音助手</span>
+  </div>
+</div>
+
+<!-- 主内容区 -->
+<div class="main">
+  <div class="module-area" id="module-area">
+
+    <!-- ── 首页：AI 对话大厅 ── -->
+    <div id="module-home" class="module-panel">
+      <div class="welcome-area">
+        <div class="welcome-avatar">🤖</div>
+        <div class="welcome-title">你好，我是你的健康助理</div>
+        <div class="welcome-sub">告诉我你的需求，我可以帮你挂号、咨询健康问题、分析影像...</div>
+        <div class="quick-actions">
+          <div class="qa-btn" onclick="fillAndSend('帮我大宝挂一个今天下午儿科专家的号')">
+            <div class="qa-icon">📋</div><div class="qa-text">帮我大宝挂儿科专家号</div>
+          </div>
+          <div class="qa-btn" onclick="fillAndSend('牙科最近的号哪天的？')">
+            <div class="qa-icon">🦷</div><div class="qa-text">查最近牙科号源</div>
+          </div>
+          <div class="qa-btn" onclick="fillAndSend('帮我查下张建国医生下周的坐诊时间')">
+            <div class="qa-icon">🗓️</div><div class="qa-text">查医生排班</div>
+          </div>
+          <div class="qa-btn" onclick="fillAndSend('取消我上周三挂的消化内科普通号')">
+            <div class="qa-icon">❌</div><div class="qa-text">取消挂号</div>
+          </div>
+        </div>
+      </div>
+      <div class="bubble-wrap" id="home-chat-history"></div>
+    </div>
+
+    <!-- ── 挂号管理 ── -->
+    <div id="module-reg" class="module-panel active">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:24px">📋</span>
+        <span style="font-size:20px;font-weight:600;color:#134E4A">挂号管理</span>
+      </div>
+      <!-- 挂号规则提示横幅 -->
+      <div style="background:#E0FDF4;border:1px solid #A7F3D0;border-radius:10px;padding:10px 16px;margin-bottom:16px;font-size:13px;color:#065F46;display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+        <span>📌 <b>挂号规则：</b></span>
+        <span>🗓️ 可提前 <b>1~14 天</b>预约</span>
+        <span>💳 专家号 <b>¥50</b>／普通号 <b>¥15</b></span>
+        <span>⏰ 当天号当日结束前均可挂</span>
+        <span>❌ 取消须在就诊日<b>当天前</b>操作</span>
+        <span>👨‍⚕️ 主任/副主任出专家号，主治出普通号</span>
+      </div>
+      <!-- 统计卡片 -->
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num" id="stat-pending" style="color:#0D9488">-</div><div class="stat-label">待就诊</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-total" style="color:#06B6D4">-</div><div class="stat-label">历史记录</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-canceled" style="color:#F59E0B">-</div><div class="stat-label">已取消</div></div>
+      </div>
+      <!-- Tab 导航 -->
+      <div class="tabs">
+        <div class="tab active" id="tab-query" onclick="switchRegTab('query')">号源查询</div>
+        <div class="tab" id="tab-my" onclick="switchRegTab('my')">我的预约</div>
+        <div class="tab" id="tab-schedule" onclick="switchRegTab('schedule')">医生排班</div>
+      </div>
+      <!-- Tab 内容 1：号源查询 -->
+      <div id="regcontent-query">
+        <div class="filter-bar">
+          <select class="filter-select" id="filter-dept">
+            <option value="">全部科室</option>
+            <option value="内科">内科</option>
+            <option value="外科">外科</option>
+            <option value="儿科">儿科</option>
+            <option value="皮肤科">皮肤科</option>
+            <option value="眼科">眼科</option>
+            <option value="牙科">牙科</option>
+            <option value="消化内科">消化内科</option>
+            <option value="心内科">心内科</option>
+          </select>
+          <input type="date" class="filter-select" id="filter-date-start" style="width:140px">
+          <input type="date" class="filter-select" id="filter-date-end" style="width:140px">
+          <select class="filter-select" id="filter-type">
+            <option value="">全部类型</option>
+            <option value="专家">专家号</option>
+            <option value="普通">普通号</option>
+          </select>
+          <button class="btn btn-primary" onclick="loadSlots()">查询号源</button>
+        </div>
+        <div id="slots-container">
+          <div class="empty-tip">请选择条件后点击查询</div>
+        </div>
+      </div>
+      <!-- Tab 内容 2：我的预约 -->
+      <div id="regcontent-my" style="display:none">
+        <div style="display:flex;gap:8px;margin-bottom:14px;font-size:13px">
+          <span id="subtab-upcoming" class="tab active" style="cursor:pointer" onclick="switchApptSubTab('upcoming')">待就诊</span>
+          <span id="subtab-history" class="tab" style="cursor:pointer" onclick="switchApptSubTab('history')">历史预约</span>
+        </div>
+        <div id="my-appt-container"><div class="empty-tip">加载中...</div></div>
+      </div>
+      <!-- Tab 内容 3：医生排班 -->
+      <div id="regcontent-schedule" style="display:none">
+        <div class="filter-bar">
+          <input type="text" class="filter-select" id="filter-doctor" placeholder="输入医生姓名（如 张建国）" style="min-width:220px">
+          <input type="date" class="filter-select" id="filter-sch-start" style="width:140px">
+          <input type="date" class="filter-select" id="filter-sch-end" style="width:140px">
+          <button class="btn btn-primary" onclick="loadDoctorSchedule()">查询排班</button>
+        </div>
+        <div id="schedule-container"><div class="empty-tip">请输入医生姓名后查询</div></div>
+      </div>
+      <!-- 挂号模块内对话记录 -->
+      <div style="margin-top:20px;border-top:1px solid #E5F5F2;padding-top:16px">
+        <div style="font-size:12px;color:#5F7976;margin-bottom:10px">AI 操作记录</div>
+        <div class="bubble-wrap" id="reg-chat-history"></div>
+      </div>
+    </div>
+
+    <!-- ── 健康咨询（工单12 · iframe 嵌入 http://localhost:8012）── -->
+    <div id="module-consult" class="module-panel" style="padding:0;height:100%;">
+      <iframe id="iframe-consult"
+              src=""
+              data-src="http://localhost:8012/"
+              style="width:100%;height:100%;min-height:600px;border:0;background:#F0FDFA;"
+              title="健康咨询"></iframe>
+      <div id="consult-offline" style="display:none;padding:40px;text-align:center;color:#5F7976;">
+        <div style="font-size:48px;margin-bottom:12px">💬</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:6px">健康咨询服务未启动</div>
+        <div style="font-size:13px;margin-bottom:16px">请先启动工单12后端：<code>uvicorn src.app:app --port 8012</code></div>
+        <button class="btn btn-outline" onclick="loadConsultFrame(true)">重新加载</button>
+      </div>
+    </div>
+
+    <!-- ── 影像分析（工单13 · iframe 嵌入 http://localhost:8013）── -->
+    <div id="module-imaging" class="module-panel" style="padding:0;height:100%;">
+      <iframe id="iframe-imaging"
+              src=""
+              data-src="http://localhost:8013/"
+              style="width:100%;height:100%;min-height:600px;border:0;background:#F0FDFA;"
+              title="影像分析"></iframe>
+      <div id="imaging-offline" style="display:none;padding:40px;text-align:center;color:#5F7976;">
+        <div style="font-size:48px;margin-bottom:12px">🖼️</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:6px">影像分析服务未启动</div>
+        <div style="font-size:13px;margin-bottom:16px">请先启动工单13后端：<code>cd "F:\kimi  project\医疗agent1\03-影像分析\backend" &amp;&amp; .\.venv\Scripts\python.exe -m uvicorn src.api:app --host 0.0.0.0 --port 8013</code></div>
+        <button class="btn btn-outline" onclick="loadImagingFrame(true)">重新加载</button>
+      </div>
+    </div>
+
+    <!-- ── 出行服务（工单14 · iframe 嵌入 http://localhost:8014）── -->
+    <div id="module-travel" class="module-panel" style="padding:0;height:100%;">
+      <iframe id="iframe-travel"
+              src=""
+              data-src="http://localhost:8014/"
+              style="width:100%;height:100%;min-height:600px;border:0;background:#F0FDFA;"
+              title="出行服务"></iframe>
+      <div id="travel-offline" style="display:none;padding:40px;text-align:center;color:#5F7976;">
+        <div style="font-size:48px;margin-bottom:12px">🗺️</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:6px">出行服务未启动</div>
+        <div style="font-size:13px;margin-bottom:16px">请先启动工单14 MCP 网关：<code>uvicorn mcp_client.api_server:app --port 8014</code></div>
+        <button class="btn btn-outline" onclick="loadTravelFrame(true)">重新加载</button>
+      </div>
+    </div>
+
+    <!-- ── 语音助手（工单15 · iframe 嵌入 http://localhost:8015）── -->
+    <div id="module-voice" class="module-panel" style="padding:0;height:100%;">
+      <iframe id="iframe-voice"
+              src=""
+              data-src="http://localhost:8015/"
+              allow="microphone"
+              style="width:100%;height:100%;min-height:600px;border:0;background:#F0FDFA;"
+              title="语音助手"></iframe>
+      <div id="voice-offline" style="display:none;padding:40px;text-align:center;color:#5F7976;">
+        <div style="font-size:48px;margin-bottom:12px">🎤</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:6px">语音助手服务未启动</div>
+        <div style="font-size:13px;margin-bottom:16px">请先启动工单15后端：<code>cd "F:\kimi  project\医疗agent1\05-实时语音识别\backend" &amp;&amp; .\venv\Scripts\python.exe -m uvicorn src.app:app --host 127.0.0.1 --port 8015</code></div>
+        <button class="btn btn-outline" onclick="loadVoiceFrame(true)">重新加载</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部聊天输入栏 -->
+  <div class="chat-input-bar">
+    <span style="font-size:20px;color:#0D9488">🤖</span>
+    <input class="chat-input" id="chat-input" placeholder="输入消息，按 Enter 发送... (当前模块: AI 对话大厅)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}">
+    <button class="send-btn" id="send-btn" onclick="sendChat()" title="发送">➤</button>
+  </div>
+</div>
+
+<!-- 预约确认弹窗 -->
+<div class="overlay" id="book-overlay">
+  <div class="dialog">
+    <div class="dialog-title">📋 确认预约信息</div>
+    <div class="dialog-row"><span style="color:#5F7976">就诊人</span><span id="dlg-patient" style="font-weight:600"></span></div>
+    <div class="dialog-row"><span style="color:#5F7976">科室</span><span id="dlg-dept" style="font-weight:600"></span></div>
+    <div class="dialog-row"><span style="color:#5F7976">医生</span><span id="dlg-doctor" style="font-weight:600"></span></div>
+    <div class="dialog-row"><span style="color:#5F7976">日期</span><span id="dlg-date" style="font-weight:600"></span></div>
+    <div class="dialog-row"><span style="color:#5F7976">时段</span><span id="dlg-slot" style="font-weight:600"></span></div>
+    <div class="dialog-row"><span style="color:#5F7976">类型/费用</span><span id="dlg-fee" style="font-weight:600;color:#0D9488"></span></div>
+    <div class="dialog-actions">
+      <button class="btn btn-outline" onclick="closeBookDialog()">取消</button>
+      <button class="btn btn-primary" id="dlg-confirm-btn" onclick="confirmBook()">确认预约</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════
+// 配置
+// ════════════════════════════════════
+const CONFIG = {
+  REG_API: 'http://localhost:8011',   // 工单11 挂号后端
+  USER_ID: 1,                          // 演示用户固定为 user_id=1
+  API_KEY: '',                         // 空 = dev 模式不鉴权
+};
+
+const MODULE_PLACEHOLDER = {};
+const MODULE_API = {
+  home:   CONFIG.REG_API,
+  reg:    CONFIG.REG_API,
+  consult:'http://localhost:8012',
+  imaging:'http://localhost:8013',
+  travel: 'http://localhost:8014',
+  voice:  'http://localhost:8015',
+};
+const MODULE_LABEL = {
+  home:'AI 对话大厅', reg:'挂号管理', consult:'健康咨询',
+  imaging:'影像分析', travel:'出行服务', voice:'语音助手',
+};
+
+let currentModule = 'reg';
+let pendingBookSlot = null;   // 待确认的号源对象
+const _slotRegistry = {};     // sch_id → slot 对象，避免 onclick 内嵌 JSON
+
+// ════════════════════════════════════
+// 工具函数
+// ════════════════════════════════════
+function api(baseUrl, path, opts = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (CONFIG.API_KEY) headers['X-API-Key'] = CONFIG.API_KEY;
+  return fetch(baseUrl + path, { headers, ...opts }).then(r => r.json());
+}
+
+function today() { return new Date().toISOString().slice(0, 10); }
+function addDays(n) {
+  const d = new Date(); d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+function fmtDate(s) {
+  if (!s) return '';
+  const d = new Date(s + 'T00:00:00');
+  return `${d.getMonth()+1}月${d.getDate()}日`;
+}
+function tagAvailable(n) {
+  if (n === 0) return '<span class="tag tag-gray">已满</span>';
+  if (n <= 2)  return `<span class="tag tag-orange">剩余 ${n}</span>`;
+  return `<span class="tag tag-green">剩余 ${n}</span>`;
+}
+function tagStatus(s) {
+  if (s === 1) return '<span class="tag tag-green">待就诊</span>';
+  return '<span class="tag tag-gray">已取消</span>';
+}
+
+// ════════════════════════════════════
+// 导航切换
+// ════════════════════════════════════
+function switchModule(mod) {
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.module-panel').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-' + mod).classList.add('active');
+  document.getElementById('module-' + mod).classList.add('active');
+  currentModule = mod;
+  document.getElementById('chat-input').placeholder =
+    `输入消息，按 Enter 发送... (当前: ${MODULE_LABEL[mod]})`;
+
+  if (mod === 'reg') {
+    loadRegStats();
+    switchRegTab('query');
+  }
+  if (mod === 'consult') {
+    loadConsultFrame(false);
+  }
+  if (mod === 'imaging') {
+    loadImagingFrame(false);
+  }
+  if (mod === 'travel') {
+    loadTravelFrame(false);
+  }
+  if (mod === 'voice') {
+    loadVoiceFrame(false);
+  }
+
+  // consult/travel/voice 模块自带输入区，隐藏主框架底部栏避免重复
+  const chatBar = document.querySelector('.chat-input-bar');
+  if (chatBar) chatBar.style.display = (mod === 'consult' || mod === 'imaging' || mod === 'travel' || mod === 'voice') ? 'none' : '';
+}
+
+// ════════════════════════════════════
+// 健康咨询（工单12）iframe 懒加载
+// 注意：iframe.src=="" 会被浏览器解析为父页 URL，所以用 dataset.loaded 判空
+// ════════════════════════════════════
+function loadConsultFrame(force) {
+  const frame = document.getElementById('iframe-consult');
+  const offline = document.getElementById('consult-offline');
+  if (!frame) return;
+  if (frame.dataset.loaded === '1' && !force) return;
+  const target = frame.dataset.src;
+  frame.style.display = '';
+  offline.style.display = 'none';
+  frame.src = target;
+  frame.dataset.loaded = '1';
+}
+
+// ════════════════════════════════════
+// 影像分析（工单13）iframe 懒加载
+// ════════════════════════════════════
+function loadImagingFrame(force) {
+  const frame = document.getElementById('iframe-imaging');
+  const offline = document.getElementById('imaging-offline');
+  if (!frame) return;
+  if (frame.dataset.loaded === '1' && !force) return;
+  const target = frame.dataset.src;
+  fetch(target.replace(/\/$/, '') + '/health', { method: 'GET' })
+    .then(r => {
+      if (!r.ok) throw new Error('health check failed');
+      frame.style.display = '';
+      offline.style.display = 'none';
+      frame.src = target;
+      frame.dataset.loaded = '1';
+    })
+    .catch(() => {
+      frame.style.display = 'none';
+      offline.style.display = '';
+    });
+}
+
+// ════════════════════════════════════
+// 出行服务（工单14）iframe 懒加载
+// 与 consult 同套路，探测失败时展示 offline 提示
+// ════════════════════════════════════
+function loadTravelFrame(force) {
+  const frame = document.getElementById('iframe-travel');
+  const offline = document.getElementById('travel-offline');
+  if (!frame) return;
+  if (frame.dataset.loaded === '1' && !force) return;
+  const target = frame.dataset.src;
+  // 先探测网关是否 alive，失败则展示 offline 面板
+  fetch(target.replace(/\/$/, '') + '/health', { method:'GET' })
+    .then(r => {
+      if (!r.ok) throw new Error('health check failed');
+      frame.style.display = '';
+      offline.style.display = 'none';
+      frame.src = target;
+      frame.dataset.loaded = '1';
+    })
+    .catch(() => {
+      frame.style.display = 'none';
+      offline.style.display = '';
+    });
+}
+
+// ════════════════════════════════════
+// 语音助手（工单15）iframe 懒加载
+// ════════════════════════════════════
+function loadVoiceFrame(force) {
+  const frame = document.getElementById('iframe-voice');
+  const offline = document.getElementById('voice-offline');
+  if (!frame) return;
+  if (frame.dataset.loaded === '1' && !force) return;
+  const target = frame.dataset.src;
+  fetch(target.replace(/\/$/, '') + '/health', { method: 'GET' })
+    .then(r => {
+      if (!r.ok) throw new Error('health check failed');
+      frame.style.display = '';
+      offline.style.display = 'none';
+      frame.src = target;
+      frame.dataset.loaded = '1';
+    })
+    .catch(() => {
+      frame.style.display = 'none';
+      offline.style.display = '';
+    });
+}
+
+// ════════════════════════════════════
+// 挂号模块：统计卡片
+// ════════════════════════════════════
+function loadRegStats() {
+  api(CONFIG.REG_API, `/appointments/${CONFIG.USER_ID}`)
+    .then(r => {
+      if (r.ok) {
+        document.getElementById('stat-pending').textContent  = r.stats.pending;
+        document.getElementById('stat-total').textContent    = r.stats.total;
+        document.getElementById('stat-canceled').textContent = r.stats.canceled;
+      }
+    }).catch(() => {});
+}
+
+// ════════════════════════════════════
+// 挂号模块：Tab 切换
+// ════════════════════════════════════
+function switchRegTab(tab) {
+  ['query','my','schedule'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('regcontent-' + t).style.display = t === tab ? '' : 'none';
+  });
+  if (tab === 'my')       loadMyAppointments();
+  if (tab === 'query')    initSlotFilters();
+}
+
+function initSlotFilters() {
+  const ds = document.getElementById('filter-date-start');
+  const de = document.getElementById('filter-date-end');
+  if (!ds.value) ds.value = today();
+  if (!de.value) de.value = addDays(6);
+}
+
+// ════════════════════════════════════
+// Tab 1：号源查询
+// ════════════════════════════════════
+function loadSlots() {
+  const dept  = document.getElementById('filter-dept').value;
+  const ds    = document.getElementById('filter-date-start').value || today();
+  const de    = document.getElementById('filter-date-end').value   || addDays(6);
+  const type  = document.getElementById('filter-type').value;
+
+  let qs = `date_start=${ds}&date_end=${de}`;
+  if (dept) qs += `&dept=${encodeURIComponent(dept)}`;
+  if (type) qs += `&slot_type=${encodeURIComponent(type)}`;
+
+  document.getElementById('slots-container').innerHTML = '<div class="empty-tip">查询中...</div>';
+
+  api(CONFIG.REG_API, `/slots?${qs}`)
+    .then(r => renderSlotsTable(r))
+    .catch(() => {
+      document.getElementById('slots-container').innerHTML =
+        '<div class="empty-tip" style="color:#EF4444">服务连接失败，请确认后端已启动（端口 8011）</div>';
+    });
+}
+
+function renderSlotsTable(r) {
+  const el = document.getElementById('slots-container');
+  if (!r.ok || !r.slots.length) {
+    el.innerHTML = '<div class="empty-tip">暂无符合条件的号源</div>'; return;
+  }
+  // 存入注册表避免 onclick 嵌入 JSON（引号冲突）
+  r.slots.forEach(s => { _slotRegistry[s.sch_id] = s; });
+  const rows = r.slots.map(s => `
+    <tr>
+      <td>${fmtDate(s.date)}</td>
+      <td>${s.time_slot}</td>
+      <td style="font-weight:600;color:#134E4A">${s.doctor_name}</td>
+      <td>${s.d_Profession || ''}</td>
+      <td>${s.dept || ''}</td>
+      <td><span class="tag tag-blue">${s.slot_type || ''}</span></td>
+      <td>${tagAvailable(s.available)}</td>
+      <td>
+        ${s.available > 0
+          ? `<button class="btn btn-primary btn-sm" onclick="openBookDialog(${s.sch_id})">预约</button>`
+          : `<button class="btn btn-outline btn-sm" disabled>已满</button>`}
+      </td>
+    </tr>`).join('');
+  el.innerHTML = `
+    <table class="data-table">
+      <thead><tr><th>日期</th><th>时段</th><th>医生</th><th>职称</th><th>科室</th><th>类型</th><th>号源</th><th>操作</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ════════════════════════════════════
+// Tab 2：我的预约
+// ════════════════════════════════════
+let _apptSubTab = 'upcoming';   // 记住当前子 tab
+
+function switchApptSubTab(sub) {
+  _apptSubTab = sub;
+  document.getElementById('subtab-upcoming').classList.toggle('active', sub === 'upcoming');
+  document.getElementById('subtab-history').classList.toggle('active', sub === 'history');
+  loadMyAppointments();
+}
+
+function _tagBucketStatus(a) {
+  // 待就诊 / 已过期 / 已取消
+  if (a.reg_status === 0) return '<span class="tag tag-gray">已取消</span>';
+  if (a.bucket === 'history') return '<span class="tag tag-gray">已过期</span>';
+  return '<span class="tag tag-green">待就诊</span>';
+}
+
+function loadMyAppointments() {
+  const el = document.getElementById('my-appt-container');
+  el.innerHTML = '<div class="empty-tip">加载中...</div>';
+  api(CONFIG.REG_API, `/appointments/${CONFIG.USER_ID}?bucket=${_apptSubTab}`)
+    .then(r => {
+      if (!r.ok) { el.innerHTML = '<div class="empty-tip">加载失败</div>'; return; }
+      if (!r.appointments.length) {
+        const tip = _apptSubTab === 'upcoming' ? '暂无待就诊的预约' : '暂无历史预约';
+        el.innerHTML = `<div class="empty-tip">${tip}</div>`;
+        return;
+      }
+      el.innerHTML = r.appointments.map(a => {
+        const canCancel = a.bucket === 'upcoming' && a.reg_status === 1;
+        const regTimeStr = a.reg_time
+          ? `<div style="font-size:11px;color:#94A3B8;margin-top:2px">申请时间：${a.reg_time}</div>` : '';
+        return `
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div style="font-weight:600;font-size:14px;margin-bottom:4px">
+                ${a.dept} ${a.title} - ${a.doctor_name}
+              </div>
+              <div style="font-size:12px;color:#5F7976">
+                就诊人：${a.patient_name} &nbsp;|&nbsp; ${fmtDate(a.date)} ${a.time_slot}
+              </div>
+              ${regTimeStr}
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              ${_tagBucketStatus(a)}
+              ${canCancel ? `<button class="btn btn-outline btn-sm" onclick="cancelAppt(${a.reg_id}, '${a.dept}')">取消</button>` : ''}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }).catch(() => { el.innerHTML = '<div class="empty-tip" style="color:#EF4444">连接失败</div>'; });
+}
+
+function cancelAppt(regId, dept) {
+  if (!confirm(`确定取消该 ${dept} 挂号记录吗？`)) return;
+  const query = `取消我的挂号记录，挂号编号是 ${regId}`;
+  sendRegChat(query);
+}
+
+// ════════════════════════════════════
+// Tab 3：医生排班
+// ════════════════════════════════════
+function loadDoctorSchedule() {
+  const doctor = document.getElementById('filter-doctor').value.trim();
+  if (!doctor) { alert('请输入医生姓名'); return; }
+  const ds = document.getElementById('filter-sch-start').value || today();
+  const de = document.getElementById('filter-sch-end').value   || addDays(13);
+  const el = document.getElementById('schedule-container');
+  el.innerHTML = '<div class="empty-tip">查询中...</div>';
+  api(CONFIG.REG_API, `/schedule?doctor=${encodeURIComponent(doctor)}&date_start=${ds}&date_end=${de}`)
+    .then(r => {
+      if (!r.ok) { el.innerHTML = `<div class="empty-tip">${r.error || '未找到医生'}</div>`; return; }
+      if (!r.schedules.length) { el.innerHTML = '<div class="empty-tip">该时间段内无排班</div>'; return; }
+      const rows = r.schedules.map(s => `
+        <tr>
+          <td>${fmtDate(s.date)}</td>
+          <td>${s.time_slot}</td>
+          <td><span class="tag tag-blue">${s.title}</span></td>
+          <td>${tagAvailable(s.available)}</td>
+          <td style="color:#5F7976;font-size:12px">共 ${s.total} 个</td>
+        </tr>`).join('');
+      el.innerHTML = `
+        <div style="font-weight:600;margin-bottom:12px;color:#134E4A">${r.doctor} 排班表</div>
+        <table class="data-table">
+          <thead><tr><th>日期</th><th>时段</th><th>类型</th><th>剩余号源</th><th>总号源</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }).catch(() => { el.innerHTML = '<div class="empty-tip" style="color:#EF4444">连接失败</div>'; });
+}
+
+// ════════════════════════════════════
+// 预约弹窗
+// ════════════════════════════════════
+function openBookDialog(schId) {
+  const s = _slotRegistry[schId];
+  if (!s) return;
+  pendingBookSlot = s;
+  document.getElementById('dlg-patient').textContent = '张三（本人）';  // 简化，后续可做家属选择
+  document.getElementById('dlg-dept').textContent    = s.dept || '';
+  document.getElementById('dlg-doctor').textContent  = s.doctor_name || '';
+  document.getElementById('dlg-date').textContent    = fmtDate(s.date);
+  document.getElementById('dlg-slot').textContent    = s.time_slot || '';
+  const fee = (s.slot_type || s.title) === '专家' ? '50元' : '15元';
+  document.getElementById('dlg-fee').textContent     = `${s.slot_type || s.title} / ${fee}`;
+  document.getElementById('book-overlay').classList.add('show');
+}
+function closeBookDialog() {
+  document.getElementById('book-overlay').classList.remove('show');
+  pendingBookSlot = null;
+}
+function confirmBook() {
+  if (!pendingBookSlot) return;
+  const s = pendingBookSlot;
+  closeBookDialog();
+  const query = `帮我挂 ${fmtDate(s.date)} ${s.time_slot} ${s.dept}${s.slot_type || s.title}，医生 ${s.doctor_name}`;
+  sendRegChat(query);
+}
+
+// ════════════════════════════════════
+// 聊天发送逻辑
+// ════════════════════════════════════
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+
+  // 根据当前模块决定发到哪个后端
+  if (currentModule === 'home' || currentModule === 'reg') {
+    sendRegChat(q);
+  } else if (MODULE_PLACEHOLDER[currentModule] !== undefined) {
+    appendBubble('home-chat-history', 'user', q);
+    appendBubble('home-chat-history', 'ai', `${MODULE_LABEL[currentModule]}模块尚未接入，请切换到挂号管理体验 AI 对话。`);
+  }
+  if (currentModule !== 'reg') {
+    switchModule('home');
+  }
+}
+
+function fillAndSend(text) {
+  document.getElementById('chat-input').value = text;
+  sendChat();
+}
+
+function sendRegChat(query) {
+  const histId = currentModule === 'reg' ? 'reg-chat-history' : 'home-chat-history';
+  appendBubble(histId, 'user', query);
+  const typId = appendTyping(histId);
+  document.getElementById('send-btn').disabled = true;
+
+  api(CONFIG.REG_API, '/chat', {
+    method: 'POST',
+    body: JSON.stringify({ user_id: CONFIG.USER_ID, query }),
+  }).then(r => {
+    removeTyping(histId, typId);
+    appendBubble(histId, 'ai', r.reply || '（无回复）', r.trace || []);
+    if (currentModule === 'reg') {
+      loadRegStats();
+      loadMyAppointments();
+      loadSlots();          // 刷新号源查询表
+      const doctorInput = document.getElementById('filter-doctor');
+      if (doctorInput && doctorInput.value.trim()) {
+        loadDoctorSchedule();  // 若排班Tab有医生名，同步刷新排班表
+      }
+    }
+  }).catch(() => {
+    removeTyping(histId, typId);
+    appendBubble(histId, 'ai', '服务暂时不可用，请确认后端已启动（端口 8011）。');
+  }).finally(() => {
+    document.getElementById('send-btn').disabled = false;
+  });
+}
+
+// ════════════════════════════════════
+// 气泡渲染
+// ════════════════════════════════════
+function appendBubble(containerId, role, text, trace) {
+  const c = document.getElementById(containerId);
+  const div = document.createElement('div');
+  div.className = `bubble ${role}`;
+
+  let traceHtml = '';
+  if (role === 'ai' && trace && trace.length > 0) {
+    const panelId = 'tp_' + Date.now();
+    const stepsHtml = trace.map(s => {
+      const bc = s.ok ? 'step-ok' : 'step-fail';
+      const bi = s.ok ? '✓' : '✗';
+      const inp = JSON.stringify(s.input,  null, 2);
+      const out = JSON.stringify(s.output, null, 2);
+      return `<div class="trace-step">
+        <div class="step-badge ${bc}">${bi}</div>
+        <div style="flex:1">
+          <div class="step-label">步骤${s.step}：${s.label}</div>
+          <div class="step-detail"><pre>输入：${_esc(inp)}\n输出：${_esc(out)}</pre></div>
+        </div></div>`;
+    }).join('');
+    traceHtml = `<div class="trace-toggle" onclick="toggleTrace('${panelId}',this)">🔍 查看执行过程（${trace.length} 步）▼</div>
+      <div class="trace-panel" id="${panelId}">${stepsHtml}</div>`;
+  }
+
+  div.innerHTML = `
+    <div class="b-avatar ${role}">${role === 'ai' ? '🤖' : '张'}</div>
+    <div style="max-width:72%">${traceHtml}<div class="b-content ${role}">${text.replace(/\n/g, '<br>')}</div></div>`;
+  c.appendChild(div);
+  c.scrollTop = c.scrollHeight;
+  const area = document.getElementById('module-area');
+  area.scrollTop = area.scrollHeight;
+}
+
+function toggleTrace(panelId, btn) {
+  const panel = document.getElementById(panelId);
+  const open = panel.classList.toggle('open');
+  btn.textContent = btn.textContent.replace(open ? '▼' : '▲', open ? '▲' : '▼');
+}
+
+function _esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function appendTyping(containerId) {
+  const id = 'typing-' + Date.now();
+  const c = document.getElementById(containerId);
+  const div = document.createElement('div');
+  div.className = 'bubble ai'; div.id = id;
+  div.innerHTML = `<div class="b-avatar ai">🤖</div>
+    <div class="b-content ai"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  c.appendChild(div);
+  c.scrollTop = c.scrollHeight;
+  return id;
+}
+
+function removeTyping(containerId, id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+// ════════════════════════════════════
+// 初始化
+// ════════════════════════════════════
+window.onload = function() {
+  initSlotFilters();
+  document.getElementById('filter-sch-start').value = today();
+  document.getElementById('filter-sch-end').value   = addDays(13);
+  document.getElementById('chat-input').placeholder =
+    '输入消息，按 Enter 发送... (当前: 挂号管理)';
+  loadRegStats();
+};
+</script>
+</body>
+</html>

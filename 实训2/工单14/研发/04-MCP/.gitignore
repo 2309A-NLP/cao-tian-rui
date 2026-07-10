@@ -1,0 +1,13 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+logs/*.log
+.pytest_cache/
+
+# 测试报告：保留历史汇总 + 目录占位，明细文件本地保留但不入 git
+tests/reports/*.json
+tests/reports/routing_eval_*.md
+!tests/reports/history.md
+!tests/reports/.gitkeep

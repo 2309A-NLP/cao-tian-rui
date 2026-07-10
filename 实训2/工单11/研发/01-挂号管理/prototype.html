@@ -1,0 +1,314 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>挂号管理 - 原型</title><style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#F0FDFA;color:#134E4A;height:100vh;padding:24px;}
+.container{max-width:1200px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,0.05);padding:24px;height:calc(100vh - 48px);overflow-y:auto;}
+.header{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.header-icon{font-size:32px;}.header-title{font-size:22px;font-weight:600;}
+.stats{display:flex;gap:16px;margin-bottom:24px;}
+.stat-card{flex:1;background:#FAFEFD;border:1px solid #E5F5F2;border-radius:12px;padding:20px;text-align:center;}
+.stat-num{font-size:32px;font-weight:700;color:#0D9488;}.stat-label{font-size:13px;color:#5F7976;margin-top:4px;}
+.section-title{font-size:16px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.filter-bar{display:flex;gap:10px;margin-bottom:16px;}
+.select{height:40px;border:1px solid #CDECE8;border-radius:10px;padding:0 14px;font-size:13px;background:#FAFEFD;flex:1;}
+.btn{padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;}
+.btn-primary{background:linear-gradient(135deg,#0D9488,#06B6D4);color:#fff;}
+.btn-outline{background:#fff;border:1px solid #CDECE8;color:#0D9488;}
+.btn-sm{padding:6px 12px;font-size:12px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:#F0FDFA;padding:12px;text-align:left;font-weight:600;border-bottom:2px solid #E5F5F2;}
+td{padding:12px;border-bottom:1px solid #F0FDFA;}
+tr:hover td{background:#FAFEFD;}
+.tag{display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500;}
+.tag-green{background:#D1FAE5;color:#065F46;}.tag-orange{background:#FEF3C7;color:#92400E;}
+.tag-gray{background:#F3F4F6;color:#4B5563;}
+.card{background:#FAFEFD;border:1px solid #E5F5F2;border-radius:12px;padding:16px;margin-bottom:12px;}
+.tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid #E5F5F2;padding-bottom:8px;}
+.tab{padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;color:#5F7976;}
+.tab.active{background:#F0FDFA;color:#0D9488;font-weight:600;}
+.dialog-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center;z-index:200;}
+.dialog-overlay.show{display:flex;}
+.dialog{background:#fff;border-radius:16px;padding:24px;width:420px;box-shadow:0 10px 40px rgba(0,0,0,0.15);}
+.dialog-title{font-size:18px;font-weight:600;margin-bottom:16px;}
+.dialog-row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px;border-bottom:1px solid #F0FDFA;}
+.dialog-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
+
+/* ── Agent 对话 ── */
+#tab-agent{display:flex;flex-direction:column;height:calc(100vh - 280px);}
+.chat-messages{flex:1;overflow-y:auto;padding:8px 0;display:flex;flex-direction:column;gap:16px;}
+.chat-row{display:flex;gap:10px;align-items:flex-start;}
+.chat-row.user{flex-direction:row-reverse;}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.avatar-agent{background:#E0FDF4;}.avatar-user{background:#F0F9FF;}
+.bubble{max-width:72%;padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.6;word-break:break-all;}
+.bubble-agent{background:#F0FDFA;border:1px solid #D1FAE5;border-radius:4px 16px 16px 16px;}
+.bubble-user{background:linear-gradient(135deg,#0D9488,#06B6D4);color:#fff;border-radius:16px 4px 16px 16px;}
+
+/* 执行过程折叠面板 */
+.trace-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#0D9488;cursor:pointer;
+  background:#E0FDF4;border:1px solid #A7F3D0;border-radius:8px;padding:4px 10px;
+  margin-bottom:6px;user-select:none;}
+.trace-toggle:hover{background:#CCFBF1;}
+.trace-panel{background:#FAFFFE;border:1px solid #D1FAE5;border-radius:10px;padding:12px;
+  font-size:12px;margin-bottom:8px;overflow:hidden;
+  max-height:0;transition:max-height 0.25s ease;display:none;}
+.trace-panel.open{max-height:600px;display:block;}
+.trace-step{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid #E0FDF4;}
+.trace-step:last-child{border-bottom:none;}
+.step-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;}
+.step-ok{background:#D1FAE5;color:#065F46;}.step-fail{background:#FEE2E2;color:#991B1B;}
+.step-label{font-weight:600;color:#134E4A;}
+.step-detail{color:#5F7976;margin-top:2px;}
+.step-detail pre{white-space:pre-wrap;background:#F0FDFA;border-radius:6px;padding:6px 8px;margin-top:4px;font-size:11px;font-family:monospace;}
+
+/* 输入栏 */
+.chat-input-row{display:flex;gap:10px;padding-top:12px;border-top:1px solid #E5F5F2;margin-top:8px;}
+.chat-input{flex:1;border:1px solid #CDECE8;border-radius:12px;padding:10px 14px;font-size:14px;
+  resize:none;height:44px;font-family:inherit;outline:none;}
+.chat-input:focus{border-color:#0D9488;}
+.btn-send{padding:10px 20px;border-radius:12px;background:linear-gradient(135deg,#0D9488,#06B6D4);
+  color:#fff;font-weight:600;cursor:pointer;border:none;white-space:nowrap;}
+.btn-send:disabled{opacity:0.5;cursor:not-allowed;}
+.typing{color:#5F7976;font-size:13px;font-style:italic;}
+</style></head><body>
+<div class="container">
+  <div class="header"><span class="header-icon">📋</span><span class="header-title">挂号管理</span></div>
+  <div class="stats">
+    <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">待就诊</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#06B6D4;">12</div><div class="stat-label">历史记录</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#F59E0B;">2</div><div class="stat-label">已取消</div></div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0)">号源查询</div>
+    <div class="tab" onclick="switchTab(1)">我的预约</div>
+    <div class="tab" onclick="switchTab(2)">医生排班</div>
+    <div class="tab" onclick="switchTab(3)">Agent 对话</div>
+  </div>
+
+  <!-- 号源查询 -->
+  <div id="tab-query">
+    <div class="filter-bar">
+      <select class="select"><option>选择科室</option><option>儿科</option><option>眼科</option><option>牙科</option><option>皮肤科</option><option>消化内科</option></select>
+      <select class="select"><option>选择日期</option><option>今天 7/5</option><option>明天 7/6</option><option>后天 7/7</option></select>
+      <select class="select"><option>号源类型</option><option>专家号</option><option>普通号</option></select>
+      <button class="btn btn-primary">查询号源</button>
+    </div>
+    <table>
+      <tr><th>时间</th><th>医生</th><th>职称</th><th>科室</th><th>剩余号源</th><th>操作</th></tr>
+      <tr><td>14:00-14:30</td><td>李华</td><td>主任医师</td><td>儿科</td><td><span class="tag tag-green">剩余 3</span></td><td><button class="btn btn-primary btn-sm" onclick="showDialog()">预约</button></td></tr>
+      <tr><td>14:30-15:00</td><td>王芳</td><td>副主任医师</td><td>儿科</td><td><span class="tag tag-green">剩余 5</span></td><td><button class="btn btn-primary btn-sm">预约</button></td></tr>
+      <tr><td>15:00-15:30</td><td>张明</td><td>主治医师</td><td>儿科</td><td><span class="tag tag-orange">剩余 1</span></td><td><button class="btn btn-primary btn-sm">预约</button></td></tr>
+      <tr><td>09:00-09:30</td><td>张建国</td><td>主任医师</td><td>眼科</td><td><span class="tag tag-green">剩余 8</span></td><td><button class="btn btn-primary btn-sm">预约</button></td></tr>
+      <tr><td>10:00-10:30</td><td>刘敏</td><td>副主任医师</td><td>皮肤科</td><td><span class="tag tag-gray">已满</span></td><td><button class="btn btn-outline btn-sm">候补</button></td></tr>
+    </table>
+  </div>
+
+  <!-- 我的预约 -->
+  <div id="tab-my" style="display:none;">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:600;margin-bottom:4px;">儿科专家号 - 李华主任医师</div><div style="font-size:12px;color:#5F7976;">就诊人：大宝 | 今日 14:00 | 3号诊室</div></div>
+        <span class="tag tag-green">待就诊</span>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:600;margin-bottom:4px;">眼科专家号 - 张建国主任医师</div><div style="font-size:12px;color:#5F7976;">就诊人：本人 | 7/8 09:00 | 5号诊室</div></div>
+        <span class="tag tag-green">待就诊</span>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:600;margin-bottom:4px;">消化内科普通号</div><div style="font-size:12px;color:#5F7976;">就诊人：本人 | 6/25 10:00</div></div>
+        <span class="tag tag-gray">已取消</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 医生排班 -->
+  <div id="tab-doctor" style="display:none;">
+    <div class="filter-bar">
+      <input class="select" type="text" placeholder="搜索医生姓名..." value="张建国">
+      <button class="btn btn-primary">查询排班</button>
+    </div>
+    <div class="card">
+      <div style="display:flex;gap:16px;align-items:center;">
+        <div style="width:60px;height:60px;background:#F0FDFA;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;">👨‍⚕️</div>
+        <div style="flex:1;">
+          <div style="font-weight:600;">张建国 · 主任医师</div>
+          <div style="font-size:12px;color:#5F7976;margin-top:2px;">眼科 | 擅长白内障、青光眼手术</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+        <div style="background:#F0FDFA;padding:8px 12px;border-radius:8px;font-size:12px;text-align:center;"><div style="font-weight:600;">周一</div><div style="color:#5F7976;">上午/下午</div></div>
+        <div style="background:#F0FDFA;padding:8px 12px;border-radius:8px;font-size:12px;text-align:center;"><div style="font-weight:600;">周三</div><div style="color:#5F7976;">上午</div></div>
+        <div style="background:#F0FDFA;padding:8px 12px;border-radius:8px;font-size:12px;text-align:center;"><div style="font-weight:600;">周五</div><div style="color:#5F7976;">下午</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent 对话 -->
+  <div id="tab-agent" style="display:none;">
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-row">
+        <div class="avatar avatar-agent">🏥</div>
+        <div>
+          <div class="bubble bubble-agent">您好！我是挂号助手，可以帮您查询号源、预约挂号或取消预约。请问有什么需要帮忙的？</div>
+        </div>
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="chatInput" placeholder="输入您的问题，如：帮我预约明天下午的儿科专家号" rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+      <button class="btn-send" id="sendBtn" onclick="sendMessage()">发送</button>
+    </div>
+  </div>
+</div>
+
+<!-- 预约确认弹窗 -->
+<div class="dialog-overlay" id="dialog">
+  <div class="dialog">
+    <div class="dialog-title">确认预约信息</div>
+    <div class="dialog-row"><span>就诊人</span><span style="font-weight:600;">大宝（张小明）</span></div>
+    <div class="dialog-row"><span>科室</span><span style="font-weight:600;">儿科</span></div>
+    <div class="dialog-row"><span>医生</span><span style="font-weight:600;">李华 主任医师</span></div>
+    <div class="dialog-row"><span>时间</span><span style="font-weight:600;">今日 14:00-14:30</span></div>
+    <div class="dialog-row"><span>费用</span><span style="font-weight:600;">¥50.00</span></div>
+    <div class="dialog-actions">
+      <button class="btn btn-outline" onclick="hideDialog()">取消</button>
+      <button class="btn btn-primary" onclick="hideDialog()">确认预约</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Tab 切换 ──────────────────────────────────────
+const TAB_IDS = ["tab-query","tab-my","tab-doctor","tab-agent"];
+function switchTab(i){
+  document.querySelectorAll(".tab").forEach((t,j)=>t.classList.toggle("active",j===i));
+  TAB_IDS.forEach((id,j)=>document.getElementById(id).style.display=j===i?"flex":"none");
+  // 非 flex tab 用 block
+  if(i!==3)document.getElementById(TAB_IDS[i]).style.display="block";
+}
+function showDialog(){document.getElementById("dialog").classList.add("show");}
+function hideDialog(){document.getElementById("dialog").classList.remove("show");}
+
+// ── Agent 对话 ──────────────────────────────────────
+const API_URL = "http://127.0.0.1:8011/chat";
+const API_KEY = "";         // 留空则不发 X-Api-Key 头（dev模式跳过鉴权）
+const USER_ID = 1;          // 演示用固定用户ID，真实场景从 session 取
+
+let sending = false;
+
+async function sendMessage(){
+  if(sending) return;
+  const input = document.getElementById("chatInput");
+  const query = input.value.trim();
+  if(!query) return;
+
+  sending = true;
+  document.getElementById("sendBtn").disabled = true;
+  input.value = "";
+
+  // 追加用户气泡
+  appendBubble("user", null, query);
+
+  // 追加"思考中"占位
+  const typingEl = appendTyping();
+
+  try{
+    const headers = {"Content-Type":"application/json"};
+    if(API_KEY) headers["X-Api-Key"] = API_KEY;
+
+    const res = await fetch(API_URL, {
+      method:"POST",
+      headers,
+      body: JSON.stringify({user_id: USER_ID, query})
+    });
+
+    const data = await res.json();
+    typingEl.remove();
+
+    if(res.ok){
+      appendBubble("agent", data.trace || [], data.reply);
+    } else {
+      appendBubble("agent", [], `请求失败（${res.status}）：${data.detail || "未知错误"}`);
+    }
+  } catch(e){
+    typingEl.remove();
+    appendBubble("agent", [], `网络错误，请确认后端已启动（${e.message}）`);
+  }
+
+  sending = false;
+  document.getElementById("sendBtn").disabled = false;
+  input.focus();
+}
+
+// 生成"思考中"占位
+function appendTyping(){
+  const msgs = document.getElementById("chatMessages");
+  const row = document.createElement("div");
+  row.className = "chat-row";
+  row.innerHTML = `<div class="avatar avatar-agent">🏥</div><div class="bubble bubble-agent typing">思考中…</div>`;
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+  return row;
+}
+
+// 追加气泡（含折叠 trace 面板）
+function appendBubble(role, trace, text){
+  const msgs = document.getElementById("chatMessages");
+  const row = document.createElement("div");
+  row.className = "chat-row" + (role==="user" ? " user" : "");
+
+  const avatarHtml = role==="user"
+    ? `<div class="avatar avatar-user">👤</div>`
+    : `<div class="avatar avatar-agent">🏥</div>`;
+
+  let traceHtml = "";
+  if(role==="agent" && trace && trace.length>0){
+    const panelId = "tp_" + Date.now();
+    const stepsHtml = trace.map(s => {
+      const badgeClass = s.ok ? "step-ok" : "step-fail";
+      const badgeIcon  = s.ok ? "✓" : "✗";
+      const inputStr   = JSON.stringify(s.input,  null, 2);
+      const outputStr  = JSON.stringify(s.output, null, 2);
+      return `<div class="trace-step">
+        <div class="step-badge ${badgeClass}">${badgeIcon}</div>
+        <div style="flex:1;">
+          <div class="step-label">步骤${s.step}：${s.label}</div>
+          <div class="step-detail">
+            <pre>输入：${escHtml(inputStr)}\n输出：${escHtml(outputStr)}</pre>
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+
+    traceHtml = `
+      <div class="trace-toggle" onclick="toggleTrace('${panelId}',this)">
+        🔍 查看执行过程（${trace.length} 步）▼
+      </div>
+      <div class="trace-panel" id="${panelId}">${stepsHtml}</div>`;
+  }
+
+  const bubbleHtml = role==="user"
+    ? `<div class="bubble bubble-user">${escHtml(text)}</div>`
+    : `<div>${traceHtml}<div class="bubble bubble-agent">${escHtml(text)}</div></div>`;
+
+  row.innerHTML = avatarHtml + bubbleHtml;
+  // user 行：头像在右，需要反转顺序
+  if(role==="user") row.innerHTML = bubbleHtml + avatarHtml;
+
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function toggleTrace(panelId, btn){
+  const panel = document.getElementById(panelId);
+  const open  = panel.classList.toggle("open");
+  btn.textContent = btn.textContent.replace(open?"▼":"▲", open?"▲":"▼");
+}
+
+function escHtml(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+</script></body></html>

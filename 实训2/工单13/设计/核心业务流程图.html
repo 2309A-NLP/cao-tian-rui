@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>医疗影像分析 - 核心业务流程图</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Microsoft YaHei", sans-serif; background: #f0f4f8; padding: 24px; }
+  h1 { text-align: center; color: #1a365d; margin-bottom: 8px; font-size: 22px; }
+  .subtitle { text-align: center; color: #718096; font-size: 13px; margin-bottom: 32px; }
+  .flow-container { display: flex; flex-direction: column; gap: 32px; max-width: 960px; margin: 0 auto; }
+
+  /* ---- Section ---- */
+  .section { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  .section-title { font-size: 15px; font-weight: 700; color: #2d3748; margin-bottom: 20px;
+    padding-bottom: 10px; border-bottom: 2px solid #ebf4ff; display: flex; align-items: center; gap: 8px; }
+  .badge { background: #3182ce; color: #fff; border-radius: 20px; padding: 2px 10px; font-size: 12px; font-weight: 600; }
+  .badge.green { background: #38a169; }
+  .badge.purple { background: #805ad5; }
+
+  /* ---- Flow row ---- */
+  .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
+  .node { border-radius: 8px; padding: 10px 16px; font-size: 13px; font-weight: 600; text-align: center;
+    min-width: 110px; line-height: 1.4; }
+  .node.start   { background: #ebf8ff; border: 2px solid #63b3ed; color: #2b6cb0; }
+  .node.process { background: #f0fff4; border: 2px solid #68d391; color: #276749; }
+  .node.decision{ background: #fffbeb; border: 2px solid #f6ad55; color: #744210; border-radius: 0;
+    transform: rotate(0deg); clip-path: polygon(50% 0%,100% 50%,50% 100%,0% 50%);
+    width: 100px; height: 64px; display: flex; align-items: center; justify-content: center; }
+  .node.result  { background: #fff5f5; border: 2px solid #fc8181; color: #742a2a; }
+  .node.success { background: #f0fff4; border: 2px solid #48bb78; color: #22543d; }
+  .node.api     { background: #faf5ff; border: 2px solid #b794f4; color: #44337a; }
+  .node.db      { background: #fffff0; border: 2px solid #d69e2e; color: #744210; }
+
+  .arrow { font-size: 18px; color: #a0aec0; padding: 0 6px; flex-shrink: 0; }
+  .arrow-down { text-align: center; font-size: 18px; color: #a0aec0; margin: 4px 0; }
+
+  /* ---- Branch ---- */
+  .branch { display: flex; gap: 16px; align-items: flex-start; margin-top: 8px; }
+  .branch-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .branch-label { font-size: 11px; color: #718096; font-style: italic; }
+
+  /* ---- Table ---- */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  th { background: #ebf4ff; color: #2b6cb0; padding: 8px 12px; text-align: left; }
+  td { padding: 8px 12px; border-bottom: 1px solid #e2e8f0; color: #4a5568; }
+  tr:last-child td { border-bottom: none; }
+  .tag { display: inline-block; border-radius: 4px; padding: 1px 7px; font-size: 11px; font-weight: 600; }
+  .tag.ok  { background: #c6f6d5; color: #276749; }
+  .tag.err { background: #fed7d7; color: #742a2a; }
+  .tag.warn{ background: #feebc8; color: #744210; }
+
+  /* ---- Legend ---- */
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; color: #718096; margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-color { width: 16px; height: 16px; border-radius: 4px; border: 2px solid; }
+</style>
+</head>
+<body>
+
+<h1>医疗影像分析系统 — 核心业务流程图</h1>
+<p class="subtitle">工单编号：人工智能NLP-Agent数字人项目-医疗智能体-影像分析 | 版本 v1.0 | 2026-07-06</p>
+
+<div class="flow-container">
+
+  <!-- 总览流程 -->
+  <div class="section">
+    <div class="section-title"><span class="badge">总览</span>系统整体请求处理流程</div>
+    <div class="flow">
+      <div class="node start">用户上传影像<br><small>JPG / PNG</small></div>
+      <div class="arrow">→</div>
+      <div class="node process">图像校验<br><small>格式/大小/分辨率</small></div>
+      <div class="arrow">→</div>
+      <div class="node process">任务路由<br><small>vqa / mrg / rag</small></div>
+      <div class="arrow">→</div>
+      <div class="node api">Handler 执行<br><small>调用 VLM API</small></div>
+      <div class="arrow">→</div>
+      <div class="node success">返回结果<br><small>+ 免责声明</small></div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-color" style="background:#ebf8ff;border-color:#63b3ed"></div>起始/终止</div>
+      <div class="legend-item"><div class="legend-color" style="background:#f0fff4;border-color:#68d391"></div>处理步骤</div>
+      <div class="legend-item"><div class="legend-color" style="background:#faf5ff;border-color:#b794f4"></div>外部API调用</div>
+      <div class="legend-item"><div class="legend-color" style="background:#fffbeb;border-color:#f6ad55"></div>决策/判断</div>
+    </div>
+  </div>
+
+  <!-- VQA 流程 -->
+  <div class="section">
+    <div class="section-title"><span class="badge">VQA</span>视觉问答流程</div>
+    <div class="flow">
+      <div class="node start">影像 + 问题</div>
+      <div class="arrow">→</div>
+      <div class="node process">系统提示词<br>注入（医学）</div>
+      <div class="arrow">→</div>
+      <div class="node api">Qwen3-VL-32B<br>多模态推理</div>
+      <div class="arrow">→</div>
+      <div class="node process">免责声明<br>兜底检查</div>
+      <div class="arrow">→</div>
+      <div class="node success">返回回答<br>（含声明）</div>
+    </div>
+    <div style="margin-top:16px">
+      <table>
+        <tr><th>输入校验规则</th><th>异常处理</th><th>HTTP 码</th></tr>
+        <tr><td>文件大小 &gt; 20MB</td><td><span class="tag err">拒绝</span> IMAGE_TOO_LARGE</td><td>413</td></tr>
+        <tr><td>格式非 JPEG/PNG</td><td><span class="tag err">拒绝</span> UNSUPPORTED_FORMAT</td><td>415</td></tr>
+        <tr><td>分辨率 &lt; 32×32</td><td><span class="tag err">拒绝</span> IMAGE_INVALID</td><td>422</td></tr>
+        <tr><td>query 为空</td><td><span class="tag err">拒绝</span> MISSING_QUERY</td><td>400</td></tr>
+        <tr><td>非医疗图片</td><td><span class="tag warn">提示</span> 告知用户并分析所见</td><td>200</td></tr>
+        <tr><td>VLM API 超时/不可用</td><td><span class="tag err">重试×3</span> 后返回 VLM_UNAVAILABLE</td><td>503/504</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- MRG 流程 -->
+  <div class="section">
+    <div class="section-title"><span class="badge green">MRG</span>医疗报告生成流程</div>
+    <div class="flow">
+      <div class="node start">影像输入</div>
+      <div class="arrow">→</div>
+      <div class="node api">Qwen3-VL<br>JSON 结构化输出</div>
+      <div class="arrow">→</div>
+      <div class="node process">JSON 解析<br>（3级策略）</div>
+    </div>
+    <div class="arrow-down">↓</div>
+    <div class="branch">
+      <div class="branch-item">
+        <div class="branch-label">解析成功</div>
+        <div class="node success">5段结构报告<br>chief/findings/<br>impression/<br>recommendation/<br>disclaimer</div>
+      </div>
+      <div class="branch-item">
+        <div class="branch-label">json.loads 失败</div>
+        <div class="node process">策略2：正则提取<br>```json 代码块</div>
+      </div>
+      <div class="branch-item">
+        <div class="branch-label">仍失败</div>
+        <div class="node process">策略3：截取<br>首{ 至末}</div>
+      </div>
+      <div class="branch-item">
+        <div class="branch-label">3次重试后降级</div>
+        <div class="node result">原始文本→findings<br>status=degraded</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RAG 流程 -->
+  <div class="section">
+    <div class="section-title"><span class="badge purple">RAG</span>检索增强生成流程</div>
+    <div class="flow">
+      <div class="node start">影像 + 问题</div>
+      <div class="arrow">→</div>
+      <div class="node api">Step1: VLM 生成<br>影像描述Caption<br>（100 token）</div>
+      <div class="arrow">→</div>
+      <div class="node process">Step2: 扩写<br>Caption + query</div>
+      <div class="arrow">→</div>
+      <div class="node db">ChromaDB<br>cosine 检索<br>Top-K=5</div>
+    </div>
+    <div class="arrow-down">↓</div>
+    <div class="branch">
+      <div class="branch-item">
+        <div class="branch-label">命中（score ≥ 0.5）</div>
+        <div class="node api">Step3: 拼入 context<br>→ VLM 增强回答<br>+ [文档N] 标注引用</div>
+      </div>
+      <div class="branch-item">
+        <div class="branch-label">未命中（score &lt; 0.5）</div>
+        <div class="node result">降级为纯 VQA<br>提示"知识库无相关文献"</div>
+      </div>
+      <div class="branch-item">
+        <div class="branch-label">Caption 生成失败</div>
+        <div class="node result">用原始 query 检索<br>（跳过 Caption）</div>
+      </div>
+    </div>
+    <div style="margin-top:16px">
+      <table>
+        <tr><th>知识库规格</th><th>值</th></tr>
+        <tr><td>数据来源</td><td>SLAKE 医学影像 QA 数据集（中文）</td></tr>
+        <tr><td>文档条数</td><td>1081 条（去重后）</td></tr>
+        <tr><td>覆盖模态</td><td>CT（584）/ X-Ray（305）/ MRI（192）</td></tr>
+        <tr><td>覆盖部位</td><td>腹部 / 肺部 / 脑部 / 颈部 / 盆腔等</td></tr>
+        <tr><td>嵌入模型</td><td>paraphrase-multilingual-MiniLM-L12-v2（384维）</td></tr>
+        <tr><td>相似度阈值</td><td>≥ 0.5（cosine）</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 性能指标 -->
+  <div class="section">
+    <div class="section-title"><span class="badge">性能</span>实测延迟数据</div>
+    <table>
+      <tr><th>任务</th><th>API 层延迟</th><th>VLM 推理</th><th>端到端总延迟</th><th>工单目标</th><th>状态</th></tr>
+      <tr><td>VQA</td><td>47ms</td><td>~24.6s</td><td>~26s</td><td>API层 &lt;500ms</td><td><span class="tag ok">达标</span></td></tr>
+      <tr><td>MRG</td><td>&lt;1ms</td><td>~6.1s</td><td>~6.1s</td><td>API层 &lt;500ms</td><td><span class="tag ok">达标</span></td></tr>
+      <tr><td>RAG</td><td>&lt;1ms</td><td>~35s</td><td>~36s</td><td>API层 &lt;500ms</td><td><span class="tag ok">达标</span></td></tr>
+    </table>
+    <p style="font-size:12px;color:#718096;margin-top:10px">* LLM推理时延由硅基流动云端 Qwen3-VL-32B 决定，属外部依赖，不在本系统控制范围内</p>
+  </div>
+
+</div>
+</body>
+</html>

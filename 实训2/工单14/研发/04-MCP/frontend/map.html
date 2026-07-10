@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>医疗助理 · 出行服务</title>
+<!-- 工单编号：人工智能NLP-Agent数字人项目-医疗智能体-MCP -->
+
+<!-- Alpine.js CDN（3KB） -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box }
+body { font-family:"PingFang SC","Microsoft YaHei",sans-serif; background:#F0FDFA; color:#134E4A; height:100vh; padding:16px; overflow:hidden; }
+.container { max-width:1400px; margin:0 auto; display:flex; flex-direction:column; gap:12px; height:calc(100vh - 32px); }
+
+/* ── 顶栏 ── */
+.header { display:flex; align-items:center; justify-content:space-between; gap:16px; background:#fff; border-radius:14px; padding:14px 20px; box-shadow:0 1px 3px rgba(0,0,0,0.05); flex-shrink:0; }
+.header-brand { display:flex; align-items:center; gap:10px; }
+.header-icon { font-size:24px; }
+.header-title { font-size:18px; font-weight:600; }
+.header-sub { font-size:11px; color:#5F7976; margin-top:2px; }
+.search-bar { flex:1; display:flex; gap:10px; max-width:640px; }
+.search-input { flex:1; height:40px; border:1px solid #CDECE8; border-radius:10px; padding:0 14px; font-size:13px; outline:none; background:#FAFEFD; }
+.search-input:focus { border-color:#0D9488; }
+.btn { padding:0 18px; height:40px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; border:none; white-space:nowrap; }
+.btn-primary { background:linear-gradient(135deg,#0D9488,#06B6D4); color:#fff; }
+.btn-primary:disabled { opacity:0.5; cursor:not-allowed; }
+.btn-small { padding:6px 12px; height:auto; font-size:12px; }
+.status-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; vertical-align:middle; }
+.status-ok { background:#10B981; }
+.status-err { background:#EF4444; }
+
+/* ── 主体双面板 ── */
+.body { display:flex; gap:12px; flex:1; min-height:0; }
+.main-panel { flex:1; background:#fff; border-radius:14px; box-shadow:0 1px 3px rgba(0,0,0,0.05); padding:16px; display:flex; flex-direction:column; min-width:0; }
+.side-panel { width:340px; display:flex; flex-direction:column; gap:12px; flex-shrink:0; }
+
+/* ── 地图 ── */
+#amap { flex:1; border-radius:12px; overflow:hidden; min-height:300px; background:linear-gradient(135deg,#e0f2fe,#f0fdfa); }
+.amap-loading { display:flex; align-items:center; justify-content:center; color:#5F7976; height:100%; }
+
+/* ── 路线 tab ── */
+.route-tabs { display:flex; gap:8px; margin-top:12px; flex-shrink:0; }
+.route-tab { flex:1; padding:9px 12px; border-radius:10px; font-size:12px; cursor:pointer; background:#F0FDFA; color:#5F7976; display:flex; align-items:center; gap:6px; justify-content:center; border:1px solid transparent; transition:all .15s; }
+.route-tab:hover { border-color:#CDECE8; }
+.route-tab.active { background:linear-gradient(135deg,#0D9488,#06B6D4); color:#fff; }
+
+/* ── 路线卡 ── */
+.route-card { background:#FAFEFD; border:1px solid #E5F5F2; border-radius:12px; padding:14px; margin-top:10px; flex-shrink:0; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.route-info-title { font-size:14px; font-weight:600; }
+.route-info-meta { font-size:12px; color:#5F7976; margin-top:4px; line-height:1.6; }
+.route-empty { color:#94A3B8; font-size:12px; padding:10px 4px; }
+
+/* ── 侧边卡片通用 ── */
+.card { background:#fff; border-radius:14px; box-shadow:0 1px 3px rgba(0,0,0,0.05); padding:18px; }
+.card-title { font-weight:600; margin-bottom:12px; font-size:14px; }
+
+/* ── 医院卡 ── */
+.hospital-card { display:flex; flex-direction:column; gap:10px; }
+.hospital-head { display:flex; align-items:center; gap:12px; }
+.hospital-icon { width:52px; height:52px; background:#F0FDFA; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
+.hospital-name { font-weight:600; font-size:14px; line-height:1.4; }
+.hospital-tag { font-size:11px; color:#5F7976; margin-top:2px; }
+.hospital-info { font-size:12px; color:#5F7976; line-height:1.9; }
+
+/* ── 周边分类 ── */
+.nearby-card { flex:1; display:flex; flex-direction:column; min-height:0; }
+.nearby-tabs { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+.nearby-tab { padding:5px 12px; border-radius:16px; font-size:11px; cursor:pointer; background:#F0FDFA; border:1px solid #CDECE8; color:#5F7976; transition:all .15s; }
+.nearby-tab.active { background:#0D9488; color:#fff; border-color:#0D9488; }
+
+.nearby-list { flex:1; overflow-y:auto; }
+.nearby-item { background:#FAFEFD; border:1px solid #E5F5F2; border-radius:10px; padding:12px; margin-bottom:8px; cursor:pointer; transition:all .15s; }
+.nearby-item:hover { border-color:#0D9488; transform:translateX(-2px); }
+.nearby-item.active { border-color:#0D9488; background:#EFFAF8; }
+.nearby-item-head { display:flex; justify-content:space-between; gap:8px; }
+.nearby-item-name { font-size:13px; font-weight:600; }
+.nearby-item-meta { font-size:11px; color:#5F7976; margin-top:6px; }
+.dist-badge { font-size:11px; padding:2px 8px; border-radius:10px; color:#fff; background:#0D9488; white-space:nowrap; }
+
+.empty { text-align:center; color:#94A3B8; font-size:12px; padding:24px 8px; }
+
+/* ── AI 回答条（顶栏下方） ── */
+.ai-answer { background:#EFFAF8; border:1px solid #CDECE8; border-radius:12px; padding:12px 16px; font-size:13px; color:#0F766E; line-height:1.7; flex-shrink:0; max-height:120px; overflow-y:auto; white-space:pre-wrap; }
+.ai-answer.error { background:#FEF2F2; color:#B91C1C; border-color:#FCA5A5; }
+.ai-answer .close { float:right; cursor:pointer; color:#5F7976; }
+</style>
+</head>
+
+<body x-data="mapApp()" x-init="init()">
+<div class="container">
+
+<!-- ── 顶栏 ── -->
+<div class="header">
+  <div class="header-brand">
+    <div class="header-icon">🗺️</div>
+    <div>
+      <div class="header-title">医疗助理 · 出行服务</div>
+      <div class="header-sub">
+        <span class="status-dot" :class="status.gateway ? 'status-ok' : 'status-err'"></span>MCP 网关
+        <span class="status-dot" :class="status.amap ? 'status-ok' : 'status-err'" style="margin-left:12px"></span>高德 API
+      </div>
+    </div>
+  </div>
+  <div class="search-bar">
+    <input class="search-input" type="text"
+           x-model="query"
+           @keydown.enter="search"
+           placeholder="搜医院名 / 从西直门到北京大学 / 协和医院附近哪里能吃饭？">
+    <button class="btn btn-primary" @click="search" :disabled="loading">
+      <span x-text="loading ? '搜索中…' : '🔍 搜索'"></span>
+    </button>
+  </div>
+</div>
+
+<!-- ── AI 回答条（有内容时才显示） ── -->
+<div class="ai-answer" x-show="aiReply" :class="{error: aiError}" x-transition>
+  <span class="close" @click="aiReply=''">✕</span>
+  <span x-text="aiReply"></span>
+</div>
+
+<!-- ── 主体 ── -->
+<div class="body">
+
+  <!-- 左主面板 -->
+  <div class="main-panel">
+    <div id="amap">
+      <div class="amap-loading" x-show="!mapReady">
+        <span x-text="mapStatus"></span>
+      </div>
+    </div>
+
+    <!-- 路线 tab -->
+    <div class="route-tabs">
+      <template x-for="m in routeModes" :key="m.id">
+        <div class="route-tab"
+             :class="{active: currentMode === m.id}"
+             @click="switchRouteMode(m.id)">
+          <span x-text="m.icon"></span>
+          <span x-text="m.label"></span>
+          <span x-show="route && currentMode===m.id" x-text="' ' + formatRouteDuration(route)"></span>
+        </div>
+      </template>
+    </div>
+
+    <!-- 路线卡 -->
+    <div class="route-card" x-show="route">
+      <div>
+        <div class="route-info-title">
+          从 <span x-text="routeOrigin || '起点'"></span> 到 <span x-text="hospital ? hospital.name : '目的地'"></span>
+        </div>
+        <div class="route-info-meta" x-show="route">
+          <span x-text="formatRouteDetail(route)"></span>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-small" @click="openNav()">开始导航</button>
+    </div>
+    <div class="route-empty" x-show="!route && hospital">
+      提示：输入"从XX到<span x-text="hospital ? hospital.name : '医院'"></span>"规划路线，或点击上方出行方式
+    </div>
+  </div>
+
+  <!-- 右侧面板 -->
+  <div class="side-panel">
+    <!-- 医院卡 -->
+    <div class="card hospital-card" x-show="hospital" x-transition>
+      <div class="hospital-head">
+        <div class="hospital-icon">🏥</div>
+        <div style="flex:1; min-width:0">
+          <div class="hospital-name" x-text="hospital?.name"></div>
+          <div class="hospital-tag" x-text="hospital?.type || ''"></div>
+        </div>
+      </div>
+      <div class="hospital-info">
+        <div>📍 <span x-text="hospital?.address || '--'"></span></div>
+        <div x-show="hospital?.tel">📞 <span x-text="hospital?.tel"></span></div>
+      </div>
+      <button class="btn btn-primary" @click="openNav()">📍 导航到此处</button>
+    </div>
+
+    <div class="card hospital-card" x-show="!hospital">
+      <div style="text-align:center; padding:20px; color:#94A3B8; font-size:13px">
+        请先搜索一家医院<br>示例："北京协和医院"
+      </div>
+    </div>
+
+    <!-- 周边分类 -->
+    <div class="card nearby-card">
+      <div class="card-title">周边服务</div>
+      <div class="nearby-tabs">
+        <template x-for="c in nearbyCats" :key="c.id">
+          <div class="nearby-tab"
+               :class="{active: activeCat===c.id}"
+               @click="switchCat(c.id)">
+            <span x-text="c.icon"></span>&nbsp;<span x-text="c.label"></span>
+          </div>
+        </template>
+      </div>
+      <div class="nearby-list">
+        <template x-for="(p,i) in nearby" :key="i">
+          <div class="nearby-item"
+               :class="{active: activePoi===i}"
+               @click="focusPoi(i)">
+            <div class="nearby-item-head">
+              <div class="nearby-item-name" x-text="p.name"></div>
+              <div class="dist-badge" x-show="p.distance != null" x-text="formatDist(p.distance)"></div>
+            </div>
+            <div class="nearby-item-meta" x-text="p.address"></div>
+            <div class="nearby-item-meta" x-show="p.tel">📞 <span x-text="p.tel"></span></div>
+          </div>
+        </template>
+        <div class="empty" x-show="nearby.length===0 && hospital">
+          点击顶部分类查询周边
+        </div>
+        <div class="empty" x-show="!hospital">
+          请先搜索一家医院
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function mapApp() {
+  return {
+    // ── 状态 ──
+    query: '',
+    loading: false,
+    aiReply: '',
+    aiError: false,
+    hospital: null,           // { name, address, location: "lng,lat", tel, ... }
+    nearby: [],               // POI 列表
+    activeCat: 'hotels',
+    activePoi: -1,
+    route: null,              // { mode, distance_m, duration_s, steps_summary }
+    currentMode: 'driving',
+    routeOrigin: '',          // 动态起点名（显示用）
+    routeOriginLoc: '',       // 动态起点坐标或地名（API用）
+    mapReady: false,
+    mapStatus: '正在加载地图…',
+    status: { gateway: false, amap: false },
+
+    map: null,
+    markers: [],
+    infoWin: null,
+    driving: null,
+    walking: null,
+
+    routeModes: [
+      {id:'driving',   icon:'🚗', label:'驾车'},
+      {id:'transit',   icon:'🚌', label:'公交'},
+      {id:'bicycling', icon:'🚴', label:'骑行'},
+      {id:'walking',   icon:'🚶', label:'步行'},
+    ],
+    nearbyCats: [
+      {id:'hotels',      icon:'🏨', label:'酒店'},
+      {id:'restaurants', icon:'🍜', label:'餐饮'},
+      {id:'pharmacies',  icon:'💊', label:'药店'},
+      {id:'parking',     icon:'🅿️', label:'停车'},
+    ],
+
+    // ── 初始化 ──
+    async init() {
+      try {
+        const g = await fetch('/health').then(r=>r.json());
+        this.status.gateway = g.status === 'ok';
+      } catch(e) { this.status.gateway = false; }
+
+      // 拉取高德 JS 配置
+      let cfg;
+      try {
+        cfg = await fetch('/api/amap/js-config').then(r=>r.json());
+      } catch(e) {
+        this.mapStatus = '无法拉取高德配置：' + e.message;
+        this.status.amap = false;
+        return;
+      }
+      if (!cfg.ok) {
+        this.mapStatus = 'AMAP_JS_KEY 未配置，请检查 .env';
+        this.status.amap = false;
+        return;
+      }
+      window._AMapSecurityConfig = { securityJsCode: cfg.security_js_code };
+      await this.loadAMap(cfg.js_key);
+      this.status.amap = true;
+      this.initMap();
+    },
+
+    loadAMap(key) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://webapi.amap.com/maps?v=2.0&key=' + key + '&plugin=AMap.PlaceSearch,AMap.Driving,AMap.Walking,AMap.Transfer,AMap.Riding,AMap.InfoWindow';
+        s.onload = resolve;
+        s.onerror = () => reject(new Error('高德 JS 加载失败'));
+        document.head.appendChild(s);
+      });
+    },
+
+    initMap() {
+      this.map = new AMap.Map('amap', { zoom: 13, center: [116.4166, 39.9094], resizeEnable: true });
+      this.infoWin = new AMap.InfoWindow({ offset: new AMap.Pixel(0, -30), closeWhenClickMap: true });
+      this.mapReady = true;
+    },
+
+    // ── 搜索总入口 ──
+    // 策略：规则快速路径优先（低延迟）→ 规则失败静默降级 LLM → 规则未命中直接 LLM
+    // 这样既保留常见场景的响应速度，又用 LLM 兜底处理规则覆盖不到的自然语言
+    async search() {
+      const q = this.query.trim();
+      if (!q) return;
+
+      // ── 规则1：路线意图检测 ──
+      // 匹配"从X到Y"、"X到Y"、"X→Y"、"X到Y怎么走/路线/导航"等表达
+      // ^(?:从)? 允许开头有可选的"从"字
+      // (.+?) 非贪婪捕获起点（尽量短，避免把"到"之后的内容吃掉）
+      // [到→至] 匹配常见的方向介词
+      // (?:怎么走|...)? 末尾疑问词可选，有没有都能识别为路线请求
+      const routeMatch = q.match(/^(?:从)?(.+?)[到→至](.+?)(?:怎么走|路线|导航|怎么去|咋走)?$/);
+      if (routeMatch) {
+        const orig = routeMatch[1].trim();
+        const dest = routeMatch[2].trim();
+        // 两段都有内容且不相同才确认为路线请求（排除"到"单独出现的误匹配）
+        if (orig && dest && orig !== dest) {
+          const ok = await this.planRouteByName(orig, dest, this.currentMode);
+          if (ok) return;
+          // planRouteByName 返回 false：地名不存在或网络异常
+          // 不报错，将原始输入交给 LLM 重新理解（可能用户说的是模糊地名或别称）
+          await this.askAI(q);
+          return;
+        }
+      }
+
+      // ── 规则2：两地名并列检测 ──
+      // 匹配"北京大学 清华大学"、"协和,儿童医院"等空格/逗号/顿号分隔的两段
+      // 排除含"附近/美食/餐/酒店/药/停车"等明显非地名词的情况，避免把
+      // "协和医院 附近美食"错误识别为两地名路线
+      const twoPlace = q.match(/^([^\s,，、]+)[\s,，、]+([^\s,，、]+)$/);
+      if (twoPlace) {
+        const a = twoPlace[1].trim(), b = twoPlace[2].trim();
+        if (!/附近|美食|餐|酒店|药|停车/.test(a) && !/附近|美食|餐|酒店|药|停车/.test(b)) {
+          const ok = await this.planRouteByName(a, b, this.currentMode);
+          if (ok) return;
+          // API 失败（地名无法解析）→ 降级 LLM，让大模型理解用户真实意图
+          await this.askAI(q);
+          return;
+        }
+      }
+
+      // ── 规则3：短句地名搜索 ──
+      // 12字以内且不含疑问词/服务词 → 推断为单一地名/医院名直接搜索
+      // 超出范围或含疑问词说明是复杂问句，跳过交给 LLM
+      if (q.length <= 12 && !/怎么|附近|如何|哪里|哪些|路线|到达|请问|帮我|挂号|症状|痛|美食|餐/.test(q)) {
+        const ok = await this.searchHospital(q);
+        if (ok) return;
+        // 高德未找到该地名（如用户输入了科室名、症状名等）→ 降级 LLM 理解
+        await this.askAI(q);
+        return;
+      }
+
+      // ── 规则4：LLM 兜底 ──
+      // 上述三条规则均未命中（含疑问句、复合需求、模糊描述等）
+      // 或规则命中但快速 API 调用失败时，统一由 LLM 通过 Function Calling 路由工具
+      await this.askAI(q);
+    },
+
+    // 单地名搜索：调用高德 hospital_search 工具，成功返回 true，失败返回 false（由 search() 降级）
+    // 不在此处 this.aiReply 报错，保持静默，降级决策权交给调用方
+    async searchHospital(name) {
+      this.loading = true; this.aiReply = ''; this.aiError = false;
+      this.clearMarkers();
+      // 切换目标地点时清空旧路线起终点，防止之前搜索的路线信息残留显示
+      this.route = null; this.routeOrigin = ''; this.routeOriginLoc = '';
+      try {
+        const r = await fetch('/api/amap/hospital?name=' + encodeURIComponent(name)).then(r=>r.json());
+        if (!r.ok) return false;   // 高德未找到（地名不存在/拼写错误），静默让调用方降级 LLM
+        this.hospital = r.hospital;
+        this.query = name;
+        this.centerHospital();
+        await this.loadNearby(this.activeCat);
+        return true;
+      } catch(e) {
+        return false;              // 网络异常同样静默，不向用户展示低层错误信息
+      } finally { this.loading = false; }
+    },
+
+    // 两地名路线规划：由规则匹配后直接调用高德 route_planning，绕过 LLM 降低延迟
+    // 成功返回 true 并更新地图；失败返回 false，由 search() 静默降级到 LLM
+    async planRouteByName(origin, dest, mode) {
+      this.loading = true; this.aiReply = ''; this.aiError = false;
+      this.clearMarkers();
+      try {
+        const r = await fetch(
+          '/api/amap/route?origin=' + encodeURIComponent(origin)
+          + '&destination=' + encodeURIComponent(dest)
+          + '&mode=' + mode
+        ).then(r => r.json());
+        if (!r.ok) return false;   // 高德地名解析失败或路线不可达，静默让调用方降级 LLM
+        // 将终点作为"目标地点"写入 hospital（复用右侧卡片和周边搜索逻辑）
+        this.hospital = { name: dest, address: '', location: r.destination, tel: '' };
+        // routeOrigin 用于路线卡"从X到Y"的显示文本
+        this.routeOrigin = origin;
+        // routeOriginLoc 存储高德返回的已解析坐标，供 switchRouteMode 切换出行方式时复用
+        // 避免切换时重复发起地名→坐标的解析请求
+        this.routeOriginLoc = r.origin;
+        this.route = r;
+        this.currentMode = mode;
+        this.centerHospital();
+        this.drawRouteOnMap(mode, r);
+        // 以终点为中心加载周边服务（酒店/餐饮/药店/停车）
+        await this.loadNearby(this.activeCat);
+        return true;
+      } catch(e) {
+        return false;              // 网络异常同样静默降级，不干扰用户
+      } finally { this.loading = false; }
+    },
+
+    async askAI(q) {
+      this.loading = true; this.aiReply = '正在思考…'; this.aiError = false;
+      try {
+        const r = await fetch('/chat', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({query: q, user_id: 1}),
+        }).then(r=>r.json());
+        this.aiReply = r.reply || '';
+        // 如果 Agent 调用了 hospital_search / nearby_*，尝试从 tool_calls 里同步地图
+        this.syncFromToolCalls(r.tool_calls || []);
+      } catch(e) {
+        this.aiError = true; this.aiReply = 'AI 请求失败：' + e.message;
+      } finally { this.loading = false; }
+    },
+
+    // LLM 路由时，Agent 调用工具后结果在 tool_calls 里，需手动同步到地图
+    // 因为 askAI 只拿到 reply 文本，地图状态不会自动更新，所以在此遍历工具调用记录
+    syncFromToolCalls(calls) {
+      for (const c of calls) {
+        // tool_calls 里的 result 是 JSON 字符串，解析失败（非 JSON）直接跳过
+        let r; try { r = JSON.parse(c.result); } catch(e) { continue; }
+        // ok:false 说明工具调用本身失败，无有效数据，跳过
+        if (!r.ok) continue;
+
+        // ── 医院搜索结果 ──
+        // LLM 调用了 hospital_search（如用户问"协和医院在哪"）→ 同步地图中心点
+        if (c.name === 'hospital_search' && r.hospital) {
+          this.hospital = r.hospital;
+          this.centerHospital();
+        }
+
+        // ── 路线规划结果 ──
+        // LLM 调用了 route_planning（如用户问"从西直门到协和怎么走"）
+        // → 同步路线卡起终点显示、路线数据、地图画线
+        if (c.name === 'route_planning' && r.origin && r.destination) {
+          const args = c.args || {};
+          // args.origin 是用户输入的起点地名（显示用），r.origin 是高德解析后的坐标（API 用）
+          this.routeOrigin = args.origin || '起点';
+          this.routeOriginLoc = r.origin;
+          // 若当前没有目标地点，用路线终点补充（保证路线卡"从X到Y"能完整显示）
+          if (!this.hospital) {
+            this.hospital = { name: args.destination || '终点', address: '', location: r.destination, tel: '' };
+            this.centerHospital();
+          }
+          this.route = r;
+          this.currentMode = r.mode || 'driving';
+          this.drawRouteOnMap(this.currentMode, r);
+        }
+
+        // ── 周边搜索结果 ──
+        // nearby_hotels/restaurants/pharmacies/parking 返回结构均含 hospital + pois
+        // → 同步医院中心点 + 渲染周边 POI 标记 + 更新激活的分类 tab
+        if (r.hospital && r.pois) {
+          this.hospital = r.hospital;
+          this.centerHospital();
+          this.renderPois(r.pois);
+          // 将工具名映射回前端 tab id，使对应 tab 高亮
+          const catMap = {
+            nearby_hotels: 'hotels',
+            nearby_restaurants: 'restaurants',
+            nearby_pharmacies: 'pharmacies',
+            nearby_parking: 'parking',
+          };
+          if (catMap[c.name]) this.activeCat = catMap[c.name];
+        }
+      }
+    },
+
+    // ── 医院定位 + 中心点 marker ──
+    centerHospital() {
+      if (!this.hospital || !this.map) return;
+      const [lng, lat] = this.hospital.location.split(',').map(parseFloat);
+      const ll = new AMap.LngLat(lng, lat);
+      const m = new AMap.Marker({
+        position: ll, zIndex: 200,
+        content: this.svgPin(0, {center: true}),
+        offset: new AMap.Pixel(-13, -34),
+      });
+      this.markers.push(m);
+      this.map.add(m);
+      this.map.setZoomAndCenter(15, ll);
+    },
+
+    // ── 周边分类切换 ──
+    async switchCat(cat) {
+      this.activeCat = cat;
+      if (this.hospital) await this.loadNearby(cat);
+    },
+
+    async loadNearby(cat) {
+      if (!this.hospital) return;
+      this.nearby = []; this.activePoi = -1;
+      this.clearPoiMarkers();
+      try {
+        const r = await fetch('/api/amap/nearby?hospital=' + encodeURIComponent(this.hospital.name) + '&category=' + cat).then(r=>r.json());
+        if (!r.ok) { this.aiError = true; this.aiReply = '周边查询失败：' + (r.error || ''); return; }
+        this.renderPois(r.pois || []);
+      } catch(e) {
+        this.aiError = true; this.aiReply = '周边查询失败：' + e.message;
+      }
+    },
+
+    renderPois(pois) {
+      this.nearby = pois;
+      pois.forEach((p, i) => {
+        if (!p.location) return;
+        const [lng, lat] = p.location.split(',').map(parseFloat);
+        const ll = new AMap.LngLat(lng, lat);
+        const m = new AMap.Marker({
+          position: ll, zIndex: 100,
+          content: this.svgPin(i+1, {distance: p.distance || 99999}),
+          offset: new AMap.Pixel(-13, -34),
+        });
+        m.on('click', () => this.focusPoi(i));
+        this.markers.push(m);
+        this.map.add(m);
+      });
+      if (this.markers.length > 1) {
+        this.map.setFitView(this.markers, false, [60, 60, 60, 60]);
+      }
+    },
+
+    focusPoi(i) {
+      this.activePoi = i;
+      const p = this.nearby[i];
+      if (!p || !p.location) return;
+      const [lng, lat] = p.location.split(',').map(parseFloat);
+      const ll = new AMap.LngLat(lng, lat);
+      this.infoWin.setContent(
+        '<div style="padding:6px 10px;max-width:200px;font-size:12px;line-height:1.6">'
+        + '<b>' + this.h(p.name) + '</b><br>'
+        + (p.address ? '<span style="color:#888">'+this.h(p.address)+'</span><br>' : '')
+        + (p.distance != null ? '<span style="color:#0D9488">距离 '+p.distance+'m</span>' : '')
+        + '</div>'
+      );
+      this.infoWin.open(this.map, ll);
+      this.map.setCenter(ll);
+    },
+
+    // ── 路线切换（驾车/公交/骑行/步行 tab 点击） ──
+    async switchRouteMode(mode) {
+      this.currentMode = mode;
+      if (!this.hospital) return;
+      // routeOriginLoc 优先：是高德已解析的坐标，直接传给 API 无需二次地理编码，更快更准
+      // 若没有坐标（用户只搜了医院未规划路线），则尝试用地名，或提示用户先输入起点
+      const origin = this.routeOriginLoc || this.routeOrigin;
+      if (!origin) {
+        this.aiReply = '请先搜索"从XX到YY"来确定起点，再切换出行方式';
+        return;
+      }
+      try {
+        // 终点同样优先传坐标（location），坐标不存在时降级传地名（name）
+        const r = await fetch('/api/amap/route?origin=' + encodeURIComponent(origin)
+          + '&destination=' + encodeURIComponent(this.hospital.location || this.hospital.name)
+          + '&mode=' + mode).then(r=>r.json());
+        if (!r.ok) { this.route = null; this.aiError = true; this.aiReply = '路线规划失败：' + (r.error || ''); return; }
+        this.route = r;
+        this.drawRouteOnMap(mode, r);
+      } catch(e) { this.aiError = true; this.aiReply = e.message; }
+    },
+
+    drawRouteOnMap(mode, r) {
+      if (!r.origin || !r.destination) return;
+      const [ox, oy] = r.origin.split(',').map(parseFloat);
+      const [dx, dy] = r.destination.split(',').map(parseFloat);
+      // 复用/新建规划实例
+      if (mode === 'driving') {
+        if (!this.driving) this.driving = new AMap.Driving({ map: this.map, showTraffic: false, hideMarkers: true });
+        this.driving.search(new AMap.LngLat(ox,oy), new AMap.LngLat(dx,dy));
+      } else if (mode === 'walking') {
+        if (!this.walking) this.walking = new AMap.Walking({ map: this.map, hideMarkers: true });
+        this.walking.search(new AMap.LngLat(ox,oy), new AMap.LngLat(dx,dy));
+      }
+      // 公交/骑行画线依赖插件，简化：只在下方 route-card 展示文本，不画线
+    },
+
+    formatRouteDuration(r) {
+      if (!r || !r.duration_s) return '';
+      const min = Math.round(r.duration_s / 60);
+      return min + '分钟';
+    },
+    formatRouteDetail(r) {
+      if (!r) return '';
+      const km = (r.distance_m / 1000).toFixed(1);
+      const min = Math.round(r.duration_s / 60);
+      return `距离 ${km} 公里 · 预计 ${min} 分钟`;
+    },
+
+    // ── 高德 URI 导航跳转 ──
+    openNav() {
+      if (!this.hospital) return;
+      const [lng, lat] = this.hospital.location.split(',').map(parseFloat);
+      const to = lng + ',' + lat + ',' + encodeURIComponent(this.hospital.name);
+      window.open('https://uri.amap.com/navigation?to=' + to + '&mode=car&callnative=1', '_blank');
+    },
+
+    // ── 工具 ──
+    clearMarkers() {
+      if (this.markers.length) { this.map?.remove(this.markers); this.markers = []; }
+      if (this.driving) { this.driving.clear(); }
+      if (this.walking) { this.walking.clear(); }
+      this.route = null;
+    },
+    clearPoiMarkers() {
+      // 保留 hospital 中心 marker（index 0），移除其他
+      if (this.markers.length > 1) {
+        const rest = this.markers.slice(1);
+        this.map?.remove(rest);
+        this.markers = this.markers.slice(0, 1);
+      }
+    },
+    formatDist(d) {
+      if (d == null) return '';
+      return d < 1000 ? d + 'm' : (d/1000).toFixed(1) + 'km';
+    },
+    svgPin(num, opts) {
+      let fill, stroke;
+      if (opts.center) { fill='#EF4444'; stroke='#B91C1C'; }
+      else {
+        const d = opts.distance || 99999;
+        if (d <= 300) { fill='#10B981'; stroke='#059669'; }
+        else if (d <= 600) { fill='#84CC16'; stroke='#65A30D'; }
+        else if (d <= 1000) { fill='#F97316'; stroke='#EA580C'; }
+        else { fill='#0D9488'; stroke='#0F766E'; }
+      }
+      const label = opts.center ? '★' : num;
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34">
+<path d="M13 0C7.477 0 3 4.477 3 10c0 7.5 10 24 10 24S23 17.5 23 10c0-5.523-4.477-10-10-10z" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>
+<text x="13" y="14" text-anchor="middle" font-size="10" font-weight="bold" fill="#fff">${label}</text>
+</svg>`;
+    },
+    h(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); },
+  };
+}
+</script>
+
+</body>
+</html>

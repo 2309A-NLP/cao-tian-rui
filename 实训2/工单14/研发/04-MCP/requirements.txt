@@ -1,0 +1,10 @@
+# Work Order 14 MCP - dependencies
+# Versions aligned with 01/02 to avoid conflicts.
+
+mcp[cli]==1.28.1
+httpx==0.28.1
+python-dotenv==1.2.2
+fastapi>=0.109.0
+uvicorn>=0.27.0
+pydantic>=2.0
+openai>=1.0

@@ -1,0 +1,41 @@
+{
+  "_comment": "工单14 MCP Server 注册表。stdio Server 由 MCP Client 拉起子进程；sse 直连远端。",
+  "servers": {
+    "registration": {
+      "transport": "stdio",
+      "command": "python",
+      "args": ["-m", "mcp_servers.registration_mcp"],
+      "description": "挂号管理（代理工单01，端口8011）",
+      "intents": ["挂号", "预约", "取消预约", "查号源", "查排班", "我的预约"]
+    },
+    "knowledge": {
+      "transport": "stdio",
+      "command": "python",
+      "args": ["-m", "mcp_servers.knowledge_mcp"],
+      "description": "健康咨询与图谱（代理工单02，端口8012）",
+      "intents": ["健康咨询", "症状查询", "疾病百科", "药品用法", "科室推荐", "饮食建议"]
+    },
+    "amap": {
+      "transport": "sse",
+      "url_env": "AMAP_MCP_URL",
+      "description": "高德地图（官方SSE）",
+      "intents": ["医院位置", "路线规划", "附近酒店", "附近餐饮", "附近药店", "附近停车"]
+    },
+    "imaging": {
+      "transport": "stdio",
+      "command": "python",
+      "args": ["-m", "mcp_servers.imaging_mcp"],
+      "description": "医学影像分析（代理工单03，端口8013，未开工）",
+      "status": "placeholder",
+      "intents": ["影像分析", "读片", "生成影像报告"]
+    },
+    "voice": {
+      "transport": "stdio",
+      "command": "python",
+      "args": ["-m", "mcp_servers.voice_mcp"],
+      "description": "实时语音识别（代理工单05，端口8015，未开工）",
+      "status": "placeholder",
+      "intents": ["语音转文字", "语音输入"]
+    }
+  }
+}

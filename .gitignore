@@ -6,6 +6,25 @@
 .vscode/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Python 虚拟环境
+.venv/
+venv/
+
+# 日志、模型、缓存与数据目录
+logs/
+log/
+models/
+model/
+checkpoints/
+checkpoint/
+data/
+Data/
+output/
+tmp/
+temp/
 
 # PDF 等二进制文档
 *.pdf
@@ -28,6 +47,24 @@ __pycache__/
 
 # LightRAG 存储
 **/lightrag_storage/
+
+# 密钥与模型权重等敏感/大文件
+*.key
+*.pem
+*.p12
+*.env
+*.log
+*.bin
+*.pt
+*.pth
+*.safetensors
+*.gguf
+*.onnx
+*.ckpt
+*.h5
+*.pb
+*.model
+*.weights
 
 # 系统文件
 Thumbs.db

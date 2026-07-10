@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Agent · 工单23</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue: #2563eb; --blue-d: #1d4ed8; --blue-l: #eff6ff;
+  --purple: #7c3aed; --green: #16a34a; --orange: #d97706; --red: #dc2626;
+  --bg: #f1f5f9; --card: #ffffff; --border: #e2e8f0;
+  --text: #1e293b; --muted: #64748b; --muted-l: #94a3b8;
+}
+body { font-family: -apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+       background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* ── 顶栏 ── */
+header {
+  background: linear-gradient(135deg,#1e40af 0%,#7c3aed 100%);
+  padding: 0 28px; height: 56px; display:flex; align-items:center;
+  justify-content:space-between; position:sticky; top:0; z-index:20;
+  box-shadow: 0 2px 12px rgba(30,64,175,.3);
+}
+.logo { color:#fff; font-size:17px; font-weight:700; letter-spacing:.3px; }
+.logo span { opacity:.65; font-weight:400; font-size:12px; margin-left:10px; }
+.hdr-right { display:flex; align-items:center; gap:16px; }
+.dot { width:7px; height:7px; border-radius:50%; background:#86efac;
+       display:inline-block; margin-right:5px; animation:pulse 2s infinite; }
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.srv-lbl { color:#cbd5e1; font-size:12px; }
+
+/* ── 布局 ── */
+.layout { display:flex; gap:18px; padding:20px 28px; max-width:1280px; margin:0 auto; }
+.sidebar { width:240px; flex-shrink:0; }
+.main { flex:1; min-width:0; }
+
+/* ── 卡片 ── */
+.card { background:var(--card); border-radius:12px; padding:18px;
+        box-shadow:0 1px 4px rgba(0,0,0,.06); margin-bottom:14px; }
+.card-title { font-size:11px; font-weight:700; color:var(--muted);
+              text-transform:uppercase; letter-spacing:.8px; margin-bottom:12px; }
+
+/* ── 侧边栏 ── */
+.example { padding:9px 11px; border-radius:7px; border:1px solid var(--border);
+           font-size:12px; line-height:1.5; cursor:pointer; margin-bottom:7px;
+           transition:all .15s; color:var(--text); }
+.example:hover { border-color:var(--blue); background:var(--blue-l); color:var(--blue); }
+.example:last-child { margin-bottom:0; }
+
+.stat-row { display:flex; justify-content:space-between; align-items:center;
+            padding:7px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.stat-row:last-child { border-bottom:none; }
+.stat-val { font-weight:700; color:var(--blue); }
+
+.history-item { padding:10px 11px; border-radius:8px; border:1px solid var(--border);
+                margin-bottom:8px; cursor:pointer; transition:all .15s; }
+.history-item:hover { border-color:var(--blue); background:#f8faff; }
+.hi-q { font-size:11px; color:var(--muted); margin-bottom:3px;
+         white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hi-a { font-size:12px; font-weight:600; color:var(--text);
+         white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.empty-tip { color:var(--muted-l); font-size:12px; text-align:center; padding:10px 0; }
+
+/* ── 输入区 ── */
+textarea {
+  width:100%; height:110px; padding:12px 14px; font-size:14px;
+  border:2px solid var(--border); border-radius:10px; resize:vertical;
+  font-family:inherit; line-height:1.6; transition:border-color .2s;
+  outline:none; color:var(--text);
+}
+textarea:focus { border-color:var(--blue); }
+textarea::placeholder { color:var(--muted-l); }
+.btn-row { display:flex; gap:8px; margin-top:10px; align-items:center; }
+.btn { padding:9px 22px; border-radius:7px; font-size:13px; font-weight:600;
+       cursor:pointer; border:none; transition:all .15s; }
+.btn-primary { background:var(--blue); color:white; }
+.btn-primary:hover:not(:disabled) { background:var(--blue-d); transform:translateY(-1px); }
+.btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+.btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); }
+.btn-ghost:hover { background:var(--bg); }
+.char-count { margin-left:auto; font-size:11px; color:var(--muted-l); }
+
+/* ── 等待区（核心改进：显示真实进度）── */
+.waiting-box { display:none; }
+.waiting-box.show { display:block; }
+
+.progress-card { border:1px solid var(--border); border-radius:10px; padding:16px 18px; }
+.progress-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.spinner { width:20px; height:20px; border:2px solid var(--border);
+           border-top-color:var(--blue); border-radius:50%;
+           animation:spin 1s linear infinite; flex-shrink:0; }
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-title { font-size:14px; font-weight:600; color:var(--text); }
+.progress-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+
+/* 进度条 */
+.pbar-wrap { background:#f1f5f9; border-radius:6px; height:6px; margin-bottom:12px; overflow:hidden; }
+.pbar-fill { height:100%; background:linear-gradient(90deg,var(--blue),var(--purple));
+             border-radius:6px; transition:width .6s ease; width:5%; }
+
+/* 当前动作标签 */
+.action-tag { display:inline-flex; align-items:center; gap:6px;
+              padding:5px 12px; border-radius:20px; font-size:12px; font-weight:600;
+              background:var(--blue-l); color:var(--blue); border:1px solid #bfdbfe; }
+.action-tag.search { background:#eff6ff; color:var(--blue); border-color:#bfdbfe; }
+.action-tag.fetch  { background:#fef3c7; color:#92400e; border-color:#fde68a; }
+.action-tag.calc   { background:#f0fdf4; color:#14532d; border-color:#bbf7d0; }
+.action-tag.done   { background:#f0fdf4; color:var(--green); border-color:#bbf7d0; }
+
+/* 搜索词展示 */
+.query-preview { margin-top:10px; padding:8px 12px; background:#f8faff;
+                 border-radius:7px; border-left:3px solid var(--blue);
+                 font-size:12px; color:var(--text); font-family:monospace; word-break:break-all; }
+.query-label { font-size:10px; color:var(--muted); margin-bottom:3px; font-family:sans-serif; }
+
+/* 计时 */
+.timer-row { display:flex; justify-content:space-between; margin-top:12px;
+             font-size:12px; color:var(--muted); }
+.timer-val { color:var(--blue); font-weight:700; }
+
+/* ── 答案区 ── */
+.answer-box { display:none; }
+.answer-box.show { display:block; }
+
+.answer-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.answer-label { font-size:11px; font-weight:700; color:var(--muted);
+                text-transform:uppercase; letter-spacing:.8px; }
+.answer-meta { display:flex; gap:8px; flex-wrap:wrap; }
+.badge { font-size:11px; padding:3px 9px; border-radius:12px; font-weight:600; }
+.badge-blue { background:var(--blue-l); color:var(--blue); }
+.badge-green { background:#f0fdf4; color:var(--green); }
+.badge-orange { background:#fffbeb; color:var(--orange); }
+.badge-red { background:#fef2f2; color:var(--red); }
+
+.question-echo { font-size:12px; color:var(--muted); padding:8px 12px;
+                 background:var(--bg); border-radius:7px; margin-bottom:12px; line-height:1.5; }
+.answer-text { font-size:22px; font-weight:700; color:var(--blue);
+               padding:18px 20px; background:linear-gradient(135deg,#eff6ff,#f5f3ff);
+               border-radius:10px; border-left:4px solid var(--blue);
+               word-break:break-word; line-height:1.5; margin-bottom:14px; }
+
+/* ── 推理链 ── */
+.trace-section { margin-top:4px; }
+.trace-toggle { display:flex; align-items:center; gap:6px; cursor:pointer;
+                font-size:12px; color:var(--muted); padding:6px 0;
+                user-select:none; }
+.trace-toggle:hover { color:var(--blue); }
+.chevron { transition:transform .2s; display:inline-block; }
+.chevron.open { transform:rotate(90deg); }
+
+.trace-body { display:none; margin-top:8px; }
+.trace-body.show { display:block; }
+
+.trace-step { border:1px solid var(--border); border-radius:9px;
+              margin-bottom:10px; overflow:hidden; }
+.step-header { display:flex; align-items:center; gap:8px; padding:9px 12px;
+               background:#fafbfc; border-bottom:1px solid var(--border); }
+.step-num { font-size:10px; font-weight:700; color:var(--muted); width:28px; }
+.step-action-badge { font-size:10px; font-weight:700; padding:2px 8px;
+                     border-radius:10px; text-transform:uppercase; }
+.act-search { background:#dbeafe; color:#1e40af; }
+.act-fetch  { background:#fef3c7; color:#92400e; }
+.act-calc   { background:#d1fae5; color:#065f46; }
+.step-query { font-size:12px; color:var(--text); font-family:monospace;
+              overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+
+.step-body { padding:10px 12px; }
+.step-section { margin-bottom:8px; }
+.step-section:last-child { margin-bottom:0; }
+.step-lbl { font-size:10px; font-weight:700; color:var(--muted);
+            text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+.step-content { font-size:12px; color:var(--text); line-height:1.6;
+                background:var(--bg); border-radius:6px; padding:8px 10px;
+                max-height:120px; overflow-y:auto; word-break:break-word; }
+
+/* ── 来源URL ── */
+.sources-row { margin-top:8px; }
+.source-chip { display:inline-block; font-size:11px; padding:3px 10px;
+               border-radius:12px; background:#f1f5f9; color:var(--muted);
+               margin:3px 3px 0 0; text-decoration:none; border:1px solid var(--border); }
+.source-chip:hover { color:var(--blue); border-color:var(--blue); background:var(--blue-l); }
+
+/* ── 响应式 ── */
+@media(max-width:720px){
+  .layout{flex-direction:column;padding:14px;}
+  .sidebar{width:100%;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Research Agent <span>工单23 · ReAct + Qwen-Max</span></div>
+  <div class="hdr-right">
+    <span class="srv-lbl" id="srvStatus"><span class="dot"></span>连接中…</span>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- 侧边栏 -->
+  <div class="sidebar">
+    <div class="card">
+      <div class="card-title">示例题目</div>
+      <div class="example" onclick="fillQ(this)">BBC Micro 是哪一年发布的？</div>
+      <div class="example" onclick="fillQ(this)">Who invented the World Wide Web?</div>
+      <div class="example" onclick="fillQ(this)">Convert 186 miles to kilometers, keep 2 decimal places.</div>
+      <div class="example" onclick="fillQ(this)">2024年巴黎奥运会男子100米冠军是谁？</div>
+      <div class="example" onclick="fillQ(this)">阿里巴巴集团的英文全称是什么？要求格式形如：Alibaba Group Limited。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">本次统计</div>
+      <div class="stat-row"><span>已提问</span><span class="stat-val" id="statCount">0</span></div>
+      <div class="stat-row"><span>平均耗时</span><span class="stat-val" id="statAvg">—</span></div>
+      <div class="stat-row"><span>最快</span><span class="stat-val" id="statMin">—</span></div>
+      <div class="stat-row"><span>模型</span><span class="stat-val">qwen-max</span></div>
+      <div class="stat-row"><span>搜索</span><span class="stat-val">IQS→Bing</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">历史记录</div>
+      <div id="historyList"><div class="empty-tip">暂无记录</div></div>
+    </div>
+  </div>
+
+  <!-- 主区域 -->
+  <div class="main">
+
+    <!-- 输入 -->
+    <div class="card">
+      <div class="card-title">输入问题</div>
+      <textarea id="qInput"
+        placeholder="请输入问题，支持中文和英文…&#10;&#10;例：一位研究流星的天文学家，曾对夏末天文现象的尘埃带做出预测…"
+        oninput="updateCount()"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="askBtn" onclick="askQuestion()">提 问</button>
+        <button class="btn btn-ghost" onclick="clearAll()">清 空</button>
+        <span class="char-count" id="charCount">0 字</span>
+      </div>
+    </div>
+
+    <!-- 等待进度（轮询真实状态）-->
+    <div class="card waiting-box" id="waitingBox">
+      <div class="progress-card">
+        <div class="progress-header">
+          <div class="spinner"></div>
+          <div>
+            <div class="progress-title" id="progressTitle">Agent 正在工作…</div>
+            <div class="progress-sub" id="progressSub">正在理解问题</div>
+          </div>
+        </div>
+        <div class="pbar-wrap"><div class="pbar-fill" id="pbarFill"></div></div>
+        <div id="actionTag" class="action-tag search">🔍 搜索中</div>
+        <div class="query-preview" id="queryPreview" style="display:none">
+          <div class="query-label">搜索词</div>
+          <div id="queryText"></div>
+        </div>
+        <div class="timer-row">
+          <span>已用时 <span class="timer-val" id="elapsedSec">0s</span></span>
+          <span id="etaLabel">预计 20–60 秒</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 答案 + 推理链 -->
+    <div class="card answer-box" id="answerBox">
+      <div class="answer-header">
+        <span class="answer-label">答案</span>
+        <div class="answer-meta" id="answerMeta"></div>
+      </div>
+      <div class="question-echo" id="questionEcho"></div>
+      <div class="answer-text" id="answerText"></div>
+
+      <!-- 推理链折叠区 -->
+      <div class="trace-section" id="traceSection" style="display:none">
+        <div class="trace-toggle" onclick="toggleTrace()">
+          <span class="chevron" id="chevron">▶</span>
+          <span id="traceToggleLabel">查看推理过程</span>
+        </div>
+        <div class="trace-body" id="traceBody"></div>
+      </div>
+
+      <!-- 来源 -->
+      <div class="sources-row" id="sourcesRow" style="display:none">
+        <div class="card-title" style="margin-bottom:6px">信息来源</div>
+        <div id="sourceChips"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const BASE = window.location.origin;
+const API  = BASE + "/api/v1/chat";
+const MAX_ROUNDS = 3;
+
+let times = [], tickTimer, pollTimer, currentReqId = "";
+
+// ── 健康检查 ──────────────────────────────────────────────────────────────────
+async function checkHealth() {
+  try {
+    const r = await fetch(BASE + "/health");
+    const d = await r.json();
+    document.getElementById("srvStatus").innerHTML =
+      '<span class="dot"></span>服务正常（' + (d.model || "qwen-max") + '）';
+    document.getElementById("srvStatus").style.color = "#86efac";
+  } catch {
+    document.getElementById("srvStatus").innerHTML = '⚠ 服务未启动';
+    document.getElementById("srvStatus").style.color = "#fca5a5";
+  }
+}
+checkHealth();
+setInterval(checkHealth, 20000);
+
+// ── 工具函数 ─────────────────────────────────────────────────────────────────
+function fillQ(el) {
+  document.getElementById("qInput").value = el.textContent.trim();
+  updateCount();
+  document.getElementById("qInput").focus();
+}
+function updateCount() {
+  const v = document.getElementById("qInput").value;
+  document.getElementById("charCount").textContent = v.length + " 字";
+}
+function clearAll() {
+  document.getElementById("qInput").value = "";
+  updateCount();
+  document.getElementById("answerBox").classList.remove("show");
+  document.getElementById("waitingBox").classList.remove("show");
+}
+
+// ── 动作图标映射 ─────────────────────────────────────────────────────────────
+const ACTION_ICON = { search:"🔍", fetch:"🌐", calculate:"🧮", calc:"🧮",
+                      generating:"✍️", preprocessing:"⚙️", done:"✅", error:"❌" };
+const ACTION_LABEL = { search:"搜索中", fetch:"抓取网页", calculate:"计算中",
+                       calc:"计算中", generating:"生成答案", preprocessing:"预处理",
+                       done:"完成", error:"出错" };
+const ACTION_CLASS = { search:"search", fetch:"fetch", calculate:"calc", calc:"calc" };
+
+// ── 轮询状态并更新进度UI ─────────────────────────────────────────────────────
+function startPolling(reqId, t0) {
+  let lastRound = 0, roundStartTime = t0;
+
+  pollTimer = setInterval(async () => {
+    try {
+      const r = await fetch(BASE + "/api/v1/status/" + reqId);
+      const s = await r.json();
+      if (!s || Object.keys(s).length === 0) return;
+
+      const elapsed = (Date.now() - t0) / 1000;
+      document.getElementById("elapsedSec").textContent = elapsed.toFixed(1) + "s";
+
+      const round = s.round || 0;
+      const action = s.action || "processing";
+      const query = s.query || "";
+
+      // 进度条（按轮数估算）
+      const pct = Math.min(90, round > 0 ? (round / MAX_ROUNDS) * 80 + 10 : 10);
+      document.getElementById("pbarFill").style.width = pct + "%";
+
+      // 动作标签
+      const icon = ACTION_ICON[action] || "⏳";
+      const lbl  = ACTION_LABEL[action] || action;
+      const cls  = ACTION_CLASS[action] || "search";
+      const tag  = document.getElementById("actionTag");
+      tag.textContent = icon + " " + lbl;
+      tag.className = "action-tag " + cls;
+
+      // 标题
+      if (round > 0) {
+        document.getElementById("progressTitle").textContent =
+          "第 " + round + " 轮  /  最多 " + MAX_ROUNDS + " 轮";
+      }
+
+      // 搜索词
+      if (query && (action === "search" || action === "fetch")) {
+        document.getElementById("queryPreview").style.display = "block";
+        document.getElementById("queryText").textContent = query;
+      }
+
+      // ETA：第一次有 round 数据后开始估算
+      if (round > 0 && round !== lastRound) {
+        const perRound = (elapsed - (roundStartTime - t0) / 1000) / round;
+        const remaining = Math.max(0, (MAX_ROUNDS - round) * perRound);
+        document.getElementById("etaLabel").textContent =
+          "预计还需 ~" + Math.round(remaining) + "s";
+        if (round !== lastRound) { lastRound = round; roundStartTime = Date.now(); }
+      }
+
+      if (s.done) clearInterval(pollTimer);
+    } catch { /* 轮询失败静默忽略 */ }
+  }, 1500);
+}
+
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
+}
+
+// ── 主流程 ───────────────────────────────────────────────────────────────────
+async function askQuestion() {
+  const q = document.getElementById("qInput").value.trim();
+  if (!q) return;
+
+  // 生成本次请求ID（前端生成，传给后端用于状态轮询）
+  currentReqId = "r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+  // 重置UI
+  document.getElementById("answerBox").classList.remove("show");
+  document.getElementById("waitingBox").classList.add("show");
+  document.getElementById("askBtn").disabled = true;
+  document.getElementById("pbarFill").style.width = "5%";
+  document.getElementById("progressTitle").textContent = "Agent 正在工作…";
+  document.getElementById("progressSub").textContent = "正在理解问题";
+  document.getElementById("actionTag").textContent = "⚙️ 预处理";
+  document.getElementById("actionTag").className = "action-tag";
+  document.getElementById("queryPreview").style.display = "none";
+  document.getElementById("elapsedSec").textContent = "0s";
+  document.getElementById("etaLabel").textContent = "预计 20–60 秒";
+
+  const t0 = Date.now();
+
+  // 计时器（每 200ms 刷新一次显示）
+  tickTimer = setInterval(() => {
+    document.getElementById("elapsedSec").textContent =
+      ((Date.now() - t0) / 1000).toFixed(1) + "s";
+  }, 200);
+
+  // 启动状态轮询
+  startPolling(currentReqId, t0);
+
+  try {
+    const resp = await fetch(API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: q, req_id: currentReqId }),
+    });
+    const data = await resp.json();
+    const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
+
+    stopPolling();
+    document.getElementById("pbarFill").style.width = "100%";
+
+    // 短暂停留让进度条跑满，再切换显示
+    setTimeout(() => showAnswer(q, data, elapsed), 300);
+
+  } catch(e) {
+    stopPolling();
+    document.getElementById("waitingBox").classList.remove("show");
+    showErrorAnswer(q, e.message);
+  }
+
+  document.getElementById("askBtn").disabled = false;
+}
+
+// ── 展示答案 + 推理链 ─────────────────────────────────────────────────────────
+function showAnswer(q, data, elapsed) {
+  document.getElementById("waitingBox").classList.remove("show");
+  document.getElementById("questionEcho").textContent = "问：" + q;
+  document.getElementById("answerText").textContent = data.answer || "（无答案）";
+
+  // 徽章
+  const meta = document.getElementById("answerMeta");
+  meta.innerHTML = "";
+  meta.appendChild(mkBadge("⏱ " + elapsed + "s", "badge-blue"));
+  if (data.rounds_used != null) {
+    meta.appendChild(mkBadge("🔄 " + data.rounds_used + " 轮", "badge-blue"));
+  }
+  if (data.exit_reason) {
+    const exitMap = { final_answer:"✅ 主动停止", max_rounds:"⚠️ 达轮数上限",
+                      no_new_info:"ℹ️ 信息足够", timeout:"⏰ 超时", error:"❌ 出错" };
+    const exitCls = data.exit_reason === "final_answer" ? "badge-green" :
+                    data.exit_reason === "error" ? "badge-red" : "badge-orange";
+    meta.appendChild(mkBadge(exitMap[data.exit_reason] || data.exit_reason, exitCls));
+  }
+
+  // 推理链
+  const traceSection = document.getElementById("traceSection");
+  const traceBody = document.getElementById("traceBody");
+  const toggleLabel = document.getElementById("traceToggleLabel");
+  if (data.trace && data.trace.length > 0) {
+    traceBody.innerHTML = "";
+    data.trace.forEach((step, i) => {
+      traceBody.appendChild(buildTraceStep(step, i + 1));
+    });
+    toggleLabel.textContent = "查看推理过程（" + data.trace.length + " 步）";
+    traceSection.style.display = "block";
+    document.getElementById("traceBody").classList.remove("show");
+    document.getElementById("chevron").classList.remove("open");
+  } else {
+    traceSection.style.display = "none";
+  }
+
+  // 来源URL
+  const sourcesRow = document.getElementById("sourcesRow");
+  const chips = document.getElementById("sourceChips");
+  chips.innerHTML = "";
+  const urls = (data.evidence_urls || []).filter(Boolean);
+  if (urls.length > 0) {
+    urls.slice(0, 8).forEach(url => {
+      const a = document.createElement("a");
+      a.className = "source-chip";
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      try {
+        a.textContent = new URL(url).hostname;
+      } catch { a.textContent = url.slice(0, 40); }
+      chips.appendChild(a);
+    });
+    sourcesRow.style.display = "block";
+  } else {
+    sourcesRow.style.display = "none";
+  }
+
+  document.getElementById("answerBox").classList.add("show");
+
+  // 统计
+  const t = parseFloat(elapsed);
+  times.push(t);
+  document.getElementById("statCount").textContent = times.length;
+  document.getElementById("statAvg").textContent =
+    (times.reduce((a,b)=>a+b,0)/times.length).toFixed(1) + "s";
+  document.getElementById("statMin").textContent = Math.min(...times).toFixed(1) + "s";
+
+  addHistory(q, data.answer, elapsed);
+}
+
+function showErrorAnswer(q, errMsg) {
+  document.getElementById("questionEcho").textContent = "问：" + q;
+  document.getElementById("answerText").textContent =
+    "请求失败：" + errMsg + "\n\n请确认服务已启动：python src/app.py";
+  document.getElementById("answerMeta").innerHTML = mkBadge("❌ 请求失败", "badge-red").outerHTML;
+  document.getElementById("traceSection").style.display = "none";
+  document.getElementById("sourcesRow").style.display = "none";
+  document.getElementById("answerBox").classList.add("show");
+}
+
+// ── 推理链步骤卡片 ───────────────────────────────────────────────────────────
+function buildTraceStep(step, num) {
+  const div = document.createElement("div");
+  div.className = "trace-step";
+
+  const actionIcon = ACTION_ICON[step.action] || "🔧";
+  const actionCls  = "act-" + (step.action === "calculate" ? "calc" : step.action);
+
+  div.innerHTML = `
+    <div class="step-header">
+      <span class="step-num">第${num}轮</span>
+      <span class="step-action-badge ${actionCls}">${actionIcon} ${step.action || "?"}</span>
+      <span class="step-query">${escHtml(step.action_input || "")}</span>
+    </div>
+    <div class="step-body">
+      ${step.thought ? `
+      <div class="step-section">
+        <div class="step-lbl">💭 思考</div>
+        <div class="step-content">${escHtml(step.thought)}</div>
+      </div>` : ""}
+      ${step.observation ? `
+      <div class="step-section">
+        <div class="step-lbl">📄 观察结果</div>
+        <div class="step-content">${escHtml(step.observation)}</div>
+      </div>` : ""}
+    </div>`;
+  return div;
+}
+
+function toggleTrace() {
+  const body = document.getElementById("traceBody");
+  const chevron = document.getElementById("chevron");
+  const label = document.getElementById("traceToggleLabel");
+  const isOpen = body.classList.contains("show");
+  if (isOpen) {
+    body.classList.remove("show");
+    chevron.classList.remove("open");
+  } else {
+    body.classList.add("show");
+    chevron.classList.add("open");
+  }
+}
+
+// ── 历史记录 ─────────────────────────────────────────────────────────────────
+function addHistory(q, a, t) {
+  const list = document.getElementById("historyList");
+  const empty = list.querySelector(".empty-tip");
+  if (empty) empty.remove();
+
+  const div = document.createElement("div");
+  div.className = "history-item";
+  div.innerHTML = `
+    <div class="hi-q">Q: ${escHtml(q.slice(0,55))}${q.length>55?"…":""}
+      <span style="float:right;font-size:10px">${t}s</span></div>
+    <div class="hi-a">→ ${escHtml((a||"").slice(0,45))}${(a||"").length>45?"…":""}</div>`;
+  div.onclick = () => {
+    document.getElementById("qInput").value = q;
+    updateCount();
+  };
+  list.insertBefore(div, list.firstChild);
+}
+
+// ── 工具 ─────────────────────────────────────────────────────────────────────
+function mkBadge(text, cls) {
+  const span = document.createElement("span");
+  span.className = "badge " + cls;
+  span.textContent = text;
+  return span;
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+                  .replace(/"/g,"&quot;");
+}
+
+// Ctrl+Enter 提交
+document.getElementById("qInput").addEventListener("keydown", e => {
+  if (e.ctrlKey && e.key === "Enter") askQuestion();
+});
+</script>
+</body>
+</html>

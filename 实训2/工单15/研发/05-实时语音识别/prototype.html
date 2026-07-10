@@ -1,0 +1,160 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>语音助手 - 原型</title><style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#F0FDFA;color:#134E4A;height:100vh;padding:24px;}
+.container{max-width:1000px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,0.05);padding:24px;height:calc(100vh - 48px);overflow-y:auto;}
+.header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.header-icon{font-size:32px;}.header-title{font-size:22px;font-weight:600;}
+.control-panel{display:flex;gap:16px;justify-content:center;margin-bottom:32px;align-items:center;}
+.mic-btn{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#0D9488,#06B6D4);border:none;color:#fff;font-size:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(13,148,136,0.4);transition:all .3s;position:relative;}
+.mic-btn:hover{transform:scale(1.05);}
+.mic-btn.recording{animation:pulse-red 1.5s infinite;background:linear-gradient(135deg,#EF4444,#F87171);}
+.mic-ring{position:absolute;inset:-8px;border:3px solid rgba(13,148,136,0.3);border-radius:50%;animation:ripple 2s infinite;}
+.mic-btn.recording .mic-ring{border-color:rgba(239,68,68,0.3);}
+.lang-select{height:40px;border:1px solid #CDECE8;border-radius:10px;padding:0 14px;font-size:13px;background:#FAFEFD;min-width:140px;}
+.swap-btn{width:36px;height:36px;border-radius:50%;background:#F0FDFA;border:1px solid #CDECE8;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;}
+.status-text{text-align:center;font-size:14px;color:#5F7976;margin-bottom:24px;}
+.status-text.recording{color:#EF4444;font-weight:600;}
+.transcript-area{background:#FAFEFD;border:1px solid #E5F5F2;border-radius:12px;padding:20px;margin-bottom:16px;min-height:200px;}
+.transcript-title{font-size:14px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.speaker-label{font-size:12px;font-weight:600;padding:2px 8px;border-radius:4px;margin-right:6px;}
+.speaker-doc{background:#E5F5F2;color:#0D9488;}.speaker-pat{background:#E0F2FE;color:#0369A1;}
+.transcript-line{font-size:14px;line-height:1.8;margin-bottom:10px;padding-left:8px;border-left:3px solid #E5F5F2;}
+.transcript-line.new{border-left-color:#0D9488;}
+.translation{font-size:12px;color:#5F7976;margin-top:4px;padding-left:48px;font-style:italic;}
+.summary-panel{background:#fff;border:1px solid #E5F5F2;border-radius:12px;padding:20px;}
+.summary-title{font-size:15px;font-weight:600;margin-bottom:16px;}
+.summary-section{margin-bottom:16px;}
+.summary-section-title{font-size:13px;font-weight:600;color:#0D9488;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.summary-content{font-size:13px;color:#5F7976;line-height:1.7;}
+.todo-item{display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 0;border-bottom:1px solid #F0FDFA;}
+.todo-checkbox{width:16px;height:16px;border:2px solid #CDECE8;border-radius:4px;cursor:pointer;}
+.keyword-tag{display:inline-block;padding:4px 10px;background:#F0FDFA;border:1px solid #CDECE8;border-radius:16px;font-size:12px;color:#0D9488;margin:4px 4px 4px 0;}
+.tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid #E5F5F2;padding-bottom:8px;}
+.tab{padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;color:#5F7976;}
+.tab.active{background:#F0FDFA;color:#0D9488;font-weight:600;}
+.btn{padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;}
+.btn-primary{background:linear-gradient(135deg,#0D9488,#06B6D4);color:#fff;}
+.btn-outline{background:#fff;border:1px solid #CDECE8;color:#0D9488;}
+.btn-sm{padding:6px 12px;font-size:12px;}
+@keyframes pulse-red{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+@keyframes ripple{0%{transform:scale(1);opacity:1;}100%{transform:scale(1.3);opacity:0;}}
+</style></head><body>
+<div class="container">
+  <div class="header"><span class="header-icon">🎤</span><span class="header-title">语音助手</span></div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0)">🎙️ 实时录音</div>
+    <div class="tab" onclick="switchTab(1)">📋 会议纪要</div>
+  </div>
+  <div id="panel-record">
+    <div class="control-panel">
+      <select class="lang-select"><option>中文 (普通话)</option><option>English</option><option>日本語</option></select>
+      <div class="swap-btn">⇄</div>
+      <select class="lang-select"><option>English</option><option>中文 (普通话)</option><option>日本語</option></select>
+    </div>
+    <div style="text-align:center;margin-bottom:24px;">
+      <button class="mic-btn" id="micBtn" onclick="toggleRecord()">
+        <span class="mic-ring"></span>
+        <span id="micIcon">🎤</span>
+      </button>
+    </div>
+    <div class="status-text" id="statusText">点击麦克风开始录音，支持实时语音识别与翻译</div>
+    <div class="transcript-area">
+      <div class="transcript-title">📝 实时转写</div>
+      <div id="transcriptContent">
+        <div class="transcript-line">
+          <span class="speaker-label speaker-doc">医生</span>
+          <span>你这个咳嗽持续多久了？</span>
+          <div class="translation">How long have you had this cough?</div>
+        </div>
+        <div class="transcript-line">
+          <span class="speaker-label speaker-pat">患者</span>
+          <span>大概有两周了，晚上咳得比较厉害，有时候咳得睡不着觉。</span>
+          <div class="translation">About two weeks. It gets worse at night, sometimes I can't sleep because of the coughing.</div>
+        </div>
+        <div class="transcript-line">
+          <span class="speaker-label speaker-doc">医生</span>
+          <span>有没有发烧？痰是什么颜色的？</span>
+          <div class="translation">Have you had a fever? What color is the phlegm?</div>
+        </div>
+        <div class="transcript-line new">
+          <span class="speaker-label speaker-pat">患者</span>
+          <span>没有发烧，痰是白色的，比较黏稠。</span>
+          <div class="translation">No fever. The phlegm is white and sticky.</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button class="btn btn-outline">⏸️ 暂停</button>
+      <button class="btn btn-primary">⏹️ 结束录音并生成纪要</button>
+      <button class="btn btn-outline">⚙️ 设置</button>
+    </div>
+  </div>
+  <div id="panel-summary" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:14px;color:#5F7976;">会议/问诊时间：2026-07-05 14:30 - 15:05（35分钟）</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline btn-sm">📤 导出</button>
+        <button class="btn btn-primary btn-sm">📋 复制</button>
+      </div>
+    </div>
+    <div class="summary-panel">
+      <div class="summary-title">📋 会议纪要</div>
+      <div class="summary-section">
+        <div class="summary-section-title">📄 全文摘要</div>
+        <div class="summary-content">患者因持续两周的夜间咳嗽就诊，自述无发热，咳白色黏痰。医生询问病史后建议进行胸部X光检查，并开具止咳化痰药物。嘱患者三天后复诊，如症状加重立即就医。</div>
+      </div>
+      <div class="summary-section">
+        <div class="summary-section-title">📑 章节速览</div>
+        <div class="summary-content">
+          <div style="display:flex;gap:12px;margin-bottom:8px;">
+            <div style="min-width:100px;font-weight:500;color:#134E4A;">主诉与病史</div>
+            <div style="color:#5F7976;">00:00 - 01:30 · 患者自述咳嗽两周，夜间加重</div>
+          </div>
+          <div style="display:flex;gap:12px;margin-bottom:8px;">
+            <div style="min-width:100px;font-weight:500;color:#134E4A;">症状询问</div>
+            <div style="color:#5F7976;">01:30 - 03:00 · 询问发热、痰色、既往病史</div>
+          </div>
+          <div style="display:flex;gap:12px;margin-bottom:8px;">
+            <div style="min-width:100px;font-weight:500;color:#134E4A;">检查建议</div>
+            <div style="color:#5F7976;">03:00 - 04:15 · 建议胸部X光检查</div>
+          </div>
+          <div style="display:flex;gap:12px;">
+            <div style="min-width:100px;font-weight:500;color:#134E4A;">用药指导</div>
+            <div style="color:#5F7976;">04:15 - 05:00 · 开具止咳化痰药物，嘱三天后复诊</div>
+          </div>
+        </div>
+      </div>
+      <div class="summary-section">
+        <div class="summary-section-title">✅ 待办事项</div>
+        <div class="todo-item"><div class="todo-checkbox"></div><span>做胸部X光检查</span></div>
+        <div class="todo-item"><div class="todo-checkbox"></div><span>三天后复诊（7月8日）</span></div>
+        <div class="todo-item"><div class="todo-checkbox"></div><span>如症状加重（高热、呼吸困难）立即就医</span></div>
+        <div class="todo-item"><div class="todo-checkbox"></div><span>按时服用止咳化痰药物</span></div>
+      </div>
+      <div class="summary-section">
+        <div class="summary-section-title">💬 问答提取</div>
+        <div class="summary-content">
+          <div style="margin-bottom:8px;padding:8px;background:#F0FDFA;border-radius:8px;">
+            <div style="font-weight:600;color:#0D9488;font-size:12px;">Q: 咳嗽多久了？</div>
+            <div style="color:#5F7976;font-size:13px;">A: 大概有两周了，晚上咳得比较厉害</div>
+          </div>
+          <div style="margin-bottom:8px;padding:8px;background:#F0FDFA;border-radius:8px;">
+            <div style="font-weight:600;color:#0D9488;font-size:12px;">Q: 有没有发烧？痰是什么颜色的？</div>
+            <div style="color:#5F7976;font-size:13px;">A: 没有发烧，痰是白色的，比较黏稠</div>
+          </div>
+        </div>
+      </div>
+      <div class="summary-section">
+        <div class="summary-section-title">🔑 关键词</div>
+        <div>
+          <span class="keyword-tag">咳嗽</span><span class="keyword-tag">夜间加重</span><span class="keyword-tag">白色黏痰</span>
+          <span class="keyword-tag">无发热</span><span class="keyword-tag">胸部X光</span><span class="keyword-tag">止咳化痰</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+let recording=false;
+function toggleRecord(){const btn=document.getElementById("micBtn");const icon=document.getElementById("micIcon");const st=document.getElementById("statusText");recording=!recording;btn.classList.toggle("recording",recording);icon.textContent=recording?"⏹️":"🎤";st.textContent=recording?"🔴 正在录音... 实时识别中":"点击麦克风开始录音，支持实时语音识别与翻译";st.classList.toggle("recording",recording);}
+function switchTab(i){document.querySelectorAll(".tab").forEach((t,j)=>t.classList.toggle("active",j===i));document.getElementById("panel-record").style.display=i===0?"block":"none";document.getElementById("panel-summary").style.display=i===1?"block":"none";}
+</script></body></html>

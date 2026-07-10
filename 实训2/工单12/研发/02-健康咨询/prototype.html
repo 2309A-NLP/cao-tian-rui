@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>健康咨询 - 原型</title><style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#F0FDFA;color:#134E4A;height:100vh;padding:24px;}
+.container{max-width:1200px;margin:0 auto;display:flex;gap:16px;height:calc(100vh - 48px);}
+.main-panel{flex:1;background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,0.05);padding:24px;overflow-y:auto;}
+.side-panel{width:300px;display:flex;flex-direction:column;gap:16px;}
+.side-card{background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,0.05);padding:20px;}
+.header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.header-icon{font-size:32px;}.header-title{font-size:22px;font-weight:600;}
+.chat-bubble{display:flex;gap:12px;margin-bottom:16px;}
+.chat-bubble.user{flex-direction:row-reverse;}
+.chat-avatar{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.chat-avatar.ai{background:linear-gradient(135deg,#0D9488,#06B6D4);color:#fff;}
+.chat-avatar.user{background:#E5F5F2;color:#0D9488;}
+.chat-content{max-width:75%;padding:12px 16px;border-radius:12px;font-size:14px;line-height:1.6;}
+.chat-content.ai{background:#FAFEFD;border:1px solid #E5F5F2;color:#134E4A;}
+.chat-content.user{background:linear-gradient(135deg,#0D9488,#06B6D4);color:#fff;}
+.tag{display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500;margin-right:4px;}
+.tag-primary{background:#E5F5F2;color:#0D9488;}.tag-success{background:#D1FAE5;color:#065F46;}
+.code-block{background:#1e293b;color:#e2e8f0;padding:12px;border-radius:8px;font-family:monospace;font-size:12px;overflow-x:auto;margin:8px 0;}
+.code-keyword{color:#c084fc;}.code-string{color:#4ade80;}.code-func{color:#60a5fa;}
+.disease-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.disease-tag{padding:6px 14px;background:#F0FDFA;border:1px solid #CDECE8;border-radius:20px;font-size:13px;cursor:pointer;transition:all .2s;}
+.disease-tag:hover{background:#0D9488;color:#fff;}
+.kg-stats{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F0FDFA;}
+.input-bar{display:flex;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid #E5F5F2;}
+.chat-input{flex:1;height:44px;border:1px solid #CDECE8;border-radius:22px;padding:0 20px;font-size:14px;outline:none;}
+.chat-input:focus{border-color:#0D9488;}
+.send-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0D9488,#06B6D4);border:none;color:#fff;font-size:18px;cursor:pointer;}
+</style></head><body>
+<div class="container">
+  <div class="main-panel">
+    <div class="header"><span class="header-icon">💬</span><span class="header-title">健康咨询</span></div>
+    <div style="font-size:13px;color:#5F7976;margin-bottom:16px;">基于医疗知识图谱的智能问答，支持疾病、症状、药物、护理等多维度查询</div>
+    <div class="disease-tags">
+      <div class="disease-tag" onclick="ask('百日咳的致病病原体是什么？')">百日咳</div>
+      <div class="disease-tag" onclick="ask('流感主要通过什么途径传播？')">流感</div>
+      <div class="disease-tag" onclick="ask('肺炎的典型症状有哪些？')">肺炎</div>
+      <div class="disease-tag" onclick="ask('腹泻患者应该吃什么药？')">腹泻</div>
+      <div class="disease-tag" onclick="ask('高血压的日常护理要点')">高血压</div>
+    </div>
+    <div id="chat-area">
+      <div class="chat-bubble user">
+        <div class="chat-avatar user">张</div>
+        <div class="chat-content user">百日咳的致病病原体是什么？</div>
+      </div>
+      <div class="chat-bubble ai">
+        <div class="chat-avatar ai">🤖</div>
+        <div class="chat-content ai">
+          <div style="margin-bottom:8px;">百日咳的致病病原体是 <strong>百日咳杆菌</strong>，学名 <strong>百日咳鲍特菌</strong>（<em>Bordetella pertussis</em>），属于鲍特菌属。</div>
+          <div style="font-size:12px;color:#5F7976;margin-bottom:8px;">这是一种革兰氏阴性球杆菌，主要通过产生多种毒素（如百日咳毒素、腺苷酸环化酶毒素）导致呼吸道疾病。</div>
+          <div><span class="tag tag-primary">知识图谱来源</span><span class="tag tag-success">已验证</span></div>
+          <div class="code-block">
+            <span class="code-keyword">MATCH</span> (d:Disease {<span class="code-string">name</span>:<span class="code-string">'百日咳'</span>})-[:<span class="code-func">CAUSED_BY</span>]->(p:Pathogen)<br/>
+            <span class="code-keyword">RETURN</span> p.name
+          </div>
+        </div>
+      </div>
+      <div class="chat-bubble user">
+        <div class="chat-avatar user">张</div>
+        <div class="chat-content user">中医治疗痉咳期百日咳的主方是什么？</div>
+      </div>
+      <div class="chat-bubble ai">
+        <div class="chat-avatar ai">🤖</div>
+        <div class="chat-content ai">
+          <div style="margin-bottom:8px;">中医治疗<strong>痉咳期</strong>百日咳的主方是 <strong>桑白皮汤</strong>加减。</div>
+          <div style="font-size:12px;color:#5F7976;margin-bottom:8px;">组成：桑白皮、黄芩、川贝母、杏仁、桔梗、甘草等。功效：清热肃肺，化痰止咳。</div>
+          <div><span class="tag tag-primary">知识图谱来源</span><span class="tag tag-success">已验证</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="input-bar">
+      <input type="text" class="chat-input" id="qinput" placeholder="输入健康问题，例如：百日咳怎么预防？">
+      <button class="send-btn" onclick="send()">➤</button>
+    </div>
+  </div>
+  <div class="side-panel">
+    <div class="side-card">
+      <div style="font-weight:600;margin-bottom:12px;">知识图谱统计</div>
+      <div class="kg-stats"><span>疾病实体</span><span style="font-weight:600;">1,247</span></div>
+      <div class="kg-stats"><span>症状实体</span><span style="font-weight:600;">3,562</span></div>
+      <div class="kg-stats"><span>药物实体</span><span style="font-weight:600;">892</span></div>
+      <div class="kg-stats"><span>病原体</span><span style="font-weight:600;">456</span></div>
+      <div class="kg-stats"><span>关系总数</span><span style="font-weight:600;">12,408</span></div>
+    </div>
+    <div class="side-card">
+      <div style="font-weight:600;margin-bottom:12px;">查询历史</div>
+      <div style="font-size:13px;color:#5F7976;padding:8px 0;border-bottom:1px solid #F0FDFA;cursor:pointer;">百日咳的传播途径</div>
+      <div style="font-size:13px;color:#5F7976;padding:8px 0;border-bottom:1px solid #F0FDFA;cursor:pointer;">百日咳的隔离期</div>
+      <div style="font-size:13px;color:#5F7976;padding:8px 0;cursor:pointer;">百日咳患儿护理要点</div>
+    </div>
+    <div class="side-card">
+      <div style="font-weight:600;margin-bottom:8px;">测试用例覆盖</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">
+        <span class="tag tag-success">病原体</span><span class="tag tag-success">传播</span><span class="tag tag-success">症状</span>
+        <span class="tag tag-success">诊断</span><span class="tag tag-success">治疗</span><span class="tag tag-success">并发症</span>
+        <span class="tag tag-success">中医</span><span class="tag tag-success">预防</span><span class="tag tag-success">护理</span><span class="tag tag-success">营养</span>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function ask(text){document.getElementById("qinput").value=text;}
+function send(){var v=document.getElementById("qinput").value;if(v)ask(v);}
+</script></body></html>

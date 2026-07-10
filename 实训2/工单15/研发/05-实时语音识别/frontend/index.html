@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<!-- 工单编号：人工智能NLP-Agent数字人项目-医疗智能体-实时语音识别、翻译与会议概要 -->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>语音助手 · 医疗智能体</title>
+  <link rel="stylesheet" href="/static/voice.css" />
+</head>
+<body>
+
+<div class="page">
+  <div class="container">
+
+    <!-- 模块头 -->
+    <div class="module-head">
+      <span class="icon">🎤</span>
+      <span class="title">语音助手</span>
+      <span class="badge" id="modeBadge">连接中…</span>
+    </div>
+
+    <!-- Tab 切换 -->
+    <div class="tabs">
+      <div class="tab active" data-panel="record">🎙️ 实时录音</div>
+      <div class="tab" data-panel="summary">📋 会议纪要</div>
+    </div>
+
+    <!-- ────────── Tab 1: 实时录音 ────────── -->
+    <div class="panel active" id="panel-record">
+
+      <!-- 语言选择 -->
+      <div class="lang-bar">
+        <select class="lang-select" id="langSrc">
+          <option value="zh_cn">中文（普通话）</option>
+          <option value="en">English</option>
+        </select>
+        <div class="swap-btn" title="交换主/译语言">⇄</div>
+        <select class="lang-select" id="langTgt">
+          <option value="en">English</option>
+          <option value="zh_cn">中文（普通话）</option>
+          <option value="ja">日本語</option>
+        </select>
+      </div>
+
+      <!-- 麦克风 -->
+      <div class="mic-wrap">
+        <button class="mic-btn" id="micBtn" title="点击开始录音">
+          <span class="mic-ring"></span>
+          <span id="micIcon">🎤</span>
+        </button>
+        <div class="status-text" id="statusText">点击麦克风开始录音,支持实时语音识别与翻译</div>
+        <div class="volume-bar-wrap">
+          <div class="volume-bar" id="volumeBar"></div>
+        </div>
+      </div>
+
+      <!-- 实时转写 -->
+      <div class="transcript-area">
+        <div class="section-title">📝 实时转写</div>
+        <div id="transcriptContent">
+          <!-- 示例句（无 WS 时保留作为视觉占位；连接 WS 后清空） -->
+          <div class="transcript-line">
+            <span class="speaker-chip doc">医生</span>
+            <span>你这个咳嗽持续多久了？</span>
+            <div class="translation">🌐 How long have you had this cough?</div>
+          </div>
+          <div class="transcript-line">
+            <span class="speaker-chip pat">患者</span>
+            <span>大概有两周了,晚上咳得比较厉害,有时候咳得睡不着觉。</span>
+            <div class="translation">🌐 About two weeks. It gets worse at night.</div>
+          </div>
+          <div class="transcript-line new">
+            <span class="speaker-chip doc">医生</span>
+            <span>有没有发烧？痰是什么颜色的？</span>
+            <div class="translation">🌐 Any fever? What color is the phlegm?</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 操作按钮 -->
+      <div class="actions">
+        <button class="btn btn-outline" id="btnPause" disabled>⏸️ 暂停</button>
+        <button class="btn btn-primary" id="btnStop" disabled>⏹️ 结束录音并生成纪要</button>
+        <button class="btn btn-outline" id="btnSettings">⚙️ 设置</button>
+      </div>
+
+      <!-- 运行日志 -->
+      <div class="log-panel">
+        <div class="section-title">🖥 运行日志 <span style="color:var(--c-text-disabled);font-size:var(--fz-xs);font-weight:normal;">(诊断用)</span></div>
+        <div class="log-box" id="logBox">
+          <div class="log-line info">[静态预览] 请启动后端 uvicorn(port 8015) 后连接。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ────────── Tab 2: 会议纪要 ────────── -->
+    <div class="panel" id="panel-summary">
+
+      <div id="summaryToast" class="summary-toast" style="display:none;"></div>
+
+      <div class="meeting-header">
+        <div class="meeting-time" id="meetingTime">会议/问诊时间:2026-07-06 14:30 — 15:05 (35 分钟)</div>
+        <div class="meeting-actions">
+          <button class="btn btn-outline btn-sm" id="btnExport">📤 导出</button>
+          <button class="btn btn-primary btn-sm" id="btnCopy">📋 复制</button>
+          <button class="btn btn-outline btn-sm" id="btnPoll">🔄 手动轮询</button>
+          <button class="btn btn-outline btn-sm" id="btnConsult">🩺 健康咨询</button>
+        </div>
+      </div>
+
+      <div class="summary-panel">
+        <div class="summary-title">📋 会议纪要</div>
+
+        <!-- 全文摘要 -->
+        <div class="summary-section">
+          <div class="summary-section-title">📄 全文摘要</div>
+          <div class="summary-content" id="sumParagraph">
+            患者因持续两周的夜间咳嗽就诊,自述无发热,咳白色黏痰。医生询问病史后建议进行胸部X光检查,并开具止咳化痰药物。嘱患者三天后复诊,如症状加重立即就医。
+          </div>
+        </div>
+
+        <!-- 章节速览 -->
+        <div class="summary-section">
+          <div class="summary-section-title">📑 章节速览</div>
+          <div class="summary-content" id="sumChapters">
+            <div class="chapter-row"><div class="ch-title">主诉与病史</div><div class="ch-body">00:00 — 01:30 · 患者自述咳嗽两周,夜间加重</div></div>
+            <div class="chapter-row"><div class="ch-title">症状询问</div><div class="ch-body">01:30 — 03:00 · 询问发热、痰色、既往病史</div></div>
+            <div class="chapter-row"><div class="ch-title">检查建议</div><div class="ch-body">03:00 — 04:15 · 建议胸部X光检查</div></div>
+            <div class="chapter-row"><div class="ch-title">用药指导</div><div class="ch-body">04:15 — 05:00 · 开具止咳化痰药物,嘱三天后复诊</div></div>
+          </div>
+        </div>
+
+        <!-- 待办事项 -->
+        <div class="summary-section">
+          <div class="summary-section-title">✅ 待办事项</div>
+          <div id="sumTodos">
+            <div class="todo-item"><div class="todo-checkbox"></div><span>做胸部 X 光检查</span></div>
+            <div class="todo-item"><div class="todo-checkbox"></div><span>三天后复诊（7 月 9 日）</span></div>
+            <div class="todo-item"><div class="todo-checkbox"></div><span>如症状加重（高热、呼吸困难）立即就医</span></div>
+            <div class="todo-item"><div class="todo-checkbox"></div><span>按时服用止咳化痰药物</span></div>
+          </div>
+        </div>
+
+        <!-- 问答提取 -->
+        <div class="summary-section">
+          <div class="summary-section-title">💬 问答提取</div>
+          <div id="sumQA">
+            <div class="qa-item">
+              <div class="q">Q: 咳嗽多久了？</div>
+              <div class="a">A: 大概有两周了,晚上咳得比较厉害</div>
+            </div>
+            <div class="qa-item">
+              <div class="q">Q: 有没有发烧？痰是什么颜色的？</div>
+              <div class="a">A: 没有发烧,痰是白色的,比较黏稠</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 关键词 -->
+        <div class="summary-section">
+          <div class="summary-section-title">🔑 关键词</div>
+          <div id="sumKeywords">
+            <span class="keyword-tag">咳嗽</span>
+            <span class="keyword-tag">夜间加重</span>
+            <span class="keyword-tag">白色黏痰</span>
+            <span class="keyword-tag">无发热</span>
+            <span class="keyword-tag">胸部 X 光</span>
+            <span class="keyword-tag">止咳化痰</span>
+          </div>
+        </div>
+
+        <!-- 健康咨询 (工单12) -->
+        <div class="summary-section">
+          <div class="summary-section-title">🏥 健康咨询建议 <span style="font-weight:400;color:var(--c-text-disabled);font-size:var(--fz-xs);">(对接工单12)</span></div>
+          <div class="consult-box" id="consultBox">点击"健康咨询"按钮,将本次对话记录发送给医疗知识图谱 Agent(工单12)获取建议…</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/static/voice.js"></script>
+</body>
+</html>

@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>健康咨询 · 医疗知识图谱</title>
+<style>
+/* ── Design tokens（与 00-总界面框架保持一致）── */
+:root {
+  --primary:   #0D9488;
+  --primary-2: #06B6D4;
+  --bg:        #F0FDFA;
+  --surface:   #FFFFFF;
+  --surface-2: #FAFEFD;
+  --border:    #E5F5F2;
+  --border-2:  #CDECE8;
+  --text-1:    #134E4A;
+  --text-2:    #5F7976;
+  --code-bg:   #1e293b;
+  --code-text: #e2e8f0;
+  --code-kw:   #c084fc;
+  --code-str:  #4ade80;
+  --code-fn:   #60a5fa;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  background: var(--bg);
+  color: var(--text-1);
+  height: 100vh;
+  padding: 16px;
+  overflow: hidden;
+}
+
+/* ── Page layout ── */
+.page {
+  max-width: 1440px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Module header ── */
+.mod-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.mod-icon { font-size: 26px; }
+.mod-title { font-size: 20px; font-weight: 600; }
+.mod-sub { font-size: 12px; color: var(--text-2); margin-left: 6px; }
+
+/* ── Disease quick tags ── */
+.disease-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.disease-tag {
+  padding: 5px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--text-1);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+  user-select: none;
+}
+.disease-tag:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* ── Two-column layout ── */
+.content {
+  flex: 1;
+  display: flex;
+  gap: 14px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Main panel ── */
+.main-panel {
+  flex: 1;
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ── Cypher example card ── */
+.cypher-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+.cypher-card-hd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.cypher-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; }
+.cypher-tag {
+  padding: 3px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border-2);
+  border-radius: 12px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--text-1);
+  transition: all .15s;
+}
+.cypher-tag:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+.code-block {
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: "Consolas", "Source Code Pro", monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+.kw  { color: var(--code-kw); }
+.str { color: var(--code-str); }
+.fn  { color: var(--code-fn); }
+.cypher-result {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-1);
+}
+
+/* ── Chat messages ── */
+#messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0;
+  min-height: 0;
+}
+
+.msg { display: flex; gap: 10px; }
+.msg.user { flex-direction: row-reverse; }
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+.msg.bot  .avatar { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; font-size: 16px; }
+.msg.user .avatar { background: var(--bg); color: var(--primary); border: 1px solid var(--border-2); font-size: 12px; font-weight: 700; }
+
+.bubble-wrap { flex: 1; min-width: 0; }
+.msg.user .bubble-wrap { display: flex; flex-direction: column; align-items: flex-end; }
+
+.bubble {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.65;
+  word-break: break-word;
+}
+.msg.bot  .bubble { background: var(--surface-2); border: 1px solid var(--border); color: var(--text-1); border-bottom-left-radius: 4px; }
+.msg.user .bubble { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; border-bottom-right-radius: 4px; }
+
+/* meta tags */
+.meta { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.tag { font-size: 11px; padding: 2px 8px; border-radius: 8px; font-weight: 500; }
+.tag-intent { background: #FEF3C7; color: #92400E; }
+.tag-entity { background: var(--bg); color: var(--text-1); border: 1px solid var(--border-2); }
+.tag-time   { background: var(--bg); color: var(--text-2); border: 1px solid var(--border); }
+.tag-graph  { background: #E0F2FE; color: #0C4A6E; cursor: pointer; border: 1px solid #BAE6FD; user-select: none; }
+.tag-graph:hover { background: #0C4A6E; color: #fff; }
+.tag-miss   { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+
+/* graph data panel */
+.graph-panel {
+  display: none;
+  margin-top: 8px;
+  background: #F8FAFF;
+  border: 1px solid #C3D9FF;
+  border-radius: 10px;
+  font-size: 12px;
+  overflow: hidden;
+  max-width: 75%;
+}
+.graph-panel.open { display: block; }
+.graph-panel-hd {
+  background: #E8F0FE;
+  padding: 7px 12px;
+  font-weight: 600;
+  color: #1A56DB;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.graph-panel-hd a {
+  font-size: 11px;
+  color: #1A56DB;
+  text-decoration: none;
+  padding: 2px 8px;
+  border: 1px solid #A4C2F4;
+  border-radius: 8px;
+  background: #fff;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.graph-panel-hd a:hover { background: #1A56DB; color: #fff; }
+.graph-panel-body { padding: 10px 12px; max-height: 240px; overflow-y: auto; }
+.triple {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 0;
+  border-bottom: 1px dashed #DDE8FF;
+  flex-wrap: wrap;
+}
+.triple:last-child { border-bottom: none; }
+.triple .node { background: #fff; border: 1px solid #A4C2F4; border-radius: 6px; padding: 1px 7px; color: #1A3C72; font-weight: 500; }
+.triple .rel   { color: #888; font-style: italic; }
+.triple .arrow { color: #BBB; }
+.text-field  { color: #333; line-height: 1.6; white-space: pre-wrap; margin-bottom: 4px; }
+.field-label { color: #888; font-size: 11px; margin-top: 8px; margin-bottom: 2px; }
+.field-label:first-child { margin-top: 0; }
+
+/* thinking animation */
+.thinking .bubble { color: var(--text-2); font-style: italic; }
+.dot-flashing { display: inline-flex; gap: 4px; margin-left: 4px; vertical-align: middle; }
+.dot-flashing span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--border-2);
+  animation: blink 1.2s infinite;
+}
+.dot-flashing span:nth-child(2) { animation-delay: .2s; }
+.dot-flashing span:nth-child(3) { animation-delay: .4s; }
+@keyframes blink { 0%,80%,100%{opacity:.3} 40%{opacity:1} }
+
+/* ── Status bar ── */
+.status-bar {
+  font-size: 11px;
+  color: var(--text-2);
+  padding: 4px 2px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.status-bar .ok  { color: var(--primary); font-weight: 500; }
+.status-bar .err { color: #EF4444; }
+
+/* ── Input bar ── */
+.input-bar {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.chat-input {
+  flex: 1;
+  height: 44px;
+  border: 1px solid var(--border-2);
+  border-radius: 22px;
+  padding: 0 20px;
+  font-size: 14px;
+  outline: none;
+  background: var(--surface-2);
+  color: var(--text-1);
+  font-family: inherit;
+  transition: border-color .2s;
+}
+.chat-input:focus { border-color: var(--primary); }
+.send-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity .15s;
+}
+.send-btn:hover { opacity: .88; }
+.send-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── Side panel ── */
+.side-panel {
+  width: 276px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+.side-card {
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  padding: 18px;
+  flex-shrink: 0;
+}
+.side-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text-1);
+}
+
+/* stats */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--bg);
+  font-size: 13px;
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-label { color: var(--text-2); }
+.stat-val   { font-weight: 600; color: var(--text-1); }
+
+/* query history */
+.hist-item {
+  padding: 7px 0;
+  border-bottom: 1px solid var(--bg);
+  font-size: 12px;
+  color: var(--text-2);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color .15s;
+}
+.hist-item:last-child { border-bottom: none; }
+.hist-item:hover { color: var(--primary); }
+
+/* test coverage tags */
+.coverage-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.cov-tag {
+  padding: 3px 9px;
+  background: #D1FAE5;
+  color: #065F46;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* quick links */
+.quick-link {
+  display: block;
+  font-size: 12px;
+  color: var(--primary);
+  text-decoration: none;
+  padding: 7px 12px;
+  background: var(--bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-2);
+  margin-bottom: 6px;
+  transition: all .15s;
+}
+.quick-link:hover { background: var(--primary); color: #fff; }
+.quick-link:last-of-type { margin-bottom: 0; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Module header -->
+  <div class="mod-header">
+    <span class="mod-icon">💬</span>
+    <span class="mod-title">健康咨询</span>
+    <span class="mod-sub">基于医疗知识图谱的智能问答 · Neo4j + Qwen2.5-72B</span>
+  </div>
+
+  <!-- Disease quick tags -->
+  <div class="disease-tags">
+    <div class="disease-tag" onclick="ask('百日咳的致病病原体是什么？')">百日咳</div>
+    <div class="disease-tag" onclick="ask('流感主要通过什么途径传播？')">流感</div>
+    <div class="disease-tag" onclick="ask('肺炎的典型症状有哪些？')">肺炎</div>
+    <div class="disease-tag" onclick="ask('糖尿病患者不能吃什么？')">糖尿病</div>
+    <div class="disease-tag" onclick="ask('高血压应该挂哪个科？')">高血压</div>
+    <div class="disease-tag" onclick="ask('乙肝是怎么传播的？')">乙肝</div>
+    <div class="disease-tag" onclick="ask('哮喘有哪些症状？')">哮喘</div>
+    <div class="disease-tag" onclick="ask('我发烧咳嗽可能是什么病？')">症状推断</div>
+  </div>
+
+  <!-- Two-column content area -->
+  <div class="content">
+
+    <!-- ── Main chat panel ── -->
+    <div class="main-panel">
+
+      <!-- Cypher example card -->
+      <div class="cypher-card">
+        <div class="cypher-card-hd">
+          <span>📊</span>
+          <span>知识图谱查询示例</span>
+          <div class="cypher-tags" style="margin-bottom:0;margin-left:auto">
+            <span class="cypher-tag" onclick="ask('百日咳的致病病原体是什么？')">百日咳·病原体</span>
+            <span class="cypher-tag" onclick="ask('中医治疗痉咳期百日咳的主方是什么？')">中医主方</span>
+            <span class="cypher-tag" onclick="ask('百日咳最常见的严重并发症是什么？')">并发症</span>
+          </div>
+        </div>
+        <div class="code-block">
+          <span class="kw">MATCH</span> (d:Disease {<span class="str">name</span>:<span class="str">'百日咳'</span>})-[:<span class="fn">TRANSMITS_VIA</span>]-&gt;(t:Transmission)<br>
+          <span class="kw">RETURN</span> d.name, t.name
+        </div>
+        <div class="cypher-result">→ 呼吸道飞沫传播（已导入 6,720 疾病节点 / 12.9 万关系）</div>
+      </div>
+
+      <!-- Chat messages -->
+      <div id="messages">
+        <div class="msg bot">
+          <div class="avatar">🤖</div>
+          <div class="bubble-wrap">
+            <div class="bubble">
+              您好！我是医疗健康咨询助手，基于 Neo4j 医疗知识图谱 + Qwen2.5-72B 为您提供精准的健康信息。<br><br>
+              支持查询：疾病症状 · 用药建议 · 传播途径 · 并发症 · 饮食禁忌 · 预防护理 · 中医治疗等。<br>
+              点击上方快捷标签或直接输入问题开始咨询。
+            </div>
+            <div class="meta">
+              <span class="tag tag-entity">知识图谱驱动</span>
+              <span class="tag tag-time">仅供参考，就医请遵医嘱</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status bar -->
+      <div class="status-bar">
+        <span id="statusText">就绪</span> · wt12 · port 8012
+      </div>
+
+      <!-- Input bar -->
+      <div class="input-bar">
+        <input type="text" class="chat-input" id="inputBox"
+               placeholder="输入健康问题，例如：百日咳怎么预防？按 Enter 发送"
+               onkeydown="handleKey(event)">
+        <button class="send-btn" id="sendBtn" onclick="sendMsg()" title="发送">➤</button>
+      </div>
+
+    </div><!-- .main-panel -->
+
+    <!-- ── Side panel ── -->
+    <div class="side-panel">
+
+      <!-- Knowledge graph stats -->
+      <div class="side-card">
+        <div class="side-card-title">📈 知识图谱统计</div>
+        <div class="stat-row"><span class="stat-label">疾病实体</span><span class="stat-val" id="s-disease">加载中...</span></div>
+        <div class="stat-row"><span class="stat-label">症状实体</span><span class="stat-val" id="s-symptom">—</span></div>
+        <div class="stat-row"><span class="stat-label">药物实体</span><span class="stat-val" id="s-drug">—</span></div>
+        <div class="stat-row"><span class="stat-label">食物实体</span><span class="stat-val" id="s-food">—</span></div>
+        <div class="stat-row"><span class="stat-label">科室实体</span><span class="stat-val" id="s-dept">—</span></div>
+        <div class="stat-row"><span class="stat-label">关系总数</span><span class="stat-val" id="s-rel">—</span></div>
+      </div>
+
+      <!-- Query history -->
+      <div class="side-card">
+        <div class="side-card-title">🕐 查询历史</div>
+        <div id="history-list">
+          <div style="font-size:12px;color:var(--text-2)">暂无查询记录</div>
+        </div>
+      </div>
+
+      <!-- Test coverage -->
+      <div class="side-card">
+        <div class="side-card-title">✅ 工单测试覆盖（百日咳10题）</div>
+        <div class="coverage-tags">
+          <span class="cov-tag">病原体识别</span>
+          <span class="cov-tag">传播途径</span>
+          <span class="cov-tag">典型症状</span>
+          <span class="cov-tag">实验室诊断</span>
+          <span class="cov-tag">治疗药物</span>
+          <span class="cov-tag">并发症</span>
+          <span class="cov-tag">中医治疗</span>
+          <span class="cov-tag">隔离措施</span>
+          <span class="cov-tag">护理要点</span>
+          <span class="cov-tag">营养禁忌</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-2);margin-top:10px">
+          + 30 个变体场景（多疾病/多症状）
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div class="side-card">
+        <div class="side-card-title">🔗 快速链接</div>
+        <a class="quick-link" href="http://localhost:7474" target="_blank">Neo4j 浏览器 →</a>
+        <a class="quick-link" href="/health" target="_blank">API 健康检查 →</a>
+        <div style="font-size:11px;color:var(--text-2);margin-top:8px;line-height:1.6">
+          Neo4j: bolt://localhost:7687<br>
+          API: http://127.0.0.1:8012
+        </div>
+      </div>
+
+    </div><!-- .side-panel -->
+
+  </div><!-- .content -->
+</div><!-- .page -->
+
+<script>
+const API_STREAM = '/chat/stream';
+const API_FALLBACK = '/chat';
+let busy = false;
+const queryHistory = [];
+
+// ── 意图 → 中文标签 ──
+const INTENT_LABEL = {
+  disease_info:            '疾病介绍',
+  symptom_to_disease:      '症状→疾病',
+  disease_to_symptom:      '症状查询',
+  disease_to_drug:         '用药查询',
+  disease_to_dept:         '科室查询',
+  disease_to_complication: '并发症',
+  disease_to_diet:         '饮食建议',
+  disease_to_transmission: '传播途径',
+  disease_to_cause:        '病因查询',
+  disease_to_prevent:      '预防措施',
+  disease_to_nursing:      '护理建议',
+  disease_to_treat:        '治疗方案',
+};
+
+// ── Cypher 构建（用于 Neo4j 浏览器跳转链接）──
+function buildCypher(intent, entity) {
+  const e = entity.replace(/'/g, "\\'");
+  const map = {
+    disease_info:            `MATCH (d:Disease) WHERE d.name CONTAINS '${e}' RETURN d LIMIT 3`,
+    symptom_to_disease:      `MATCH (d:Disease)-[:HAS_SYMPTOM]->(s:Symptom) WHERE s.name CONTAINS '${e}' RETURN d, s LIMIT 20`,
+    disease_to_symptom:      `MATCH (d:Disease)-[:HAS_SYMPTOM]->(s:Symptom) WHERE d.name CONTAINS '${e}' RETURN d, s LIMIT 30`,
+    disease_to_drug:         `MATCH (d:Disease)-[:USES_DRUG]->(m:Drug) WHERE d.name CONTAINS '${e}' RETURN d, m LIMIT 30`,
+    disease_to_dept:         `MATCH (d:Disease)-[:BELONGS_TO]->(p:Department) WHERE d.name CONTAINS '${e}' RETURN d, p LIMIT 10`,
+    disease_to_complication: `MATCH (d:Disease)-[:CAUSES]->(c:Disease) WHERE d.name CONTAINS '${e}' RETURN d, c LIMIT 20`,
+    disease_to_diet:         `MATCH (d:Disease)-[:CAN_EAT|NOT_EAT]->(f:Food) WHERE d.name CONTAINS '${e}' RETURN d, f LIMIT 30`,
+    disease_to_transmission: `MATCH (d:Disease)-[:TRANSMITS_VIA]->(t:Transmission) WHERE d.name CONTAINS '${e}' RETURN d, t LIMIT 10`,
+    disease_to_cause:        `MATCH (d:Disease) WHERE d.name CONTAINS '${e}' RETURN d.name, d.cause LIMIT 1`,
+    disease_to_prevent:      `MATCH (d:Disease) WHERE d.name CONTAINS '${e}' RETURN d.name, d.prevent LIMIT 1`,
+    disease_to_nursing:      `MATCH (d:Disease) WHERE d.name CONTAINS '${e}' RETURN d.name, d.nursing, d.treat_detail LIMIT 1`,
+    disease_to_treat:        `MATCH (d:Disease) WHERE d.name CONTAINS '${e}' RETURN d.name, d.treat_detail LIMIT 1`,
+  };
+  return map[intent] || `MATCH (d:Disease) WHERE d.name CONTAINS '${e}' RETURN d LIMIT 5`;
+}
+
+// ── 渲染图谱数据面板 ──
+function renderGraphPanel(intent, entity, graphData, panelEl) {
+  const cypher = buildCypher(intent, entity);
+  const neo4jUrl = `http://localhost:7474/browser/?cmd=edit&arg=${encodeURIComponent(cypher)}`;
+
+  const relIntents = ['disease_to_symptom', 'disease_to_drug', 'disease_to_dept',
+                      'disease_to_complication', 'disease_to_diet', 'disease_to_transmission',
+                      'symptom_to_disease'];
+  const isRel = relIntents.includes(intent);
+
+  let body = '';
+  if (!graphData || graphData.length === 0) {
+    body = '<div style="color:#888;padding:8px 0">（无图谱数据，本次使用 LLM 自身知识作答）</div>';
+  } else if (isRel) {
+    graphData.forEach(row => {
+      const src = row.disease || row.symptom || entity;
+      Object.entries(row).forEach(([k, v]) => {
+        if (k === 'disease' || k === 'symptom') return;
+        const vals = Array.isArray(v) ? v : [v];
+        vals.filter(Boolean).forEach(val => {
+          body += `<div class="triple">
+            <span class="node">${esc(src)}</span>
+            <span class="arrow">──</span>
+            <span class="rel">[${k.toUpperCase()}]</span>
+            <span class="arrow">──▶</span>
+            <span class="node">${esc(String(val))}</span>
+          </div>`;
+        });
+      });
+    });
+    if (!body) body = '<div style="color:#888;padding:8px 0">（图谱节点存在但关系为空）</div>';
+  } else {
+    const keyLabels = {
+      intro: '综合介绍', cause: '病因', prevent: '预防', nursing: '护理',
+      treat_detail: '治疗方案', get_prob: '发病率', easy_get: '易感人群',
+      treat_period: '治疗周期', treat_cost: '治疗费用',
+    };
+    graphData.forEach(row => {
+      Object.keys(keyLabels).forEach(k => {
+        if (row[k]) {
+          const v = String(row[k]);
+          body += `<div class="field-label">${keyLabels[k]}</div>
+            <div class="text-field">${esc(v.slice(0, 600))}${v.length > 600 ? '…' : ''}</div>`;
+        }
+      });
+    });
+  }
+
+  panelEl.innerHTML = `
+    <div class="graph-panel-hd">
+      <span>📊 ${INTENT_LABEL[intent] || intent} · 实体: ${esc(entity)}</span>
+      <a href="${neo4jUrl}" target="_blank">🔗 Neo4j 浏览器查看</a>
+    </div>
+    <div class="graph-panel-body">${body}</div>`;
+}
+
+// ── 追加消息气泡 ──
+function appendMsg(role, html, meta) {
+  const wrap = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+
+  let metaHtml = '', panelHtml = '';
+
+  if (meta) {
+    const tags = [];
+    if (meta.intent) {
+      tags.push(`<span class="tag tag-intent">${INTENT_LABEL[meta.intent] || meta.intent}</span>`);
+    }
+    if (meta.entity) {
+      tags.push(`<span class="tag tag-entity">实体：${esc(meta.entity)}</span>`);
+    }
+    if (meta.elapsed_ms) {
+      tags.push(`<span class="tag tag-time">${meta.elapsed_ms}ms</span>`);
+    }
+    if (meta.graph_data && meta.graph_data.length > 0) {
+      tags.push(`<span class="tag tag-graph" onclick="togglePanel(this)">📊 图谱命中 ${meta.graph_data.length} 条 ▾</span>`);
+    } else if (meta.graph_data !== undefined) {
+      tags.push(`<span class="tag tag-miss">图谱未命中 · LLM 兜底</span>`);
+    }
+    if (tags.length) metaHtml = `<div class="meta">${tags.join('')}</div>`;
+
+    const graphJson = JSON.stringify(meta.graph_data || []).replace(/'/g, '&#39;');
+    panelHtml = `<div class="graph-panel"
+      data-intent="${escAttr(meta.intent || '')}"
+      data-entity="${escAttr(meta.entity || '')}"
+      data-graph='${graphJson}'></div>`;
+  }
+
+  const avatarContent = role === 'user' ? '我' : '🤖';
+  div.innerHTML = `
+    <div class="avatar">${avatarContent}</div>
+    <div class="bubble-wrap">
+      <div class="bubble">${html}</div>
+      ${metaHtml}
+      ${panelHtml}
+    </div>`;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+  return div;
+}
+
+function togglePanel(btn) {
+  const panel = btn.closest('.msg').querySelector('.graph-panel');
+  if (!panel) return;
+  const open = panel.classList.toggle('open');
+  btn.textContent = btn.textContent.replace(/[▾▴]/, open ? '▴' : '▾');
+  if (open && !panel.dataset.rendered) {
+    renderGraphPanel(
+      panel.dataset.intent,
+      panel.dataset.entity,
+      JSON.parse(panel.dataset.graph || '[]'),
+      panel,
+    );
+    panel.dataset.rendered = '1';
+  }
+}
+
+// ── 查询历史 ──
+function addHistory(query) {
+  if (queryHistory[0] === query) return;
+  queryHistory.unshift(query);
+  if (queryHistory.length > 8) queryHistory.pop();
+  const el = document.getElementById('history-list');
+  el.innerHTML = queryHistory.map(q =>
+    `<div class="hist-item" onclick="ask('${escAttr(q)}')" title="${esc(q)}">${esc(q)}</div>`
+  ).join('');
+}
+
+// ── 加载图谱统计 ──
+async function loadStats() {
+  try {
+    const r = await fetch('/stats');
+    if (!r.ok) return;
+    const d = await r.json();
+    const fmt = n => n >= 10000 ? (n / 10000).toFixed(1) + 'w' : n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n);
+    document.getElementById('s-disease').textContent = fmt(d.Disease  || 0);
+    document.getElementById('s-symptom').textContent = fmt(d.Symptom  || 0);
+    document.getElementById('s-drug').textContent    = fmt(d.Drug     || 0);
+    document.getElementById('s-food').textContent    = fmt(d.Food     || 0);
+    document.getElementById('s-dept').textContent    = fmt(d.Department || 0);
+    document.getElementById('s-rel').textContent     = fmt(d.relations || 0);
+  } catch (_) {
+    document.getElementById('s-disease').textContent = '—';
+  }
+}
+
+// ── 工具函数 ──
+function ask(q) {
+  document.getElementById('inputBox').value = q;
+  sendMsg();
+}
+function handleKey(e) {
+  if (e.key === 'Enter') { e.preventDefault(); sendMsg(); }
+}
+function setStatus(text, cls) {
+  const el = document.getElementById('statusText');
+  el.textContent = text;
+  el.className = cls || '';
+}
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function escAttr(s) {
+  return String(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// ── 主发送逻辑（流式 SSE）──
+async function sendMsg() {
+  if (busy) return;
+  const box = document.getElementById('inputBox');
+  const query = box.value.trim();
+  if (!query) return;
+
+  box.value = '';
+  busy = true;
+  document.getElementById('sendBtn').disabled = true;
+  setStatus('请求中...');
+  addHistory(query);
+
+  appendMsg('user', esc(query));
+  const thinking = appendMsg('bot',
+    '思考中<span class="dot-flashing"><span></span><span></span><span></span></span>');
+  thinking.classList.add('thinking');
+
+  const t0 = performance.now();
+  let firstByteMs = null;
+  let botMsg = null;
+  let bubbleEl = null;
+  let currentText = '';
+  let metaData = null;
+
+  try {
+    const res = await fetch(API_STREAM, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream' },
+      body: JSON.stringify({ query }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.body) throw new Error('浏览器不支持流式响应');
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buf = '';
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      if (firstByteMs === null) firstByteMs = Math.round(performance.now() - t0);
+      buf += decoder.decode(value, { stream: true });
+
+      // 按 SSE 事件分隔符 \n\n 切分
+      let sepIdx;
+      while ((sepIdx = buf.indexOf('\n\n')) !== -1) {
+        const chunk = buf.slice(0, sepIdx);
+        buf = buf.slice(sepIdx + 2);
+        // 每行去掉 "data: " 前缀
+        const lines = chunk.split('\n').filter(l => l.startsWith('data:'));
+        if (!lines.length) continue;
+        const payload = lines.map(l => l.slice(5).trim()).join('');
+        if (!payload) continue;
+        let evt;
+        try { evt = JSON.parse(payload); } catch (_) { continue; }
+        handleEvt(evt);
+      }
+    }
+  } catch (err) {
+    // fallback: 非流式接口
+    try {
+      const res = await fetch(API_FALLBACK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      thinking.remove();
+      appendMsg('bot', esc(data.reply).replace(/\n/g, '<br>'), {
+        intent: data.intent, entity: data.entity,
+        elapsed_ms: data.elapsed_ms, graph_data: data.graph_data,
+      });
+      setStatus(`完成 (${data.elapsed_ms}ms · 非流式)`, 'ok');
+    } catch (err2) {
+      thinking.remove();
+      appendMsg('bot',
+        `⚠️ 请求失败：${esc(err2.message)}<br>` +
+        `<small>请确认后端已启动：<code>uvicorn src.app:app --port 8012</code></small>`);
+      setStatus('请求失败', 'err');
+    }
+  }
+
+  function handleEvt(evt) {
+    if (evt.type === 'error') {
+      thinking.remove();
+      appendMsg('bot', `⚠️ ${esc(evt.message)}`);
+      setStatus('请求失败', 'err');
+      return;
+    }
+    if (evt.type === 'meta') {
+      metaData = evt;
+      thinking.remove();
+      botMsg = appendMsg('bot', '', {
+        intent: evt.intent, entity: evt.entity,
+        elapsed_ms: 0, graph_data: evt.graph_data,
+      });
+      bubbleEl = botMsg.querySelector('.bubble');
+      setStatus(`首字节 ${firstByteMs}ms · 生成中...`);
+      return;
+    }
+    if (evt.type === 'token' && bubbleEl) {
+      currentText += evt.content;
+      bubbleEl.innerHTML = esc(currentText).replace(/\n/g, '<br>');
+      const wrap = document.getElementById('messages');
+      wrap.scrollTop = wrap.scrollHeight;
+      return;
+    }
+    if (evt.type === 'done' && botMsg) {
+      let timeTag = botMsg.querySelector('.tag-time');
+      const label = evt.cache_hit ? `${evt.elapsed_ms}ms · 缓存` : `${evt.elapsed_ms}ms`;
+      if (!timeTag) {
+        const metaBar = botMsg.querySelector('.meta');
+        if (metaBar) {
+          timeTag = document.createElement('span');
+          timeTag.className = 'tag tag-time';
+          metaBar.insertBefore(timeTag, metaBar.firstChild);
+        }
+      }
+      if (timeTag) timeTag.textContent = label;
+      const src = metaData && metaData.intent_source;
+      const srcLabel = src === 'rule' ? '规则命中' : src === 'cache' ? '缓存命中' : 'LLM';
+      setStatus(`完成 · 首字节 ${firstByteMs}ms · 总耗时 ${evt.elapsed_ms}ms · ${srcLabel}`, 'ok');
+    }
+  }
+
+  busy = false;
+  document.getElementById('sendBtn').disabled = false;
+  box.focus();
+}
+
+// ── 初始化 ──
+loadStats();
+document.getElementById('inputBox').focus();
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+{
+  "eval_time": "2026-07-06T07:51:11Z",
+  "server": "http://localhost:8013",
+  "total_cases": 52,
+  "passed": 51,
+  "failed": 1,
+  "by_task": {
+    "vqa": {
+      "total": 18,
+      "passed": 18,
+      "failed": 0
+    },
+    "mrg": {
+      "total": 9,
+      "passed": 9,
+      "failed": 0
+    },
+    "rag": {
+      "total": 9,
+      "passed": 8,
+      "failed": 1
+    },
+    "boundary": {
+      "total": 16,
+      "passed": 16,
+      "failed": 0
+    }
+  },
+  "metrics": {
+    "task_routing_accuracy": 1.0,
+    "keyword_hit_rate": 1.0,
+    "mrg_completeness": 1.0,
+    "rag_pass_rate": 0.8889,
+    "boundary_handling_rate": 1.0,
+    "latency": {
+      "vqa": {
+        "p50_ms": 22857,
+        "p95_ms": 50223,
+        "min_ms": 8882,
+        "max_ms": 50223
+      },
+      "mrg": {
+        "p50_ms": 15815,
+        "p95_ms": 30452,
+        "min_ms": 8752,
+        "max_ms": 30452
+      },
+      "rag": {
+        "p50_ms": 33222,
+        "p95_ms": 98233,
+        "min_ms": 22517,
+        "max_ms": 98233
+      }
+    }
+  },
+  "failed_cases": [
+    {
+      "id": "RAG_01_base",
+      "reason": "references 0 < min 1",
+      "http_status": 200,
+      "answer_snippet": ""
+    }
+  ]
+}

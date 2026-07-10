@@ -1,0 +1,301 @@
+{
+  "health-agent": {
+    "color": {
+      "primary": {
+        "50": {
+          "value": "#F0FDFA",
+          "type": "color"
+        },
+        "100": {
+          "value": "#CCFBF1",
+          "type": "color"
+        },
+        "200": {
+          "value": "#99F6E4",
+          "type": "color"
+        },
+        "300": {
+          "value": "#5EEAD4",
+          "type": "color"
+        },
+        "400": {
+          "value": "#2DD4BF",
+          "type": "color"
+        },
+        "500": {
+          "value": "#14B8A6",
+          "type": "color"
+        },
+        "600": {
+          "value": "#0D9488",
+          "type": "color",
+          "description": "主按钮/导航选中/品牌标识"
+        },
+        "700": {
+          "value": "#0F766E",
+          "type": "color"
+        },
+        "800": {
+          "value": "#115E59",
+          "type": "color"
+        },
+        "900": {
+          "value": "#134E4A",
+          "type": "color",
+          "description": "主文字/标题色"
+        }
+      },
+      "secondary": {
+        "500": {
+          "value": "#06B6D4",
+          "type": "color",
+          "description": "次级按钮/标签/图标"
+        }
+      },
+      "accent": {
+        "500": {
+          "value": "#F59E0B",
+          "type": "color",
+          "description": "警告/待办/高亮"
+        }
+      },
+      "success": {
+        "500": {
+          "value": "#10B981",
+          "type": "color",
+          "description": "成功状态/确认"
+        }
+      },
+      "error": {
+        "500": {
+          "value": "#EF4444",
+          "type": "color",
+          "description": "错误提示/删除"
+        }
+      },
+      "surface": {
+        "base": {
+          "value": "#FFFFFF",
+          "type": "color",
+          "description": "卡片/弹窗/输入框表面"
+        },
+        "background": {
+          "value": "#F0FDFA",
+          "type": "color",
+          "description": "页面背景"
+        },
+        "hover": {
+          "value": "#FAFEFD",
+          "type": "color",
+          "description": "卡片悬浮态"
+        },
+        "border": {
+          "value": "#E5F5F2",
+          "type": "color",
+          "description": "边框/分割线"
+        },
+        "border-input": {
+          "value": "#CDECE8",
+          "type": "color",
+          "description": "输入框边框"
+        }
+      },
+      "text": {
+        "primary": {
+          "value": "#134E4A",
+          "type": "color",
+          "description": "标题/重要文本"
+        },
+        "secondary": {
+          "value": "#5F7976",
+          "type": "color",
+          "description": "正文/描述"
+        },
+        "disabled": {
+          "value": "#9CA3AF",
+          "type": "color",
+          "description": "禁用文本"
+        },
+        "inverse": {
+          "value": "#FFFFFF",
+          "type": "color",
+          "description": "反色文字"
+        }
+      }
+    },
+    "font": {
+      "family": {
+        "chinese": {
+          "value": "PingFang SC, Microsoft YaHei, Noto Sans SC, sans-serif",
+          "type": "fontFamily"
+        },
+        "english": {
+          "value": "Inter, SF Pro Display, -apple-system, sans-serif",
+          "type": "fontFamily"
+        }
+      },
+      "size": {
+        "xs": {
+          "value": "12px",
+          "type": "fontSize"
+        },
+        "sm": {
+          "value": "13px",
+          "type": "fontSize"
+        },
+        "base": {
+          "value": "14px",
+          "type": "fontSize"
+        },
+        "lg": {
+          "value": "16px",
+          "type": "fontSize"
+        },
+        "xl": {
+          "value": "18px",
+          "type": "fontSize"
+        },
+        "2xl": {
+          "value": "20px",
+          "type": "fontSize"
+        },
+        "3xl": {
+          "value": "24px",
+          "type": "fontSize"
+        }
+      },
+      "weight": {
+        "normal": {
+          "value": "400",
+          "type": "fontWeight"
+        },
+        "medium": {
+          "value": "500",
+          "type": "fontWeight"
+        },
+        "semibold": {
+          "value": "600",
+          "type": "fontWeight"
+        },
+        "bold": {
+          "value": "700",
+          "type": "fontWeight"
+        }
+      },
+      "line-height": {
+        "tight": {
+          "value": "1.25",
+          "type": "lineHeight"
+        },
+        "normal": {
+          "value": "1.5",
+          "type": "lineHeight"
+        },
+        "relaxed": {
+          "value": "1.7",
+          "type": "lineHeight"
+        }
+      }
+    },
+    "space": {
+      "xs": {
+        "value": "4px",
+        "type": "spacing"
+      },
+      "sm": {
+        "value": "8px",
+        "type": "spacing"
+      },
+      "md": {
+        "value": "12px",
+        "type": "spacing"
+      },
+      "lg": {
+        "value": "16px",
+        "type": "spacing"
+      },
+      "xl": {
+        "value": "20px",
+        "type": "spacing"
+      },
+      "2xl": {
+        "value": "24px",
+        "type": "spacing"
+      }
+    },
+    "radius": {
+      "sm": {
+        "value": "8px",
+        "type": "borderRadius"
+      },
+      "md": {
+        "value": "10px",
+        "type": "borderRadius"
+      },
+      "lg": {
+        "value": "12px",
+        "type": "borderRadius"
+      },
+      "xl": {
+        "value": "16px",
+        "type": "borderRadius"
+      },
+      "full": {
+        "value": "9999px",
+        "type": "borderRadius"
+      }
+    },
+    "shadow": {
+      "sm": {
+        "value": "0 1px 3px rgba(0,0,0,0.05)",
+        "type": "boxShadow"
+      },
+      "md": {
+        "value": "0 2px 8px rgba(13,148,136,0.1)",
+        "type": "boxShadow"
+      },
+      "lg": {
+        "value": "0 4px 20px rgba(13,148,136,0.15)",
+        "type": "boxShadow"
+      },
+      "error": {
+        "value": "0 4px 20px rgba(239,68,68,0.15)",
+        "type": "boxShadow"
+      }
+    },
+    "size": {
+      "sidebar": {
+        "value": "220px",
+        "type": "sizing"
+      },
+      "topbar": {
+        "value": "60px",
+        "type": "sizing"
+      },
+      "chat-input": {
+        "value": "44px",
+        "type": "sizing"
+      },
+      "avatar-sm": {
+        "value": "32px",
+        "type": "sizing"
+      },
+      "avatar-md": {
+        "value": "36px",
+        "type": "sizing"
+      },
+      "avatar-lg": {
+        "value": "80px",
+        "type": "sizing"
+      },
+      "icon-btn": {
+        "value": "36px",
+        "type": "sizing"
+      },
+      "mic-btn": {
+        "value": "100px",
+        "type": "sizing"
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+# 工单编号：人工智能NLP-Agent数字人项目-医疗智能体-健康咨询
+# 核心依赖（必须）
+neo4j>=5.14.0
+openai>=1.30.0
+fastapi>=0.111.0
+uvicorn>=0.29.0
+starlette>=0.37.2
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+pytest>=7.4.0
+
+# 长期记忆依赖（可选，不安装则记忆功能静默禁用）
+# mem0ai>=0.0.20
+# chromadb>=0.4.0

@@ -1,0 +1,32 @@
+# ============================================================
+# 绝对不上传 GitHub 的文件
+# ============================================================
+
+# API Key 和隐私配置（最重要！）
+.env
+*.env
+.env.local
+.env.production
+
+# Python 虚拟环境
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+
+# 评测数据（题目和答案不公开上传）
+question.jsonl
+answer.jsonl
+
+# 日志和临时文件
+logs/
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE 配置
+.idea/
+.vscode/
+*.swp

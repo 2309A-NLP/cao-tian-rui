@@ -1,0 +1,315 @@
+# ============================================================
+# 工单编号：人工智能NLP-Agent数字人项目-医疗智能体-影像分析
+# Agent 编排设计文件
+# 版本：v1.0 | 创建：2026-07-06
+# ============================================================
+
+metadata:
+  name: 医疗影像分析 Agent
+  version: "1.0"
+  workorder_id: NLP-Agent-医疗智能体-影像分析
+  description: >
+    基于多模态大模型的医疗影像智能分析 Agent，
+    支持视觉问答（VQA）、医疗报告生成（MRG）、检索增强生成（RAG）三种模式。
+  author: 人工智能NLP-Agent数字人项目组
+  created: "2026-07-06"
+
+# ============================================================
+# 模型配置
+# ============================================================
+models:
+  vlm:
+    provider: siliconflow
+    model_id: Qwen/Qwen3-VL-32B-Instruct
+    base_url: https://api.siliconflow.cn/v1
+    protocol: openai_compatible
+    capabilities: [vision, text]
+    timeout_seconds: 60
+    max_retries: 3
+    retry_strategy: exponential_backoff  # 2s, 4s, 8s
+
+  llm:
+    provider: siliconflow
+    model_id: Qwen/Qwen2.5-72B-Instruct
+    base_url: https://api.siliconflow.cn/v1
+    protocol: openai_compatible
+    capabilities: [text]
+
+  embedder:
+    model_id: paraphrase-multilingual-MiniLM-L12-v2
+    source: local_cache
+    dimensions: 384
+    languages: [zh, en]
+    normalize: true
+    offline_mode: true  # TRANSFORMERS_OFFLINE=1
+
+# ============================================================
+# 知识库配置
+# ============================================================
+knowledge_base:
+  engine: chromadb
+  collection: medical_docs
+  distance_metric: cosine
+  score_threshold: 0.5
+  top_k: 5
+  data_source:
+    name: SLAKE
+    description: Stanford-Leiden医学影像视觉问答数据集（中文子集）
+    records: 1081
+    modalities: [CT, X-Ray, MRI]
+    locations: [Abdomen, Lung, Brain, Neck, Pelvic]
+
+# ============================================================
+# Agent 工具定义
+# ============================================================
+tools:
+  - name: image_validator
+    description: 验证上传图片的格式、大小和分辨率
+    type: local_function
+    module: src.utils
+    function: validate_image
+    inputs:
+      - name: image_bytes
+        type: bytes
+    outputs:
+      - name: format
+        type: string  # jpeg | png
+      - name: resolution
+        type: tuple   # (width, height)
+    error_codes:
+      IMAGE_TOO_LARGE: "文件超过20MB"
+      UNSUPPORTED_FORMAT: "非JPEG/PNG格式"
+      IMAGE_INVALID: "分辨率低于32×32或文件损坏"
+
+  - name: vqa_tool
+    description: 医疗影像视觉问答，根据图像和用户问题返回分析结果
+    type: vlm_call
+    model: vlm
+    system_prompt: |
+      你是一位经验丰富的医学影像分析助手。请根据用户提供的医疗影像回答问题。
+      回答规则：
+      1) 仅基于影像可观察到的内容作答，不要臆造未见的信息；
+      2) 若图片明显不是医疗影像，先明确告知用户，再简要描述所见；
+      3) 若图像质量过差导致无法分析，明确说明并请用户重新上传；
+      4) 回答简洁准确，中文回答中文提问，英文回答英文提问；
+      5) 涉及诊断或建议时，务必附上免责声明。
+    inputs:
+      - name: image_b64
+        type: string
+      - name: query
+        type: string
+    outputs:
+      - name: answer
+        type: string
+    max_tokens: 1024
+    temperature: 0.3
+    post_process:
+      add_disclaimer_if_missing: true
+
+  - name: mrg_tool
+    description: 医疗报告结构化生成，输出5段标准报告JSON
+    type: vlm_call
+    model: vlm
+    system_prompt: |
+      你是一位专业的医学影像报告撰写助手。请根据提供的医学影像生成标准结构化报告。
+      必须严格按照以下JSON格式返回，字段不能缺失：
+      {
+        "chief_complaint": "主诉（1-2句）",
+        "findings": "影像所见（详细描述，≥50字）",
+        "impression": "诊断印象（1-3条要点）",
+        "recommendation": "建议（随访/进一步检查/治疗方向）",
+        "disclaimer": "本报告由AI辅助生成，仅供参考，不构成医疗诊断依据，请结合临床综合判断"
+      }
+    inputs:
+      - name: image_b64
+        type: string
+      - name: extra_context
+        type: string
+        required: false
+    outputs:
+      - name: report
+        type: object   # MedicalReport Pydantic model
+      - name: text
+        type: string   # 纯文本版本
+    max_tokens: 1500
+    temperature: 0.2
+    json_parse_strategy:
+      - json.loads
+      - regex_json_block  # 提取 ```json...```
+      - substring_braces  # 截取首{至末}
+    max_retries: 3
+    fallback: raw_text_to_findings
+
+  - name: caption_tool
+    description: 生成影像检索描述（RAG 第一步）
+    type: vlm_call
+    model: vlm
+    system_prompt: |
+      你是医学影像的检索助手。请根据用户问题与影像，用一句中文描述影像的
+      【模态】+【部位】+【关键征象/问题关键词】，用于向量检索。仅输出这一句，不要额外解释。
+    inputs:
+      - name: image_b64
+        type: string
+      - name: query
+        type: string
+    outputs:
+      - name: caption
+        type: string
+    max_tokens: 100
+    temperature: 0.2
+    fallback: use_raw_query  # caption失败时用原始query
+
+  - name: retrieval_tool
+    description: 向量检索医学知识库
+    type: vector_search
+    engine: chromadb
+    collection: medical_docs
+    inputs:
+      - name: query_text
+        type: string
+      - name: top_k
+        type: integer
+        default: 5
+    outputs:
+      - name: references
+        type: list[RefDoc]
+    score_threshold: 0.5
+
+  - name: rag_answer_tool
+    description: 基于检索结果生成增强回答
+    type: vlm_call
+    model: vlm
+    system_prompt: |
+      你是一位经验丰富的医学影像分析助手。请结合参考知识和影像回答用户的问题。
+      回答规则：
+      1) 优先基于影像可观察内容，参考知识仅作为背景补充；
+      2) 若参考知识与影像所见冲突，以影像为准；
+      3) 若参考知识与问题相关，在关键结论后用 [文档N] 形式标注引用；
+      4) 中文回答，用词准确、简洁；
+      5) 涉及诊断或建议时，附上免责声明。
+    inputs:
+      - name: image_b64
+        type: string
+      - name: query
+        type: string
+      - name: context
+        type: string   # 检索结果拼接文本
+    outputs:
+      - name: answer
+        type: string
+    max_tokens: 1024
+    temperature: 0.3
+
+# ============================================================
+# Agent 编排流程
+# ============================================================
+pipelines:
+  vqa_pipeline:
+    description: 视觉问答编排
+    steps:
+      - id: validate
+        tool: image_validator
+        on_error: abort  # 图像无效直接返回错误
+
+      - id: answer
+        tool: vqa_tool
+        depends_on: [validate]
+        on_error: return_503
+
+  mrg_pipeline:
+    description: 医疗报告生成编排
+    steps:
+      - id: validate
+        tool: image_validator
+        on_error: abort
+
+      - id: generate_report
+        tool: mrg_tool
+        depends_on: [validate]
+        on_error: return_503
+
+  rag_pipeline:
+    description: 检索增强生成编排
+    steps:
+      - id: validate
+        tool: image_validator
+        on_error: abort
+
+      - id: caption
+        tool: caption_tool
+        depends_on: [validate]
+        on_error: fallback_to_raw_query  # 容错：失败不中止
+
+      - id: retrieve
+        tool: retrieval_tool
+        depends_on: [caption]
+        input_mapping:
+          query_text: "{{caption.output}} {{query}}"
+
+      - id: answer
+        tool: rag_answer_tool
+        depends_on: [retrieve]
+        condition: "retrieve.references.length > 0"
+        fallback:
+          tool: vqa_tool  # 无检索结果时退化为VQA
+          reason: "知识库中未找到相关文献，以下为基于影像的直接分析"
+
+# ============================================================
+# API 接口规范
+# ============================================================
+api:
+  base_path: /api
+  endpoints:
+    - path: /analyze
+      method: POST
+      content_type: multipart/form-data
+      auth: api_key_header  # X-API-Key
+      fields:
+        - name: task
+          type: enum[vqa, mrg, rag]
+          required: true
+        - name: image
+          type: file
+          required: true
+          constraints:
+            max_size_mb: 20
+            formats: [image/jpeg, image/png]
+        - name: query
+          type: string
+          required: "when task in [vqa, rag]"
+          max_length: 500
+        - name: session_id
+          type: string
+          required: false
+      response:
+        model: AnalyzeResponse
+        fields:
+          - request_id
+          - task
+          - answer
+          - report        # MRG only
+          - references    # RAG only
+          - latency_ms
+          - model
+          - disclaimer
+
+    - path: /health
+      method: GET
+      auth: none
+      response:
+        - status
+        - workorder_id
+        - vlm_model
+        - kb_docs
+
+# ============================================================
+# 错误码规范
+# ============================================================
+error_codes:
+  400: MISSING_QUERY
+  413: IMAGE_TOO_LARGE
+  415: UNSUPPORTED_FORMAT
+  422: [IMAGE_INVALID, INVALID_TASK]
+  501: NOT_IMPLEMENTED  # CV 方向预留
+  503: VLM_UNAVAILABLE
+  504: VLM_TIMEOUT

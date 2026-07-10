@@ -1,0 +1,364 @@
+# 工单编号：人工智能NLP-Agent数字人项目-医疗智能体-影像分析
+# 全量测试用例（42例：VQA×12 + MRG×6 + RAG×6 + 边界×18）
+
+# ============================================================
+# VQA 正常 case（12例）
+# ============================================================
+vqa_cases:
+  - id: VQA_01_base
+    image: xray_lung_01.jpg
+    query: "这张影像使用的是什么成像方式？"
+    expected_keywords_any: ["X光", "X线", "X射线", "X-ray", "胸片", "放射", "radiograph", "chest", "平片", "摄片", "透视", "普通", "肺", "lung"]
+    task: vqa
+
+  - id: VQA_01_var1
+    image: chest_xray_02.jpg
+    query: "What imaging modality is used for this medical image?"
+    expected_keywords_any: ["X-ray", "X线", "chest", "radiograph", "X光", "胸片", "plain film"]
+    task: vqa
+
+  - id: VQA_02_base
+    image: pathology_01.jpg
+    query: "图像中有多少个细胞？请找出并计数"
+    expected_keywords_any: ["个", "细胞", "count", "cells", "数", "numerous", "many", "多", "大量", "密集"]
+    task: vqa
+
+  - id: VQA_02_var1
+    image: pathology_01.jpg
+    query: "Can you find and count how many cells are in this image?"
+    expected_keywords_any: ["cells", "numerous", "many", "count", "individual", "细胞", "多"]
+    task: vqa
+
+  - id: VQA_03_base
+    image: chest_xray_01.jpg
+    query: "这张X光片是否显示心脏肥大的迹象？请分析"
+    expected_keywords_any: ["是", "否", "心脏", "增大", "cardiomegaly", "heart", "no", "yes"]
+    task: vqa
+
+  - id: VQA_03_var1
+    image: chest_xray_02.jpg
+    query: "Does this X-ray image show a sign of Cardiomegaly? Find the answer."
+    expected_keywords_any: ["yes", "no", "heart", "cardiomegaly", "cardiac"]
+    task: vqa
+
+  - id: VQA_04_base
+    image: ct_tumor_01.jpg
+    query: "图像中是否存在肿瘤？请指出位置"
+    expected_keywords_any: ["是", "否", "肿瘤", "结节", "tumor", "nodule", "mass", "no", "yes"]
+    task: vqa
+
+  - id: VQA_04_var1
+    image: ct_tumor_01.jpg
+    query: "Find if there is a tumor in this image."
+    expected_keywords_any: ["tumor", "nodule", "mass", "yes", "no", "lesion"]
+    task: vqa
+
+  - id: VQA_05_base
+    image: xray_lung_02.jpg
+    query: "这张影像的整体质量评估如何？"
+    expected_keywords_any: ["清晰", "模糊", "质量", "曝光", "quality", "adequate", "良好", "可", "满足", "分辨"]
+    task: vqa
+
+  - id: VQA_05_var1
+    image: chest_xray_02.jpg
+    query: "请描述这张影像的主要影像学表现"
+    expected_keywords_any: ["肺", "胸", "影像", "显示", "可见", "lung", "chest"]
+    task: vqa
+
+  - id: VQA_06_base
+    image: pathology_01.jpg
+    query: "这张病理图像最可能的诊断是什么？"
+    expected_keywords_any: ["组织", "细胞", "病变", "诊断", "分析", "tissue", "cell"]
+    task: vqa
+
+  - id: VQA_06_var1
+    image: ct_tumor_01.jpg
+    query: "影像中异常区域的密度特征是什么？"
+    expected_keywords_any: ["密度", "低密度", "高密度", "均匀", "不均匀", "density", "hypodense", "hyperdense"]
+    task: vqa
+
+  - id: VQA_07_mri
+    image: mri_abdomen_01.jpg
+    query: "这是什么部位的MRI影像？"
+    expected_keywords_any: ["腹", "腹部", "abdomen", "MRI", "磁共振", "liver", "肝"]
+    task: vqa
+
+  - id: VQA_08_mri
+    image: mri_abdomen_03.jpg
+    query: "MRI影像中可以看到哪些器官结构？"
+    expected_keywords_any: ["器官", "结构", "organ", "腹", "肝", "肾", "脾"]
+    task: vqa
+
+  - id: VQA_09_xray
+    image: xray_lung_01.jpg
+    query: "这张X光片的肺野表现如何？"
+    expected_keywords_any: ["肺", "肺野", "lung", "清晰", "透亮", "渗出", "实变"]
+    task: vqa
+
+  - id: VQA_10_xray
+    image: xray_lung_03.jpg
+    query: "请判断这张胸片是否有异常"
+    expected_keywords_any: ["异常", "正常", "normal", "abnormal", "发现", "未见"]
+    task: vqa
+
+  - id: VQA_11_ct
+    image: ct_lung_01.jpg
+    query: "CT影像中肺部有何发现？"
+    expected_keywords_any: ["肺", "结节", "肿块", "lung", "nodule", "mass", "未见", "正常"]
+    task: vqa
+
+  - id: VQA_12_ct
+    image: ct_abdomen_03.jpg
+    query: "这张腹部CT显示了哪些结构？"
+    expected_keywords_any: ["腹", "肝", "肾", "胃", "abdomen", "liver", "kidney"]
+    task: vqa
+
+# ============================================================
+# MRG 正常 case（6例）
+# ============================================================
+mrg_cases:
+  - id: MRG_01_base
+    image: chest_xray_01.jpg
+    task: mrg
+    expected_fields: ["chief_complaint", "findings", "impression", "recommendation"]
+    expected_min_length:
+      findings: 30
+
+  - id: MRG_01_var1
+    image: chest_xray_02.jpg
+    task: mrg
+    expected_fields: ["chief_complaint", "findings", "impression", "recommendation"]
+    expected_min_length:
+      findings: 30
+
+  - id: MRG_02_base
+    image: pathology_01.jpg
+    task: mrg
+    expected_fields: ["chief_complaint", "findings", "impression", "recommendation"]
+    expected_min_length:
+      findings: 20
+
+  - id: MRG_02_var1
+    image: ct_tumor_01.jpg
+    task: mrg
+    expected_fields: ["chief_complaint", "findings", "impression", "recommendation"]
+    expected_min_length:
+      findings: 20
+
+  - id: MRG_03_base
+    image: chest_xray_01.jpg
+    task: mrg
+    expected_fields: ["chief_complaint", "findings", "impression", "recommendation"]
+    expected_min_length:
+      findings: 50
+      impression: 20
+      recommendation: 20
+
+  - id: MRG_03_var1
+    image: ct_tumor_01.jpg
+    task: mrg
+    expected_fields: ["chief_complaint", "findings", "impression", "recommendation"]
+    expected_min_length:
+      findings: 50
+
+  - id: MRG_04_mri
+    image: mri_abdomen_02.jpg
+    task: mrg
+    expected_fields: ["chief_complaint", "findings", "impression", "recommendation"]
+    expected_min_length:
+      findings: 20
+
+  - id: MRG_05_xray
+    image: xray_lung_02.jpg
+    task: mrg
+    expected_fields: ["chief_complaint", "findings", "impression", "recommendation"]
+    expected_min_length:
+      findings: 30
+
+  - id: MRG_06_ct
+    image: ct_lung_02.jpg
+    task: mrg
+    expected_fields: ["chief_complaint", "findings", "impression", "recommendation"]
+    expected_min_length:
+      findings: 20
+
+# ============================================================
+# RAG 正常 case（6例）
+# ============================================================
+rag_cases:
+  - id: RAG_01_base
+    image: chest_xray_01.jpg
+    query: "肺结节的临床意义是什么？"
+    task: rag
+    expected_references_count_min: 1
+
+  - id: RAG_01_var1
+    image: chest_xray_01.jpg
+    query: "这个发现的临床意义是什么？"
+    task: rag
+    expected_references_count_min: 0   # 宽松，允许无文献但不崩溃
+
+  - id: RAG_02_base
+    image: ct_tumor_01.jpg
+    query: "影像学发现肿块时如何评估良恶性？"
+    task: rag
+    expected_references_count_min: 0
+
+  - id: RAG_02_var1
+    image: ct_tumor_01.jpg
+    query: "CT发现肺部结节应如何随访？"
+    task: rag
+    expected_references_count_min: 0
+
+  - id: RAG_03_base
+    image: pathology_01.jpg
+    query: "这类病理改变通常的治疗方案是什么？"
+    task: rag
+    expected_references_count_min: 0   # 知识库可能无覆盖，验证优雅降级
+
+  - id: RAG_03_var1
+    image: chest_xray_02.jpg
+    query: "胸部X光检查的适应症有哪些？"
+    task: rag
+    expected_references_count_min: 0
+
+  - id: RAG_04_mri
+    image: mri_abdomen_01.jpg
+    query: "腹部MRI的主要应用场景是什么？"
+    task: rag
+    expected_references_count_min: 0
+
+  - id: RAG_05_xray
+    image: xray_lung_04.jpg
+    query: "肺部X线检查能发现哪些疾病？"
+    task: rag
+    expected_references_count_min: 0
+
+  - id: RAG_06_ct
+    image: ct_lung_05.jpg
+    query: "CT发现肺磨玻璃影有什么临床意义？"
+    task: rag
+    expected_references_count_min: 0
+
+# ============================================================
+# 边界 / 异常 case（18例）
+# ============================================================
+boundary_cases:
+  # --- 图片边界（6例）---
+  - id: BOUND_IMG_01
+    image: normal_photo.jpg
+    query: "这张影像有什么异常？"
+    task: vqa
+    expected_status: 200
+    expected_behavior: no_crash
+
+  - id: BOUND_IMG_02
+    image: black.jpg
+    query: "这张影像有什么发现？"
+    task: vqa
+    expected_status: 200
+    expected_behavior: no_crash
+
+  - id: BOUND_IMG_03
+    image: tiny.jpg
+    task: mrg
+    expected_status: 422
+    expected_error_code: IMAGE_INVALID
+
+  - id: BOUND_IMG_04
+    generate: large_dummy_21mb
+    task: vqa
+    expected_status: 413
+    expected_error_code: IMAGE_TOO_LARGE
+
+  - id: BOUND_IMG_05
+    generate: fake_pdf
+    task: vqa
+    expected_status: 415
+    expected_error_code: UNSUPPORTED_FORMAT
+
+  - id: BOUND_IMG_06
+    no_image: true
+    task: vqa
+    expected_status: 422    # FastAPI 422 for missing required field
+    expected_behavior: error_response
+
+  # --- 文本边界（5例）---
+  - id: BOUND_TXT_01
+    image: chest_xray_01.jpg
+    query: ""
+    task: vqa
+    expected_status: 400
+    expected_error_code: MISSING_QUERY
+
+  - id: BOUND_TXT_02
+    image: chest_xray_01.jpg
+    query: "今天天气怎么样？"
+    task: vqa
+    expected_status: 200
+    expected_behavior: no_crash
+
+  - id: BOUND_TXT_03
+    image: chest_xray_01.jpg
+    query: "<script>alert('xss')</script>"
+    task: vqa
+    expected_status: 200
+    expected_behavior: no_crash
+
+  - id: BOUND_TXT_04
+    image: chest_xray_01.jpg
+    query_repeat: ["这", 600]   # "这" × 600
+    task: vqa
+    expected_status: 200
+    expected_behavior: no_crash
+
+  - id: BOUND_TXT_05
+    image: chest_xray_01.jpg
+    task: invalid_task_xxx
+    expected_status: 422
+
+  # --- 任务路由（3例）---
+  - id: BOUND_ROUTE_01
+    image: chest_xray_01.jpg
+    query: "影像发现？"
+    task: vqa
+    expected_status: 200
+    expected_task_in_response: vqa
+
+  - id: BOUND_ROUTE_02
+    image: chest_xray_01.jpg
+    task: mrg
+    expected_status: 200
+    expected_task_in_response: mrg
+
+  - id: BOUND_ROUTE_03
+    image: chest_xray_01.jpg
+    query: "影像发现？"
+    task: rag
+    expected_status: 200
+    expected_task_in_response: rag
+
+  # --- 预留 CV 任务返回 501（3例）---
+  - id: BOUND_CV_01
+    image: chest_xray_01.jpg
+    task: classification
+    expected_status: 501
+
+  - id: BOUND_CV_02
+    image: chest_xray_01.jpg
+    task: detection
+    expected_status: 501
+
+  - id: BOUND_CV_03
+    image: chest_xray_01.jpg
+    task: segmentation
+    expected_status: 501
+
+  # --- Session 边界（1例）---
+  - id: BOUND_SES_01
+    image: chest_xray_01.jpg
+    query: "这张影像有什么发现？"
+    task: vqa
+    session_id: "non_existent_session_12345"
+    expected_status: 200
+    expected_behavior: no_crash

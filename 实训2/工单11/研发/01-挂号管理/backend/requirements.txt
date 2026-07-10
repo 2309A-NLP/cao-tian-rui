@@ -1,0 +1,16 @@
+# 工单11 医疗挂号Agent 依赖（MySQL 版）
+openai>=1.30.0
+pydantic>=2.5.0
+python-dotenv>=1.0.0
+dateparser>=1.2.0
+pyyaml>=6.0.1
+fastapi>=0.111.0
+uvicorn>=0.29.0
+starlette>=0.37.2
+# MySQL 驱动 + 连接池
+pymysql>=1.1.0
+DBUtils>=3.0.2
+# 测试
+pytest>=7.4.0
+pytest-asyncio>=0.23.0
+httpx>=0.27.0
